@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Housing &amp; Homelessness · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html" aria-current="page">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="data-products.html">Data products</a></li>
+        <li aria-current="page">Housing &amp; Homelessness</li>
+      </ol>
+    </nav>
+    <header class="page-header">
+      <h1>Housing &amp; Homelessness (aggregated)</h1>
+      <p class="page-lede">Aggregated housing and homelessness measures for program reporting. Person-level By-Name List data is out of scope for this portal path; small-cell suppression is applied before publish.</p>
+      <p class="meta-line"><span class="tag">Sensitivity: Medium</span> <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <div data-tabs>
+      <ul class="tabs" role="tablist" aria-label="Product sections">
+        <li><button role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">Overview</button></li>
+        <li><button role="tab" id="tab-lineage" aria-controls="panel-lineage" aria-selected="false" tabindex="-1">Lineage</button></li>
+        <li><button role="tab" id="tab-quality" aria-controls="panel-quality" aria-selected="false" tabindex="-1">Quality</button></li>
+        <li><button role="tab" id="tab-defs" aria-controls="panel-defs" aria-selected="false" tabindex="-1">Definitions</button></li>
+        <li><button role="tab" id="tab-releases" aria-controls="panel-releases" aria-selected="false" tabindex="-1">Releases</button></li>
+      </ul>
+
+      <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">
+        <article class="card">
+          <h2>Trust card — Gold published aggregates</h2>
+          <div class="bilingual">
+            <div><span class="lang">EN</span> Housing &amp; Homelessness — published aggregates</div>
+            <div><span class="lang">FR</span> Logement et itinérance — agrégats publiés</div>
+          </div>
+          <dl class="facts">
+            <div><dt>Owner</dt><dd>Platform engineering</dd></div>
+            <div><dt>Steward</dt><dd>Housing program area (mock)</dd></div>
+            <div><dt>Sensitivity</dt><dd>Medium</dd></div>
+            <div><dt>Refresh cadence</dt><dd>Monthly</dd></div>
+            <div><dt>Last refresh</dt><dd>6 Oct 2026, 7:55 PM ET</dd></div>
+            <div><dt>DQ status</dt><dd><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></dd></div>
+            <div><dt>Approval</dt><dd><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved 18 Sep 2026</span></dd></div>
+            <div><dt>Technical name</dt><dd class="mono">gold.housing_hh.published_agg</dd></div>
+          </dl>
+        </article>
+        <p class="note">Portal shows metadata and counts only. No High Sensitivity data and no person-level records appear here.</p>
+      </div>
+
+      <div role="tabpanel" id="panel-lineage" aria-labelledby="tab-lineage" hidden>
+        <p>Aggregated extracts → personal-field drop → Silver standard aggregates → small-cell suppression → Gold published aggregates. <a href="flows.html#node-hh-gold">Open full swimlane →</a></p>
+      </div>
+
+      <div role="tabpanel" id="panel-quality" aria-labelledby="tab-quality" hidden>
+        <div class="table-wrap">
+          <table class="data">
+            <caption class="sr-only">Latest DQ rule results</caption>
+            <thead><tr><th scope="col">Rule</th><th scope="col">Latest run</th><th scope="col">Result</th><th scope="col">Config</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Small-cell suppression (n&lt;5)</td>
+                <td>6 Oct 2026, 7:55 PM ET</td>
+                <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+                <td><a href="rules.html#rule-small-cell">dq.suppression.small_cell_n5</a></td>
+              </tr>
+              <tr>
+                <td>Personal-field drop coverage</td>
+                <td>6 Oct 2026, 7:40 PM ET</td>
+                <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+                <td><a href="shared-services.html#svc-pi-drop">svc.personal_field_drop</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-defs" aria-labelledby="tab-defs" hidden>
+        <h2 class="subhead">Shelter occupancy rate (aggregate measure)</h2>
+        <div class="bilingual">
+          <div><span class="lang">EN</span> Share of funded shelter beds occupied on the reference night, reported as an aggregate percentage by service manager region. Cells below the suppression threshold are withheld.</div>
+          <div><span class="lang">FR</span> Part des lits d’hébergement financés occupés lors de la nuit de référence, déclarée en pourcentage agrégé par région du gestionnaire de services. Les cellules sous le seuil de suppression sont retenues.</div>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-releases" aria-labelledby="tab-releases" hidden>
+        <p><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Live</span> <strong>Release 0.3</strong> in Prod since 29 Sep 2026. <a href="releases.html#rel-03">Gate checklist →</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

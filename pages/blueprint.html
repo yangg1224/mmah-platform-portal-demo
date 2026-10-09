@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Platform blueprint · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/map.css">
+  <link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Rendered from the toolkit manifest config/toolkit.yaml (built into js/toolkit-manifest.generated.js by scripts/build_toolkit.py). Permalink:
+       blueprint.html#node=<id>&colour=<function|unit|none>&value=<id>&box=<box>&phases=v1,next,future&view=<list|branch> -->
+  <main id="main" class="main main-wide">
+    <header class="map-header">
+      <h1>Platform blueprint</h1>
+      <nav aria-label="Map views">
+        <ul class="view-switch">
+          <li><a href="../index.html">Process map</a></li>
+          <li><a href="blueprint.html" aria-current="page">Platform blueprint</a></li>
+        </ul>
+      </nav>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <p class="bp-banner" id="bp-banner" role="note"><span class="bp-banner-icon" aria-hidden="true">ⓘ</span> <span data-banner-text></span> <a data-banner-link href="#open-questions"></a></p>
+
+    <div class="map-toolbar">
+      <div class="ctl-group" role="group" aria-labelledby="colour-cap">
+        <span class="ctl-label" id="colour-cap">Colour by</span>
+        <span class="seg">
+          <button type="button" class="chip-btn" data-colour="function" aria-pressed="false">DAB function</button>
+          <button type="button" class="chip-btn" data-colour="unit" aria-pressed="false">Owning unit</button>
+          <button type="button" class="chip-btn" data-colour="none" aria-pressed="true">None</button>
+        </span>
+      </div>
+      <div class="ctl-group" id="bp-values" hidden></div>
+      <div class="ctl-group" role="group" aria-labelledby="phase-cap">
+        <span class="ctl-label" id="phase-cap">Phase</span>
+        <button type="button" class="chip-btn solo" data-phase="v1" aria-pressed="true">v1</button>
+        <button type="button" class="chip-btn solo" data-phase="next" aria-pressed="true">Next</button>
+        <button type="button" class="chip-btn solo" data-phase="future" aria-pressed="true">Future</button>
+      </div>
+      <div class="ctl-group">
+        <button type="button" class="chip-btn solo" id="bp-view-list" aria-pressed="false" aria-controls="bp-list">View as list</button>
+        <button type="button" class="chip-btn solo" id="bp-view-branch" aria-pressed="false" aria-controls="bp-list">Branch view</button>
+      </div>
+    </div>
+
+    <section class="map-section" aria-labelledby="bp-h">
+      <h2 id="bp-h" class="sr-only">Platform blueprint map</h2>
+      <p class="map-scroll-hint"><span aria-hidden="true">↔</span> Scroll sideways to see the whole blueprint</p>
+      <div class="map-scroll" id="bp-scroll">
+        <div class="map-canvas" id="bp-canvas" role="group" aria-label="Platform blueprint: columns Sources to Enrich, then side containers, then Governance, Monitoring and Platform bars">
+          <noscript><p class="drawer-note">The blueprint is rendered from the toolkit manifest and needs JavaScript.</p></noscript>
+        </div>
+      </div>
+      <div id="bp-list" class="bp-list" hidden></div>
+
+      <div class="map-legend">
+        <span class="legend-cap" id="bp-legend-cap">Legend</span>
+        <ul class="legend-list" aria-labelledby="bp-legend-cap">
+          <li><span class="lg-box lg-focal" aria-hidden="true"></span>Selected / traced</li>
+          <li><span class="lg-box lg-ext" aria-hidden="true"></span>Source</li>
+          <li><span class="lg-box lg-zone" aria-hidden="true"></span>Store</li>
+          <li><span class="lg-box lg-pipe" aria-hidden="true"></span>Process</li>
+          <li><span class="lg-box lg-tool" aria-hidden="true"></span>Ingest / Serve / bar tool</li>
+          <li><span class="lg-box lg-svc" aria-hidden="true"></span>Reusable service</li>
+          <li><span class="lg-box lg-overlay" aria-hidden="true"></span>Portal / Enrich</li>
+        </ul>
+        <ul class="legend-list" aria-label="Phase and status badges">
+          <li><span class="badge-phase phase-v1">◆ v1</span><span class="badge-phase phase-next">◇ Next</span><span class="badge-phase phase-future">◌ Future</span></li>
+          <li>○ Planned · ◐ Provisioned · ✓ Live</li>
+        </ul>
+        <ul class="legend-list" aria-label="Edge types">
+          <li><svg class="lg-line lg-primary" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#d9622b"/></svg>Primary flow</li>
+          <li><svg class="lg-line lg-request" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#2f5fa8"/></svg>Request</li>
+          <li><svg class="lg-line lg-return" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#7d8792"/></svg>Return / async</li>
+        </ul>
+        <ul class="legend-list" id="bp-legend-colour" aria-label="Colour key" hidden></ul>
+      </div>
+    </section>
+
+    <details class="bp-details">
+      <summary>Considered, not on the blueprint</summary>
+      <ul id="bp-considered" class="bp-plain"></ul>
+    </details>
+    <details class="bp-details" id="open-questions">
+      <summary>Open questions (toolkit doc §6; PRD open decision D10)</summary>
+      <ol id="bp-oq" class="bp-plain"></ol>
+    </details>
+  </main>
+
+  <aside id="map-drawer" class="map-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-bar">
+      <button type="button" class="drawer-close" aria-label="Close details"><span aria-hidden="true">✕</span> Close</button>
+    </div>
+    <div class="drawer-body"></div>
+  </aside>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/map-data.js"></script>
+  <script src="../js/map-data-overlays.js"></script>
+  <script src="../js/toolkit-manifest.generated.js"></script>
+  <script src="../js/blueprint.js"></script>
+  <script src="../js/drawer.js"></script>
+  <script src="../js/blueprint-drawer.js"></script>
+</body>
+</html>

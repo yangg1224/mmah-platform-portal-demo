@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Municipal Planning Data · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html" aria-current="page">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="data-products.html">Data products</a></li>
+        <li aria-current="page">Municipal Planning Data</li>
+      </ol>
+    </nav>
+    <header class="page-header">
+      <h1>Municipal Planning Data</h1>
+      <p class="page-lede">Quarterly housing-supply submissions from municipalities, cleaned and checked against the provincial standard, then published as trusted measures.</p>
+      <p class="meta-line"><span class="tag">Sensitivity: Low</span> <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <div data-tabs>
+      <ul class="tabs" role="tablist" aria-label="Product sections">
+        <li><button role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">Overview</button></li>
+        <li><button role="tab" id="tab-lineage" aria-controls="panel-lineage" aria-selected="false" tabindex="-1">Lineage</button></li>
+        <li><button role="tab" id="tab-quality" aria-controls="panel-quality" aria-selected="false" tabindex="-1">Quality</button></li>
+        <li><button role="tab" id="tab-defs" aria-controls="panel-defs" aria-selected="false" tabindex="-1">Definitions</button></li>
+        <li><button role="tab" id="tab-releases" aria-controls="panel-releases" aria-selected="false" tabindex="-1">Releases</button></li>
+      </ul>
+
+      <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">
+        <article class="card">
+          <h2>Trust card — Gold published measures</h2>
+          <div class="bilingual">
+            <div><span class="lang">EN</span> Municipal Planning Data — published measures</div>
+            <div><span class="lang">FR</span> Données de planification municipale — mesures publiées</div>
+          </div>
+          <dl class="facts">
+            <div><dt>Owner</dt><dd>Platform engineering</dd></div>
+            <div><dt>Steward</dt><dd>Data &amp; Analytics Branch (mock)</dd></div>
+            <div><dt>Sensitivity</dt><dd>Low</dd></div>
+            <div><dt>Refresh cadence</dt><dd>Quarterly + on-demand</dd></div>
+            <div><dt>Last refresh</dt><dd>6 Oct 2026, 8:41 PM ET</dd></div>
+            <div><dt>Submitters in last load</dt><dd>47 organizations</dd></div>
+            <div><dt>DQ status</dt><dd><a href="#dq"><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></a></dd></div>
+            <div><dt>Approval</dt><dd><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved 22 Sep 2026</span></dd></div>
+            <div><dt>Technical name</dt><dd class="mono">gold.municipal_planning.published_measures</dd></div>
+          </dl>
+        </article>
+      </div>
+
+      <div role="tabpanel" id="panel-lineage" aria-labelledby="tab-lineage" hidden>
+        <p>Municipal quarterly submissions → clean / validate shared service → Silver conformed tables → Gold published measures. <a href="flows.html#node-mpd-gold">Open full swimlane →</a></p>
+        <div class="table-wrap">
+          <table class="data">
+            <caption class="sr-only">Lineage steps for Municipal Planning Data</caption>
+            <thead><tr><th scope="col">Step</th><th scope="col">Layer</th><th scope="col">Object</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+              <tr><td>1 · Load</td><td>Raw (as received) / Bronze</td><td>Municipal quarterly submissions</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr>
+              <tr><td>2 · Transform</td><td>Shared service</td><td><a href="flows.html#node-mpd-clean">Clean / validate</a></td><td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></td></tr>
+              <tr><td>3 · Transform</td><td>Standardized / Silver</td><td>Conformed tables + municipality match</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr>
+              <tr><td>4 · Extract / publish</td><td>Published / Gold</td><td>Published measures</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-quality" aria-labelledby="tab-quality" hidden>
+        <section class="section" aria-labelledby="rules-h">
+          <h2 id="rules-h">Rule results</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <caption class="sr-only">Latest DQ rule results</caption>
+              <thead><tr><th scope="col">Rule</th><th scope="col">Latest run</th><th scope="col">Result</th><th scope="col">Config</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Schema / code-list check</td>
+                  <td>6 Oct 2026, 8:41 PM ET</td>
+                  <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></td>
+                  <td><a href="rules.html#rule-schema-mpd">dq.mpd.schema_codelist_v1.4</a></td>
+                </tr>
+                <tr>
+                  <td>Municipality-name match rate</td>
+                  <td>6 Oct 2026, 8:41 PM ET</td>
+                  <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+                  <td><a href="rules.html#rule-match-muni">match.municipality_name.threshold</a></td>
+                </tr>
+                <tr>
+                  <td>Data contract conformance</td>
+                  <td>6 Oct 2026, 8:12 PM ET</td>
+                  <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+                  <td><a href="rules.html#rule-contract-mpd">contract.mpd.ingest_v2</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="dq" aria-labelledby="dq-h">
+          <h2 id="dq-h">Open DQ exceptions <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> 12 open</span></h2>
+          <p class="muted">From <a href="rules.html#rule-schema-mpd">schema / code-list check</a> on the latest load. Counts by exception type and submitting organization only. <a href="flows.html#node-mpd-clean">Trace in lineage →</a></p>
+          <div class="table-wrap">
+            <table class="data">
+              <caption class="sr-only">Open DQ exceptions by type</caption>
+              <thead><tr><th scope="col">Exception</th><th scope="col">Open</th><th scope="col">Submitting orgs affected</th><th scope="col">First seen</th></tr></thead>
+              <tbody>
+                <tr><td>Code-list mismatch — dwelling type</td><td>5</td><td>3</td><td>6 Oct 2026</td></tr>
+                <tr><td>Missing reporting-period key</td><td>4</td><td>2</td><td>6 Oct 2026</td></tr>
+                <tr><td>Unexpected column in submission</td><td>3</td><td>1</td><td>29 Sep 2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div role="tabpanel" id="panel-defs" aria-labelledby="tab-defs" hidden>
+        <h2 class="subhead">Housing starts (measure)</h2>
+        <div class="bilingual">
+          <div><span class="lang">EN</span> Number of new residential units for which construction has begun in the reporting period, as reported by the municipality under the provincial submission standard.</div>
+          <div><span class="lang">FR</span> Nombre de nouvelles unités résidentielles dont la construction a commencé au cours de la période de déclaration, tel que déclaré par la municipalité selon la norme de soumission provinciale.</div>
+        </div>
+        <p class="muted">Defined in: <a class="defined-in" href="rules.html#rule-biz-housing-starts">config/biz/housing_starts.yaml@c8e21a0</a></p>
+      </div>
+
+      <div role="tabpanel" id="panel-releases" aria-labelledby="tab-releases" hidden>
+        <p><span class="status status-info"><span class="icon" aria-hidden="true">◎</span> Waiting</span> <strong>Release 0.4</strong> at Pre-Prod — CAB reference outstanding. <a href="releases.html#rel-04">Gate checklist →</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

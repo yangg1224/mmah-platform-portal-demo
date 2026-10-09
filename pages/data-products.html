@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Data products · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html" aria-current="page">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <header class="page-header">
+      <h1>Data products</h1>
+      <p class="page-lede">The two v1 products. Each Gold output has a trust card: owner, steward, definition, refresh, DQ, approval and sensitivity (Medium or lower).</p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <article class="entry">
+      <h2><a href="data-product-municipal.html">Municipal Planning Data</a> <span class="tag">Low</span></h2>
+      <p>Quarterly housing-supply submissions from municipalities, cleaned and checked against the provincial standard, published as trusted measures (O. Reg. 73/23 context).</p>
+      <p class="meta-line">
+        <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span>
+        <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved</span>
+        <a href="data-product-municipal.html#dq">Open exceptions →</a>
+      </p>
+    </article>
+    <article class="entry">
+      <h2><a href="data-product-housing.html">Housing &amp; Homelessness (aggregated)</a> <span class="tag">Medium</span></h2>
+      <p>Aggregated housing and homelessness measures only — no person-level By-Name List data. Small-cell suppression applied before publish.</p>
+      <p class="meta-line">
+        <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span>
+        <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved</span>
+      </p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

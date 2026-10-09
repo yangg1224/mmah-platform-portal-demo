@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Rules / config · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html" aria-current="page">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <header class="page-header">
+      <h1>Rules / config</h1>
+      <p class="page-lede">Business rules, DQ rules, matching thresholds, and data contracts rendered from config-as-code. Plain summary first; version, approver, and used-by links below. Read-only.</p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <article class="entry" id="rule-schema-mpd">
+      <h2>Municipal planning schema / code-list check <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Active warnings</span></h2>
+      <p><strong>Plain summary:</strong> Every municipal submission must match the expected schema and provincial code lists for the reporting period. Failures raise exceptions counted by submitter and period.</p>
+      <dl class="facts">
+        <div><dt>Type</dt><dd>DQ rule</dd></div>
+        <div><dt>Version</dt><dd>v1.4</dd></div>
+        <div><dt>Approver</dt><dd>Data steward (mock) · 12 Aug 2026</dd></div>
+        <div><dt>Technical</dt><dd class="mono">dq.mpd.schema_codelist_v1.4</dd></div>
+      </dl>
+      <p>Used by: <a href="flows.html#node-mpd-clean">MPD clean / validate</a> → <a href="data-product-municipal.html">Gold published measures</a> · <a href="data-product-municipal.html#dq">12 open exceptions</a></p>
+      <p class="muted">Defined in: <span class="defined-in">config/dq/mpd_schema_codelist.yaml@e7b3c01</span></p>
+    </article>
+
+    <article class="entry" id="rule-match-muni">
+      <h2>Municipality-name matching threshold <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved</span></h2>
+      <p><strong>Plain summary:</strong> Fuzzy match of submitter municipality names to the provincial reference list. Scores below the threshold are flagged for steward review; they are not auto-corrected.</p>
+      <dl class="facts">
+        <div><dt>Type</dt><dd>Matching threshold</dd></div>
+        <div><dt>Version</dt><dd>v2.1 · threshold 0.86</dd></div>
+        <div><dt>Approver</dt><dd>Platform lead (mock) · 3 Sep 2026</dd></div>
+        <div><dt>Technical</dt><dd class="mono">match.municipality_name.threshold</dd></div>
+      </dl>
+      <p>Used by: <a href="shared-services.html#svc-muni-match">Municipality-name matching service</a> · 1 flow → 1 Gold output</p>
+      <p class="muted">Defined in: <span class="defined-in">config/match/municipality_name.yaml@9a1f2d4</span></p>
+    </article>
+
+    <article class="entry" id="rule-biz-housing-starts">
+      <h2>Housing starts definition (business rule) <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved</span></h2>
+      <p><strong>Plain summary:</strong> Defines what counts as a housing start for published municipal planning measures (construction begun in the reporting period).</p>
+      <div class="bilingual">
+        <div><span class="lang">EN</span> New residential units for which construction has begun in the reporting period.</div>
+        <div><span class="lang">FR</span> Nouvelles unités résidentielles dont la construction a commencé au cours de la période de déclaration.</div>
+      </div>
+      <dl class="facts">
+        <div><dt>Type</dt><dd>Business rule</dd></div>
+        <div><dt>Version</dt><dd>v1.0</dd></div>
+        <div><dt>Approver</dt><dd>Program steward (mock) · 22 Sep 2026</dd></div>
+        <div><dt>Technical</dt><dd class="mono">biz.housing_starts.definition</dd></div>
+      </dl>
+      <p>Used by: <a href="data-product-municipal.html">Municipal Planning Data — Gold</a></p>
+      <p class="muted">Defined in: <span class="defined-in">config/biz/housing_starts.yaml@c8e21a0</span></p>
+    </article>
+
+    <article class="entry" id="rule-contract-mpd">
+      <h2>Municipal planning data contract <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Conforming</span></h2>
+      <p><strong>Plain summary:</strong> Ingest contract for quarterly municipal submissions: required fields, types, period keys, and submitter identifier (organization).</p>
+      <dl class="facts">
+        <div><dt>Type</dt><dd>Data contract</dd></div>
+        <div><dt>Version</dt><dd>ingest_v2</dd></div>
+        <div><dt>Approver</dt><dd>Platform engineer (mock) · 1 Aug 2026</dd></div>
+        <div><dt>Technical</dt><dd class="mono">contract.mpd.ingest_v2</dd></div>
+      </dl>
+      <p>Used by: <a href="flows.html#node-mpd-bronze">MPD Bronze load</a></p>
+      <p class="muted">Defined in: <span class="defined-in">config/contracts/mpd_ingest_v2.yaml@11ab90c</span></p>
+    </article>
+
+    <article class="entry" id="rule-small-cell">
+      <h2>Small-cell suppression threshold <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Approved</span></h2>
+      <p><strong>Plain summary:</strong> Aggregate cells with count below 5 are suppressed before Gold publish on the Housing &amp; Homelessness path. Counts-only portal display; no row samples.</p>
+      <dl class="facts">
+        <div><dt>Type</dt><dd>DQ / privacy rule</dd></div>
+        <div><dt>Version</dt><dd>n5 · v1.2</dd></div>
+        <div><dt>Approver</dt><dd>Privacy advisor (mock) · 10 Sep 2026</dd></div>
+        <div><dt>Technical</dt><dd class="mono">dq.suppression.small_cell_n5</dd></div>
+      </dl>
+      <p>Used by: <a href="shared-services.html#svc-suppress">Small-cell suppression service</a> → <a href="data-product-housing.html">HH Gold</a></p>
+      <p class="muted">Defined in: <span class="defined-in">config/dq/small_cell_suppression.yaml@55de901</span></p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

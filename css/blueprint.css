@@ -1,0 +1,54 @@
+/* Platform blueprint / Toolkit page. Builds on css/map.css (same canvas, chips, edges, legend, drawer). */
+
+/* Pinned context banner (TKT-9); top offset is set from the header height in js */
+.bp-banner {
+  position: sticky; top: 0; z-index: 50; margin: 0 0 0.6rem; padding: 0.4rem 0.75rem;
+  background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--focal); border-radius: 4px; font-size: 0.84rem;
+}
+.bp-banner-icon { color: var(--focal-text); }
+
+/* Nodes: tag + unit/function chip row, title, one-line subtitle, phase + status badges */
+.bp-node { padding: 7px 8px; }
+.bp-top { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 4px; margin-bottom: 3px; flex: none; }
+.bp-top .map-tag { margin: 0; }
+.bp-chip {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; color: #4c5560;
+  border: 1px dotted #8a94a0; border-radius: 3px; padding: 1px 4px; line-height: 1.2; white-space: nowrap;
+}
+.bp-node .map-title { font-size: 12.5px; line-height: 1.2; }
+.bp-sub { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
+.bp-badges { margin-top: auto; display: flex; flex-wrap: nowrap; justify-content: center; gap: 3px; position: relative; z-index: 1; }
+.bp-badges .status { font-size: 10px; gap: 0.2rem; background: #fff; padding: 0 0.25rem; box-shadow: 0 0 0 1px rgba(57, 66, 78, 0.12); }
+.badge-phase {
+  display: inline-flex; align-items: center; gap: 2px; font-family: var(--font-mono); font-size: 9.5px; line-height: 1.5;
+  padding: 0 4px; border: 1px solid #8a94a0; border-radius: 3px; background: #fff; color: #39424e; white-space: nowrap;
+}
+.badge-phase.phase-v1 { border-color: var(--map-ink); font-weight: 700; }
+.badge-phase.phase-future { border-style: dashed; }
+.legend-list .badge-phase + .badge-phase { margin-left: 4px; }
+
+.kind-store { background: #fff; border-color: var(--map-ink); }
+.kind-proc { background: #eceef1; border-color: #5d6672; }
+.kind-ing, .kind-serve, .kind-gov, .kind-mon, .kind-plat { background: #fff; border-color: #8a94a0; }
+.kind-portal, .kind-enr { background: #fff; border: 1px dashed #6b7480; }
+.lg-tool { background: #fff; border-color: #8a94a0; }
+
+/* Phase emphasis (TKT-6): default shows v1 full, Next / Future softened; turned-off phases dim */
+.map-node.is-soft { opacity: 0.66; }
+.map-node.is-traced { background: var(--focal-fill); box-shadow: 0 0 0 2px var(--focal); opacity: 1; }
+
+/* Full-width bars along the bottom */
+.map-container.bp-bar { background: rgba(226, 229, 233, 0.6); }
+.map-container.bp-side { background: rgba(244, 245, 246, 0.85); }
+
+/* List and branch views */
+.bp-list { padding: 0.25rem 0 0.5rem; }
+.bp-list-h { margin: 1rem 0 0.25rem; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.bp-box-h { margin: 0.6rem 0 0.15rem; font-size: 0.88rem; }
+.bp-list .badge-phase, .bp-list .bp-chip { vertical-align: middle; }
+
+/* Considered list and open questions */
+.bp-details { margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.5rem; font-size: 0.86rem; }
+.bp-details summary { cursor: pointer; font-weight: 600; }
+.bp-plain { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+.bp-plain li { padding: 0.15rem 0; }

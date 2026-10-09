@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Flows / lineage · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html" aria-current="page">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <header class="page-header">
+      <h1>Flows / lineage</h1>
+      <p class="page-lede">Load → transform → extract / publish. Plain labels first, with Bronze / Silver / Gold underneath.</p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <div class="flow-toolbar">
+      <p class="muted mb-0">Select a node for its summary, status and links.</p>
+      <div role="group" aria-label="Lineage view">
+        <button type="button" id="view-graph" class="view-toggle" aria-pressed="true">Diagram</button><button type="button" id="view-table" class="view-toggle" aria-pressed="false">Table</button>
+      </div>
+    </div>
+
+    <div id="lineage-graph">
+      <section class="section" aria-labelledby="flow-mpd">
+        <h2 id="flow-mpd">Municipal Planning Data <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> DQ warning</span></h2>
+        <div class="swimlane" role="group" aria-label="Municipal Planning Data lineage swimlane">
+          <div class="lane lane-bronze">
+            <div class="lane-header">
+              <p class="plain">Raw (as received)</p>
+              <p class="alias">Bronze · load</p>
+            </div>
+            <div class="lane-body">
+              <button type="button" class="node" data-node="mpd-bronze" id="node-mpd-bronze" aria-describedby="node-detail">
+                <span class="node-name">Municipal quarterly submissions</span>
+                <span class="node-tech">bronze.municipal_planning.raw_submissions</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="lane lane-silver">
+            <div class="lane-header">
+              <p class="plain">Standardized and conformed</p>
+              <p class="alias">Silver · transform</p>
+            </div>
+            <div class="lane-body">
+              <button type="button" class="node warning" data-node="mpd-clean" id="node-mpd-clean">
+                <span class="node-name">Clean / validate (shared service)</span>
+                <span class="node-tech">svc.clean_validate</span>
+                <span class="node-meta"><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></span>
+              </button>
+              <p class="edge-hint">↓ <a href="shared-services.html#svc-muni-match">municipality-name matching</a></p>
+              <button type="button" class="node" data-node="mpd-silver" id="node-mpd-silver">
+                <span class="node-name">Conformed municipal planning tables</span>
+                <span class="node-tech">silver.municipal_planning.conform_tables</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="lane lane-gold">
+            <div class="lane-header">
+              <p class="plain">Published (trusted)</p>
+              <p class="alias">Gold · extract / publish</p>
+            </div>
+            <div class="lane-body">
+              <button type="button" class="node" data-node="mpd-gold" id="node-mpd-gold">
+                <span class="node-name">Municipal Planning Data — published measures</span>
+                <span class="node-tech">gold.municipal_planning.published_measures</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span><span class="tag">Low</span></span>
+              </button>
+              <p class="edge-hint"><a href="data-product-municipal.html">Trust card →</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="flow-hh">
+        <h2 id="flow-hh">Housing &amp; Homelessness (aggregated) <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Healthy</span></h2>
+        <div class="swimlane" role="group" aria-label="Housing and Homelessness lineage swimlane">
+          <div class="lane lane-bronze">
+            <div class="lane-header">
+              <p class="plain">Raw (as received)</p>
+              <p class="alias">Bronze · load</p>
+            </div>
+            <div class="lane-body">
+              <button type="button" class="node" data-node="hh-bronze" id="node-hh-bronze">
+                <span class="node-name">Aggregated housing / homelessness extracts</span>
+                <span class="node-tech">bronze.housing_hh.agg_extracts</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
+              </button>
+            </div>
+          </div>
+          <div class="lane lane-silver">
+            <div class="lane-header">
+              <p class="plain">Standardized and conformed</p>
+              <p class="alias">Silver · transform</p>
+            </div>
+            <div class="lane-body">
+              <p class="edge-hint">via <a href="shared-services.html#svc-pi-drop">personal-field drop</a></p>
+              <button type="button" class="node" data-node="hh-silver" id="node-hh-silver">
+                <span class="node-name">Standardized housing / HH aggregates</span>
+                <span class="node-tech">silver.housing_hh.standard_agg</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
+              </button>
+              <p class="edge-hint">↓ <a href="shared-services.html#svc-suppress">small-cell suppression</a></p>
+            </div>
+          </div>
+          <div class="lane lane-gold">
+            <div class="lane-header">
+              <p class="plain">Published (trusted)</p>
+              <p class="alias">Gold · extract / publish</p>
+            </div>
+            <div class="lane-body">
+              <button type="button" class="node" data-node="hh-gold" id="node-hh-gold">
+                <span class="node-name">Housing &amp; Homelessness — published aggregates</span>
+                <span class="node-tech">gold.housing_hh.published_agg</span>
+                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span><span class="tag">Medium</span></span>
+              </button>
+              <p class="edge-hint"><a href="data-product-housing.html">Trust card →</a></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="node-detail" class="detail-panel" tabindex="-1" hidden aria-live="polite">
+        <p>Select a node to see summary, status, and links.</p>
+      </div>
+    </div>
+
+    <section id="lineage-table" class="section" aria-labelledby="table-h" hidden>
+      <h2 id="table-h">Lineage edges (table view)</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <caption class="sr-only">Lineage edges for both v1 products</caption>
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">From</th>
+              <th scope="col">To</th>
+              <th scope="col">Edge (transform / service)</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Municipal Planning</td>
+              <td>Municipal quarterly submissions<br><span class="muted">Raw / Bronze</span></td>
+              <td>Clean / validate<br><span class="muted">Shared service</span></td>
+              <td><a href="shared-services.html#svc-clean">svc.clean_validate</a></td>
+              <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></td>
+            </tr>
+            <tr>
+              <td>Municipal Planning</td>
+              <td>Clean / validate</td>
+              <td>Conformed tables<br><span class="muted">Silver</span></td>
+              <td><a href="shared-services.html#svc-muni-match">svc.municipality_name_match</a></td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+            </tr>
+            <tr>
+              <td>Municipal Planning</td>
+              <td>Conformed tables<br><span class="muted">Silver</span></td>
+              <td>Published measures<br><span class="muted">Gold</span></td>
+              <td>Publish / extract to Gold</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+            </tr>
+            <tr>
+              <td>Housing &amp; HH</td>
+              <td>Aggregated extracts<br><span class="muted">Bronze</span></td>
+              <td>Standard aggregates<br><span class="muted">Silver</span></td>
+              <td><a href="shared-services.html#svc-pi-drop">svc.personal_field_drop</a> + clean</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+            </tr>
+            <tr>
+              <td>Housing &amp; HH</td>
+              <td>Standard aggregates<br><span class="muted">Silver</span></td>
+              <td>Published aggregates<br><span class="muted">Gold</span></td>
+              <td><a href="shared-services.html#svc-suppress">svc.small_cell_suppression</a></td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="runs" aria-labelledby="runs-h">
+      <h2 id="runs-h">Run history (latest)</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <caption class="sr-only">Latest end-to-end runs</caption>
+          <thead>
+            <tr><th scope="col">Flow</th><th scope="col">Started</th><th scope="col">Ended</th><th scope="col">In → out</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MPD load → transform → publish</td>
+              <td>6 Oct 2026, 8:05 PM ET</td>
+              <td>6 Oct 2026, 8:41 PM ET</td>
+              <td>47 orgs → 47 orgs</td>
+              <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Completed, 12 DQ warnings</span></td>
+            </tr>
+            <tr>
+              <td>HH load → transform → publish</td>
+              <td>6 Oct 2026, 7:30 PM ET</td>
+              <td>6 Oct 2026, 7:55 PM ET</td>
+              <td>12 regions → 12 regions</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

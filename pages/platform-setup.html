@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Platform setup · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html" aria-current="page">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <header class="page-header">
+      <h1>Platform setup</h1>
+      <p class="page-lede">How the platform is configured across Dev / Test / Pre-Prod / Prod: storage zones and tags, roles, logging / backup / key status. Every item links to its definition in version control. Read-only — changes go through IaC.</p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <section class="section" aria-labelledby="env-h">
+      <h2 id="env-h">Environments side by side</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <caption class="sr-only">Environment configuration compared across Dev, Test, Pre-Prod and Prod</caption>
+          <thead>
+            <tr>
+              <td></td>
+              <th scope="col" id="env-dev">Dev</th>
+              <th scope="col" id="env-test">Test</th>
+              <th scope="col" id="env-preprod">Pre-Prod</th>
+              <th scope="col" id="env-prod">Prod</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Release</th>
+              <td>0.4-dev.12</td>
+              <td>0.4-rc.3</td>
+              <td><a href="releases.html#rel-04">0.4</a> (waiting)</td>
+              <td><a href="releases.html#rel-03">0.3</a> (live)</td>
+            </tr>
+            <tr>
+              <th scope="row">Storage zones</th>
+              <td>3 (bronze / silver / gold)</td>
+              <td>4 (incl. scratch)</td>
+              <td>3</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <th scope="row">Tags complete</th>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span></td>
+              <td class="flagged"><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> No</span><br><span class="mono">zone.silver.scratch</span> missing retention</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span></td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Logging</th>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 3 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 4 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 4 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 4 Oct</td>
+            </tr>
+            <tr>
+              <th scope="row">Backup</th>
+              <td><span class="status status-neutral"><span class="icon" aria-hidden="true">–</span> N/A (non-prod)</span></td>
+              <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Unverified</span></td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 2 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Verified</span> · 5 Oct</td>
+            </tr>
+            <tr>
+              <th scope="row">Key mgmt</th>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span> · 1 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span> · 1 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span> · 1 Oct</td>
+              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Yes</span> · 5 Oct</td>
+            </tr>
+            <tr>
+              <th scope="row">Defined in</th>
+              <td><a class="defined-in" href="#src">iac/envs/dev/@b1c44e9</a></td>
+              <td><a class="defined-in" href="#src">iac/envs/test/storage.tf@a3f91c2</a></td>
+              <td><a class="defined-in" href="#src">iac/envs/preprod/@d9e01aa</a></td>
+              <td><a class="defined-in" href="#src">iac/envs/prod/@f2a88b1</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="zones-h">
+      <h2 id="zones-h">Storage zones &amp; tags</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <caption class="sr-only">Storage zones and tags, Prod snapshot plus Test scratch zone</caption>
+          <thead>
+            <tr><th scope="col">Zone</th><th scope="col">Layer</th><th scope="col">Sensitivity</th><th scope="col">Source</th><th scope="col">Retention</th><th scope="col">Defined in</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">zone.bronze.landing</td>
+              <td>Raw / Bronze</td>
+              <td>Medium</td>
+              <td>municipal-submitters</td>
+              <td>2 years</td>
+              <td><span class="defined-in">iac/modules/storage/bronze.tf@f2a88b1</span></td>
+            </tr>
+            <tr>
+              <td class="mono">zone.silver.conform</td>
+              <td>Silver</td>
+              <td>Low</td>
+              <td>platform-pipelines</td>
+              <td>5 years</td>
+              <td><span class="defined-in">iac/modules/storage/silver.tf@f2a88b1</span></td>
+            </tr>
+            <tr>
+              <td class="mono">zone.gold.publish</td>
+              <td>Gold</td>
+              <td>Low / Medium</td>
+              <td>platform-pipelines</td>
+              <td>7 years</td>
+              <td><span class="defined-in">iac/modules/storage/gold.tf@f2a88b1</span></td>
+            </tr>
+            <tr>
+              <td class="mono">zone.silver.scratch</td>
+              <td>Silver (Test only)</td>
+              <td>Low</td>
+              <td>platform-pipelines</td>
+              <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Untagged</span></td>
+              <td><span class="defined-in">iac/envs/test/storage.tf@a3f91c2</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="roles-h">
+      <h2 id="roles-h">Roles (name &amp; purpose only)</h2>
+      <p class="muted">Memberships are not shown. Least-privilege intent only.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <caption class="sr-only">Platform roles</caption>
+          <thead><tr><th scope="col">Role</th><th scope="col">Purpose</th><th scope="col">Zones reachable</th><th scope="col">Defined in</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="mono">role.platform.engineer</td>
+              <td>Build and operate pipelines and infra</td>
+              <td>Bronze, Silver, Gold (all envs)</td>
+              <td><span class="defined-in">iac/modules/identity/roles.tf@c4d12ef</span></td>
+            </tr>
+            <tr>
+              <td class="mono">role.data.steward</td>
+              <td>Review rules, DQ, catalogue definitions</td>
+              <td>Silver (read), Gold (read)</td>
+              <td><span class="defined-in">iac/modules/identity/roles.tf@c4d12ef</span></td>
+            </tr>
+            <tr>
+              <td class="mono">role.program.viewer</td>
+              <td>Consume published measures</td>
+              <td>Gold (read)</td>
+              <td><span class="defined-in">iac/modules/identity/roles.tf@c4d12ef</span></td>
+            </tr>
+            <tr>
+              <td class="mono">role.governance.reviewer</td>
+              <td>TRA / audit evidence review</td>
+              <td>Infra metadata (read)</td>
+              <td><span class="defined-in">iac/modules/identity/roles.tf@c4d12ef</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="note" id="src"><strong>Source of truth:</strong> the portal renders IaC and platform metadata through a vendor-neutral adapter. Mock paths above stand in for real repo links. No secrets or network specifics are shown.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

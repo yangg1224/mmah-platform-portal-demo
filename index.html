@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Platform map · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="index.html" aria-current="page">Home</a></li>
+          <li><a href="pages/data-products.html">Data products</a></li>
+          <li><a href="pages/flows.html">Flows / lineage</a></li>
+          <li><a href="pages/platform-setup.html">Platform setup</a></li>
+          <li><a href="pages/rules.html">Rules / config</a></li>
+          <li><a href="pages/shared-services.html">Shared services</a></li>
+          <li><a href="pages/releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Map state lives in the URL (MAP-10): index.html#node=silver&product=mpd&overlays=setup,releases&view=list
+       Screenshot alias: index.html?panel=<node-id>&infra=1&release=1. Node ids are listed in js/map-data.js. -->
+  <main id="main" class="main main-wide">
+    <header class="map-header">
+      <h1>Platform map</h1>
+      <nav aria-label="Map views">
+        <ul class="view-switch">
+          <li><a href="index.html" aria-current="page">Process map</a></li>
+          <li><a href="pages/blueprint.html">Platform blueprint</a></li>
+        </ul>
+      </nav>
+      <span class="coverage"><span aria-hidden="true">◐</span> Lineage captured for 4 of 5 flows (mock)</span>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <div class="attn-line">
+      <span class="attn-cap" id="attn-cap">Needs attention</span>
+      <ul id="attn-items" class="attn-items" aria-labelledby="attn-cap"></ul>
+    </div>
+
+    <div class="map-toolbar">
+      <div class="ctl-group" role="group" aria-labelledby="filter-cap">
+        <span class="ctl-label" id="filter-cap">Product</span>
+        <span class="seg">
+          <button type="button" class="chip-btn" data-product="all" aria-pressed="true">All</button>
+          <button type="button" class="chip-btn" data-product="mpd" aria-pressed="false">Municipal Planning Data (O. Reg. 73/23)</button>
+          <button type="button" class="chip-btn" data-product="hh" aria-pressed="false">Housing &amp; Homelessness</button>
+        </span>
+      </div>
+      <div class="ctl-group" role="group" aria-labelledby="overlay-cap">
+        <span class="ctl-label" id="overlay-cap">Overlays</span>
+        <button type="button" class="chip-btn solo" data-overlay="setup" aria-pressed="false">Platform setup</button>
+        <button type="button" class="chip-btn solo" data-overlay="releases" aria-pressed="false">Releases and gates</button>
+      </div>
+      <div class="ctl-group">
+        <button type="button" class="chip-btn solo" id="view-list-toggle" aria-pressed="false" aria-controls="map-list">View as list</button>
+      </div>
+    </div>
+
+    <section class="map-section" aria-labelledby="map-h">
+      <h2 id="map-h" class="sr-only">Platform process map</h2>
+      <p class="map-scroll-hint"><span aria-hidden="true">↔</span> Scroll sideways to see the whole map</p>
+      <div class="map-scroll" id="map-scroll">
+        <div class="map-canvas" id="map-canvas" role="group" aria-label="Platform process map, flow order left to right">
+          <noscript>
+            <ol class="map-list">
+              <li><a href="pages/flows.html#node-mpd-bronze">01 Sources → Landing / Raw (Bronze)</a> · ✓ Passing</li>
+              <li><a href="pages/flows.html#node-mpd-clean">03 Standardize and conform (Silver)</a> · ⚠ Warnings · 12 open</li>
+              <li><a href="pages/shared-services.html">03a–03d Shared services</a> · ✓ Stable</li>
+              <li><a href="pages/data-products.html">04 Published / trusted (Gold)</a> · ✓ Passing</li>
+              <li>05 Catalogue / publish · ○ Not yet linked</li>
+            </ol>
+          </noscript>
+        </div>
+      </div>
+      <div id="map-list" hidden></div>
+
+      <div class="map-legend">
+        <span class="legend-cap" id="legend-cap">Legend</span>
+        <ul class="legend-list" aria-labelledby="legend-cap">
+          <li><span class="lg-box lg-focal" aria-hidden="true"></span>Focal / needs attention</li>
+          <li><span class="lg-box lg-zone" aria-hidden="true"></span>Storage zone</li>
+          <li><span class="lg-box lg-pipe" aria-hidden="true"></span>Pipeline</li>
+          <li><span class="lg-box lg-svc" aria-hidden="true"></span>Shared service</li>
+          <li><span class="lg-box lg-ext" aria-hidden="true"></span>External / publish</li>
+          <li data-legend-overlay hidden><span class="lg-box lg-overlay" aria-hidden="true"></span>Overlay (ENV · IAM · OPS · GATE)</li>
+        </ul>
+        <ul class="legend-list" aria-label="Edge types">
+          <li><svg class="lg-line lg-primary" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#d9622b"/></svg>Primary flow</li>
+          <li><svg class="lg-line lg-request" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#2f5fa8"/></svg>Request</li>
+          <li><svg class="lg-line lg-return" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#7d8792"/></svg>Return / async</li>
+          <li><svg class="lg-line lg-gate" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><line x1="12" y1="0" x2="12" y2="10" style="stroke-width:3"/><path d="M22 1 L30 5 L22 9 z" fill="#39424e"/></svg>Gate</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <aside id="map-drawer" class="map-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-bar">
+      <button type="button" class="drawer-close" aria-label="Close details"><span aria-hidden="true">✕</span> Close</button>
+    </div>
+    <div class="drawer-body"></div>
+  </aside>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/map-data.js"></script>
+  <script src="js/map-data-overlays.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/drawer.js"></script>
+  <script src="js/map-drawer.js"></script>
+</body>
+</html>

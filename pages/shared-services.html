@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Shared services · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html" aria-current="page">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="main">
+    <header class="page-header">
+      <h1>Shared services</h1>
+      <p class="page-lede">Reusable components so engineers do not write one-off pipeline code. Each entry shows purpose, contract, version, and consumers.</p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <article class="entry" id="svc-clean">
+      <h2>Cleaning / validation <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> In use · warnings</span></h2>
+      <p><strong>Purpose:</strong> Apply schema checks, code-list conformance, and standard null / type cleaning to inbound submissions.</p>
+      <dl class="facts">
+        <div><dt>Version</dt><dd>v3.2.0</dd></div>
+        <div><dt>Technical</dt><dd class="mono">svc.clean_validate</dd></div>
+      </dl>
+      <p><strong>Contract:</strong> Input = Bronze dataset conforming to its data contract · Output = cleaned rows + exception counts by rule.</p>
+      <p><strong>Consumers:</strong> <a href="flows.html#node-mpd-clean">MPD transform</a> · <a href="flows.html#node-hh-silver">HH transform</a></p>
+      <p class="muted">Defined in: <span class="defined-in">services/clean_validate/@v3.2.0</span></p>
+    </article>
+
+    <article class="entry" id="svc-muni-match">
+      <h2>Municipality-name matching <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Stable</span></h2>
+      <p><strong>Purpose:</strong> Map free-text municipality / submitter organization names to the provincial reference list using the approved threshold.</p>
+      <dl class="facts">
+        <div><dt>Version</dt><dd>v2.1.0</dd></div>
+        <div><dt>Technical</dt><dd class="mono">svc.municipality_name_match</dd></div>
+      </dl>
+      <p><strong>Contract:</strong> Input = cleaned name string · Output = matched reference ID + score · Below-threshold rows flagged, not overwritten.</p>
+      <p><strong>Consumers:</strong> <a href="flows.html#node-mpd-silver">MPD Silver conform</a></p>
+      <p>Threshold rule: <a href="rules.html#rule-match-muni">match.municipality_name.threshold</a></p>
+      <p class="muted">Defined in: <span class="defined-in">services/municipality_name_match/@v2.1.0</span></p>
+    </article>
+
+    <article class="entry" id="svc-pi-drop">
+      <h2>Personal-field drop <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Stable</span></h2>
+      <p><strong>Purpose:</strong> Drop fields that could carry personal information before data enters Silver on paths that must stay aggregate-only. Prevents person-level By-Name List data from entering the published portal path.</p>
+      <dl class="facts">
+        <div><dt>Version</dt><dd>v1.5.0</dd></div>
+        <div><dt>Technical</dt><dd class="mono">svc.personal_field_drop</dd></div>
+      </dl>
+      <p><strong>Contract:</strong> Input = field allow-list config · Output = dataset with non-allowed fields removed · Audit count of dropped field names (not values).</p>
+      <p><strong>Consumers:</strong> <a href="flows.html#node-hh-bronze">HH Bronze → Silver</a></p>
+      <p class="muted">Defined in: <span class="defined-in">services/personal_field_drop/@v1.5.0</span></p>
+    </article>
+
+    <article class="entry" id="svc-suppress">
+      <h2>Small-cell suppression <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Stable</span></h2>
+      <p><strong>Purpose:</strong> Suppress aggregate cells below the approved threshold before Gold publish so published measures cannot identify small groups.</p>
+      <dl class="facts">
+        <div><dt>Version</dt><dd>v1.2.0</dd></div>
+        <div><dt>Technical</dt><dd class="mono">svc.small_cell_suppression</dd></div>
+      </dl>
+      <p><strong>Contract:</strong> Input = aggregate table + threshold rule · Output = same shape with suppressed cells nullled · Count of suppressed cells returned as metadata.</p>
+      <p><strong>Consumers:</strong> <a href="flows.html#node-hh-gold">HH Gold publish</a></p>
+      <p>Rule: <a href="rules.html#rule-small-cell">dq.suppression.small_cell_n5</a></p>
+      <p class="muted">Defined in: <span class="defined-in">services/small_cell_suppression/@v1.2.0</span></p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>
