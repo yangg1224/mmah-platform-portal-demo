@@ -1,4 +1,4 @@
-# Example CI check for the toolkit manifest (PRD §6.6 TKT-3). Optional: this demo folder is not a git repo yet.
+# Optional example CI check for the toolkit manifest (PRD §6.6 TKT-3).
 # Fails the pull request when any tool in config/toolkit.yaml has no Data and Analytics Branch box,
 # names a box that isn't on the branch chart, breaks the schema, or the generated JS is stale.
 name: validate-toolkit
@@ -21,3 +21,5 @@ jobs:
         run: python3 scripts/build_toolkit.py --check
       - name: Branch-box traceability and schema (TKT-3)
         run: python3 scripts/validate_toolkit.py
+      - name: Resource hierarchy regression tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'

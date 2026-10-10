@@ -118,7 +118,7 @@ window.PORTAL = window.PORTAL || {};
     lastRun: [MPD_RUN_CONFORM, HH_RUN_CONFORM],
     dq: { pass: 3, warn: 1, fail: 0, open: 12 },
     rules: [svcRule("Service svc.clean_validate", "services/clean_validate/@v3.2.0", "v3.2.0"), R.schema],
-    links: [{ label: "Shared service: Cleaning / validation", href: "pages/shared-services.html#svc-clean" }, { label: "Platform blueprint: Cleaning library", href: "pages/blueprint.html#node=svc-clean" }]
+    links: [{ label: "Shared service: Cleaning / validation", href: "pages/shared-services.html#svc-clean" }, { label: "Platform blueprint: Fabric notebooks / cleaning rules", href: "pages/blueprint.html#node=p-spark" }]
   });
 
   N.push({
@@ -130,7 +130,7 @@ window.PORTAL = window.PORTAL || {};
     lastRun: [MPD_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0 },
     rules: [svcRule("Service svc.municipality_name_match", "services/municipality_name_match/@v2.1.0", "v2.1.0"), R.match],
-    links: [{ label: "Shared service: Municipality-name matching", href: "pages/shared-services.html#svc-muni-match" }, { label: "Platform blueprint: Municipality-name matching", href: "pages/blueprint.html#node=svc-match" }]
+    links: [{ label: "Shared service: Municipality-name matching", href: "pages/shared-services.html#svc-muni-match" }, { label: "Platform blueprint: Fabric notebooks / reference matching", href: "pages/blueprint.html#node=p-spark" }]
   });
 
   N.push({
@@ -142,7 +142,7 @@ window.PORTAL = window.PORTAL || {};
     lastRun: [HH_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0, note: "Audit: dropped field names counted, never values" },
     rules: [svcRule("Service svc.personal_field_drop", "services/personal_field_drop/@v1.5.0", "v1.5.0"), { label: "Field allow-list config", path: TBD }],
-    links: [{ label: "Shared service: Personal-field drop", href: "pages/shared-services.html#svc-pi-drop" }, { label: "Platform blueprint: Personal-field drop", href: "pages/blueprint.html#node=svc-pidrop" }]
+    links: [{ label: "Shared service: Personal-field drop", href: "pages/shared-services.html#svc-pi-drop" }, { label: "Platform blueprint: Fabric notebooks / field rules", href: "pages/blueprint.html#node=p-spark" }]
   });
 
   N.push({
@@ -154,7 +154,7 @@ window.PORTAL = window.PORTAL || {};
     lastRun: [HH_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0 },
     rules: [svcRule("Service svc.small_cell_suppression", "services/small_cell_suppression/@v1.2.0", "v1.2.0"), R.smallCell],
-    links: [{ label: "Shared service: Small-cell suppression", href: "pages/shared-services.html#svc-suppress" }, { label: "Platform blueprint: Small-cell suppression", href: "pages/blueprint.html#node=svc-suppress" }]
+    links: [{ label: "Shared service: Small-cell suppression", href: "pages/shared-services.html#svc-suppress" }, { label: "Platform blueprint: Fabric notebooks / disclosure rules", href: "pages/blueprint.html#node=p-spark" }]
   });
 
   N.push({

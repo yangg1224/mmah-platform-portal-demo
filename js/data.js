@@ -196,10 +196,10 @@ PORTAL.catalog = [
   {
     id: "view-blueprint",
     type: "view",
-    name: "Platform blueprint / Toolkit",
+    name: "Platform blueprint / Azure and Fabric",
     tech: "config/toolkit.yaml",
     href: "pages/blueprint.html",
-    keywords: ["blueprint", "toolkit", "tools", "fabric", "branch", "DAB", "phase"]
+    keywords: ["blueprint", "toolkit", "azure", "fabric", "ADLS", "data lake", "bronze", "silver", "gold", "VNet", "Key Vault", "Power BI", "branch", "DAB", "phase"]
   }
 ];
 

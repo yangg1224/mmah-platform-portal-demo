@@ -24,7 +24,7 @@
     ],
     appliesTo: ["bronze", "silver", "gold"],
     links: [{ label: "Platform setup: Test", href: "pages/platform-setup.html#env-test" }, { label: "Storage zones and tags", href: "pages/platform-setup.html#zones-h" },
-      { label: "Platform blueprint: Capacity per environment", href: "pages/blueprint.html#node=pl-capacity" }, { label: "Platform blueprint: Terraform or Bicep", href: "pages/blueprint.html#node=pl-iac" }]
+      { label: "Platform blueprint: Capacity per environment", href: "pages/blueprint.html#node=pl-capacity" }, { label: "Platform blueprint: Delivery pipelines and IaC", href: "pages/blueprint.html#node=pl-repo" }]
   });
 
   N.push({

@@ -31,17 +31,19 @@ HEADER = """/* GENERATED FILE - DO NOT EDIT.
 
 
 def tool_to_node(t, envs):
-    """Map one manifest entry (vendor-neutral snake_case schema) to the renderer's node shape."""
+    """Map one resource and its containment metadata to the renderer's node shape."""
     by_env = t.get("status_by_env") or {}
     node = {
         "id": t["id"],
         "tag": t["tag"],
         "title": t["title"],
         "subtitle": t["subtitle"],
-        "column": t.get("column"),
-        "bar": t.get("bar"),
-        "container": t.get("container"),
-        "row": t.get("row"),
+        "parent": t["parent"],
+        "resourceKind": t["resource_kind"],
+        "resourceType": t["resource_type"],
+        "architectureNotes": t.get("architecture_notes") or [],
+        "setupSteps": t.get("setup_steps") or [],
+        "accessControls": t.get("access_controls") or [],
         "branchBoxes": list(t.get("branch_boxes") or []),
         "unit": t["owning_unit"],
         "owner": t.get("owner") or t["owning_unit"],
@@ -59,8 +61,7 @@ def tool_to_node(t, envs):
         "deeper": t.get("links_deeper") or [],
         "statusNote": t.get("status_note", ""),
     }
-    # Keep the object lean: drop layout keys that don't apply (undefined in JS either way).
-    return {k: v for k, v in node.items() if not (k in ("column", "bar", "container", "row") and v is None)}
+    return node
 
 
 def build(manifest):
@@ -68,17 +69,12 @@ def build(manifest):
     return {
         "manifest": manifest["manifest_ref"],
         "asOf": manifest["as_of"],
+        "architecture": manifest["architecture"],
         "banner": {
             "text": manifest["banner"]["text"],
             "linkLabel": manifest["banner"]["link_label"],
             "href": manifest["banner"]["href"],
         },
-        "columns": manifest["columns"],
-        "containers": [
-            {"id": c["id"], "label": c["label"], "tag": c["tag"], "slots": c["slots"], "nodeW": c["node_w"]}
-            for c in manifest["containers"]
-        ],
-        "bars": manifest["bars"],
         "units": manifest["units"],
         "functions": manifest["functions"],
         "boxes": [{"id": b["id"], "fn": b["function"], "label": b["label"]} for b in manifest["branch_boxes"]],
