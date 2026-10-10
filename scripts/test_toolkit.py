@@ -73,5 +73,20 @@ class BlueprintManifestTests(unittest.TestCase):
                 self.assertIn(node_id, ids, f"{filename}: broken blueprint link {node_id}")
 
 
+
+    def test_iac_version_tag_or_folder_fails(self):
+        for bad in ("services/clean_validate/@v3.2.0", "services/clean_validate/", "services/missing/rules.yaml"):
+            self.manifest["tools"][0]["iac"] = bad
+            self.assertTrue(any("iac must be" in e for e in self.errors()), bad)
+
+    def test_generated_defined_in_is_file_at_real_sha(self):
+        text = build_toolkit.OUT.read_text(encoding="utf-8")
+        vals = [v for v in re.findall(r'"iac":\s*"([^"]+)"', text) if v not in ("na", "tbd")]
+        self.assertTrue(vals)
+        for v in vals:
+            self.assertRegex(v, r"^[\w.\-]+(/[\w.\-]+)*\.\w+@[0-9a-f]{7}$")
+            self.assertIsNone(validate_toolkit.check_defined_in(v))
+        self.assertIsNotNone(validate_toolkit.check_defined_in("config/toolkit.yaml@0000000"))
+
 if __name__ == "__main__":
     unittest.main()

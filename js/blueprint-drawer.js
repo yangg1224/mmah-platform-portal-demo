@@ -105,7 +105,7 @@
       }).join("") + "</span>" : "";
     leg.hidden = !list.length;
     leg.innerHTML = list.map(function (v) {
-      return '<li><span class="lg-box" style="border-left:5px solid ' + v.color + '" aria-hidden="true"></span>' + esc(v.label) + "</li>";
+      return '<li><span class="lg-box" style="border-left:5px solid ' + v.color + '" aria-hidden="true"></span>' + esc(v.legend_label || v.label) + "</li>";
     }).join("");
     document.getElementById("bp-scroll").hidden = S.view !== "map";
     var lv = document.getElementById("bp-list");

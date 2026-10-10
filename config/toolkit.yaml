@@ -103,7 +103,8 @@ units:
     name: Data Policy Unit
     color: '#b5473a'
   - id: CLUSTER?
-    label: "CLUSTER? (Cluster, to be confirmed)"
+    label: CLUSTER?
+    legend_label: "CLUSTER? (Cluster, to be confirmed)"
     name: Cluster / enterprise (to verify)
     color: '#6b7480'
 
@@ -608,7 +609,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: Schema, code-list, completeness and geometry rules with thresholds and approvers.
     why: Pull-request approval is steward approval; the same counts feed the portal badges.
-    iac: config/dq/mpd_schema_codelist.yaml@e7b3c01
+    iac: config/dq/mpd_schema_codelist.yaml
     docs:
       - label: Ideal-state toolkit §2.11 (internal doc · not in this demo)
         href: null
@@ -638,7 +639,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
-    upstream: [st-silver]
+    upstream: [st-bronze, st-ref]
     downstream: [st-silver]
     home_node: silver
 
@@ -816,7 +817,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: Shared cleaning library used by the Spark notebooks.
     why: Trim, parse and map code lists from config, not code.
-    iac: services/clean_validate/@v3.2.0
+    iac: services/clean_validate/rules.yaml
     docs:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
@@ -840,7 +841,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: planned}
     summary: Shared municipality-name matching used by the Spark notebooks.
     why: Matches names to the reference table; unmatched rows go to a steward queue.
-    iac: services/municipality_name_match/@v2.1.0
+    iac: services/municipality_name_match/rules.yaml
     docs:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
@@ -864,7 +865,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: Shared personal-field drop used by the Spark notebooks.
     why: Keeps the aggregate-only path free of personal fields.
-    iac: services/personal_field_drop/@v1.5.0
+    iac: services/personal_field_drop/rules.yaml
     docs:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
@@ -888,7 +889,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: Shared small-cell suppression used by the Spark notebooks.
     why: Published counts cannot identify small groups.
-    iac: services/small_cell_suppression/@v1.2.0
+    iac: services/small_cell_suppression/rules.yaml
     docs:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
@@ -975,7 +976,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: planned}
     summary: 'One contract per dataset: schema, quality, owner, SLA; checked every run.'
     why: Submitters and engineers share one definition of a valid file.
-    iac: config/contracts/mpd_ingest_v2.yaml@11ab90c
+    iac: config/contracts/mpd_ingest_v2.yaml
     docs:
       - label: Ideal-state toolkit §2.11 (internal doc · not in this demo)
         href: null
@@ -1124,7 +1125,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: prov}
     summary: Role-based groups per environment; just-in-time elevation; sign-in policies.
     why: Every permission goes to a group, never a person.
-    iac: iac/modules/identity/roles.tf@c4d12ef
+    iac: iac/modules/identity/roles.tf
     docs:
       - label: Ideal-state toolkit §2.1 (internal doc · not in this demo)
         href: null
@@ -1265,7 +1266,7 @@ tools:
     status_note: Demo IaC paths (iac/envs/*) exist for all four environments.
     summary: Infrastructure and workspace definitions as code; code-first deployment.
     why: Every environment item links to repo/path@commit.
-    iac: iac/envs/prod/@f2a88b1
+    iac: iac/envs/prod/main.tf
     docs:
       - label: Ideal-state toolkit §2.12 (internal doc · not in this demo)
         href: null

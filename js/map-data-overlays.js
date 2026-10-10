@@ -9,7 +9,7 @@
 
   /* ---- Platform setup band: ENV / IAM / OPS beneath the zones they apply to ---- */
   N.push({
-    id: "env", tag: "ENV", kind: "overlay", title: "Environments", subtitle: "Dev · Test · Pre-Prod · Prod",
+    id: "env", tag: "ENV", kind: "overlay", title: "Environments", subtitle: "4 environments",
     ownerTag: "setup", overlay: "setup", products: ["mpd", "hh"], x: 268, band: "setup", dy: 36,
     status: st("warn", "1 flag · Test"),
     summary: "Four environments defined in IaC; Test has one storage zone missing its retention tag.",
@@ -28,7 +28,7 @@
   });
 
   N.push({
-    id: "iam", tag: "IAM", kind: "overlay", title: "Identity", subtitle: "roles · purpose, no memberships",
+    id: "iam", tag: "IAM", kind: "overlay", title: "Identity", subtitle: "roles, no memberships",
     ownerTag: "setup", overlay: "setup", products: ["mpd", "hh"], x: 520, band: "setup", dy: 36,
     status: st("ok", "4 roles defined"),
     summary: "Four platform roles by name and purpose; memberships are not shown.",
@@ -63,7 +63,7 @@
       ownerTag: "releases", overlay: "releases", products: products, x: x, w: 140, band: "releases", dy: 36,
       status: status,
       summary: title + " runs " + rel + ".",
-      statusNote: "Sample: Deployed release " + rel + " (not real infrastructure).",
+      statusNote: status.word + " · release " + rel + " (not real infrastructure).", // one field drives badge and body
       owner: "Platform engineering",
       lastRun: NA, dq: NA,
       rules: [{ label: title + " environment", path: path, version: title, approver: ENV_APPROVER, href: "pages/platform-setup.html#" + envAnchor }],
@@ -99,7 +99,7 @@
       { item: "Steward approval", state: "pass", note: "22 Sep 2026 · Data & Analytics Branch (mock)" }
     ],
     [REL04], L04);
-  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal Planning", st("info", "Sample: Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/@d9e01aa", L04);
+  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal", st("info", "Sample: Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/@d9e01aa", L04);
   gate("gate-preprod-prod", "Pre-Prod → Prod", "release 0.4", st("fail", "Blocked"), 826, ["mpd"],
     "Release 0.4 is waiting at Pre-Prod; the Prod gate is blocked until a CAB reference is linked.",
     [
@@ -112,7 +112,7 @@
     [REL04], L04.concat([{ label: "Mock CAB record (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-000000" }]));
   lane("lane-prod", "Prod", "0.3 · Housing & HH", st("ok", "Sample: Live"), 976, ["hh"], "env-prod", "iac/envs/prod/@f2a88b1", L03);
   // Release 0.3's own gates (passed) are reachable from the Prod drawer.
-  N[N.length - 1].statusNote = "Sample: Live (not real infrastructure). Sample release 0.3 · Housing & Homelessness aggregates, shown as live since 29 Sep 2026.";
+  N[N.length - 1].statusNote = N[N.length - 1].status.word + " · release 0.3 · Housing & Homelessness aggregates since 29 Sep 2026 (not real infrastructure).";
   N[N.length - 1].rules.push(REL03);
   N[N.length - 1].links.push({ label: "CAB CHANGE-004821 (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-004821" });
 

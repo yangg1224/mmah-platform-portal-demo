@@ -116,7 +116,8 @@ PORTAL.toolkit = {
   },
   {
    "id": "CLUSTER?",
-   "label": "CLUSTER? (Cluster, to be confirmed)",
+   "label": "CLUSTER?",
+   "legend_label": "CLUSTER? (Cluster, to be confirmed)",
    "name": "Cluster / enterprise (to verify)",
    "color": "#6b7480"
   }
@@ -1083,7 +1084,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Schema, code-list, completeness and geometry rules with thresholds and approvers.",
    "why": "Pull-request approval is steward approval; the same counts feed the portal badges.",
-   "iac": "config/dq/mpd_schema_codelist.yaml@e7b3c01",
+   "iac": "config/dq/mpd_schema_codelist.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.11 (internal doc · not in this demo)",
@@ -1142,7 +1143,8 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-silver"
+    "st-bronze",
+    "st-ref"
    ],
    "downstream": [
     "st-silver"
@@ -1479,7 +1481,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Shared cleaning library used by the Spark notebooks.",
    "why": "Trim, parse and map code lists from config, not code.",
-   "iac": "services/clean_validate/@v3.2.0",
+   "iac": "services/clean_validate/rules.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.7 (internal doc · not in this demo)",
@@ -1523,7 +1525,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Shared municipality-name matching used by the Spark notebooks.",
    "why": "Matches names to the reference table; unmatched rows go to a steward queue.",
-   "iac": "services/municipality_name_match/@v2.1.0",
+   "iac": "services/municipality_name_match/rules.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.7 (internal doc · not in this demo)",
@@ -1567,7 +1569,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Shared personal-field drop used by the Spark notebooks.",
    "why": "Keeps the aggregate-only path free of personal fields.",
-   "iac": "services/personal_field_drop/@v1.5.0",
+   "iac": "services/personal_field_drop/rules.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.7 (internal doc · not in this demo)",
@@ -1610,7 +1612,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Shared small-cell suppression used by the Spark notebooks.",
    "why": "Published counts cannot identify small groups.",
-   "iac": "services/small_cell_suppression/@v1.2.0",
+   "iac": "services/small_cell_suppression/rules.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.7 (internal doc · not in this demo)",
@@ -1778,7 +1780,7 @@ PORTAL.toolkit = {
    ],
    "summary": "One contract per dataset: schema, quality, owner, SLA; checked every run.",
    "why": "Submitters and engineers share one definition of a valid file.",
-   "iac": "config/contracts/mpd_ingest_v2.yaml@11ab90c",
+   "iac": "config/contracts/mpd_ingest_v2.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.11 (internal doc · not in this demo)",
@@ -2055,7 +2057,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Role-based groups per environment; just-in-time elevation; sign-in policies.",
    "why": "Every permission goes to a group, never a person.",
-   "iac": "iac/modules/identity/roles.tf@c4d12ef",
+   "iac": "iac/modules/identity/roles.tf@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.1 (internal doc · not in this demo)",
@@ -2314,7 +2316,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Infrastructure and workspace definitions as code; code-first deployment.",
    "why": "Every environment item links to repo/path@commit.",
-   "iac": "iac/envs/prod/@f2a88b1",
+   "iac": "iac/envs/prod/main.tf@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.12 (internal doc · not in this demo)",

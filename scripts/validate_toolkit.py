@@ -109,6 +109,15 @@ def validate(manifest, raw_text):
             if f not in t or t[f] in (None, ""):
                 if f != "branch_boxes":
                     err(f"{name}: missing required field '{f}'")
+        both = set(t.get("upstream") or []) & set(t.get("downstream") or [])
+        if both:
+            err(f"{name}: {sorted(both)} listed as both upstream and downstream")
+        iac = t.get("iac")
+        if iac not in (None, "na", "tbd"):
+            import build_toolkit
+            if "@" in str(iac) or not build_toolkit.IAC_PATH.match(str(iac)) or not (ROOT / str(iac)).is_file():
+                err(f"{name}: iac must be an existing repo file path like services/x/rules.yaml "
+                    f"(no @tag, no folder; the SHA is added at build time): {iac}")
         boxes = t.get("branch_boxes") or []
         if not boxes:
             err(f"{name}: no branch box (TKT-3: every tool must trace to a DAB chart box or band)")
@@ -172,6 +181,31 @@ def validate(manifest, raw_text):
     return errors
 
 
+DEFINED_IN = re.compile(r"^([A-Za-z0-9_.\-]+(?:/[A-Za-z0-9_.\-]+)*\.[A-Za-z0-9]+)@([0-9a-f]{7})$")
+
+
+def check_defined_in(value):
+    """TKT-4: 'path/file.ext@sha7', where sha is a commit that touched that file (git history required)."""
+    import subprocess
+    m = DEFINED_IN.match(value)
+    if not m:
+        return f"Defined in '{value}' is not path/file.ext@<7-hex sha>"
+    path, sha = m.groups()
+    ok = subprocess.run(["git", "cat-file", "-e", f"{sha}:{path}"], cwd=ROOT, capture_output=True).returncode == 0
+    touched = subprocess.run(["git", "log", "-1", "--format=%h", "--abbrev=7", sha, "--", path], cwd=ROOT,
+                             capture_output=True, text=True).stdout.strip()[:7]
+    if not ok or touched != sha:
+        return f"Defined in '{value}': {sha} is not a commit that touched {path}"
+    return None
+
+
+def check_generated_defined_in():
+    import json
+    text = (ROOT / "js" / "toolkit-manifest.generated.js").read_text(encoding="utf-8")
+    vals = re.findall(r'"iac":\s*"([^"]+)"', text)
+    return [e for e in (check_defined_in(v) for v in vals if v not in ("na", "tbd")) if e]
+
+
 def main():
     ap = argparse.ArgumentParser(description="Validate the toolkit manifest (TKT-3).")
     ap.add_argument("--manifest", default=str(ROOT / "config" / "toolkit.yaml"))
@@ -186,6 +220,8 @@ def main():
         gen = build_toolkit.OUT
         if not gen.exists() or gen.read_text(encoding="utf-8") != build_toolkit.render(manifest):
             errors.append("js/toolkit-manifest.generated.js is stale: run python3 scripts/build_toolkit.py")
+    if not args.skip_generated and not errors:
+        errors.extend(check_generated_defined_in())
     tools = manifest.get("tools") or []
     if errors:
         print(f"FAIL: {len(errors)} problem(s) in {path.name}")

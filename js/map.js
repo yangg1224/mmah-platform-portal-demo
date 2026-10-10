@@ -135,27 +135,27 @@
     }
     return html + "</g>";
   }
-  /* MAP-4 Platform setup overlay: thin dashed "applies to" lines from ENV / IAM / OPS up to the zones
-     they apply to. Drawn only while that overlay is on; they run through the gaps between the shared
-     services so nothing is crossed. Not part of M.edges (the drawer and list already show "applies to"). */
-  var APPLY_CORRIDOR = { bronze: 385, silver: 620, gold: 855 };
+  /* MAP-4 Platform setup overlay: one thin dashed "applies to" line each from ENV, IAM and OPS to a
+     dashed outline around all three zones (Bronze / Silver / Gold), with a single label. Drawn only
+     while that overlay is on; lines run through the gaps between the shared services. Not part of
+     M.edges (the drawer and list already show "applies to"). */
+  var APPLY_CORRIDOR = [385, 620, 855];
   function appliesSvg() {
     if (!state.overlays.setup) return "";
-    var srcs = M.nodes.filter(function (n) { return n.appliesTo && visible(n); }), zones = {}, html = "";
-    srcs.forEach(function (n, i) {
-      var a = box(n), sx = a.cx + (i - 1) * 14, bus = M.baseHeight - 26 + i * 7;
-      n.appliesTo.forEach(function (zid) {
-        var z = byId[zid]; if (!z || !visible(z)) return;
-        var zb = box(z), cx = (APPLY_CORRIDOR[zid] || zb.cx) + (i - 1) * 6;
-        zones[zid] = { x: APPLY_CORRIDOR[zid] || zb.cx, y: zb.b };
-        html += '<g class="edge edge-applies" data-applies="' + n.id + "-" + zid + '"><path d="' + pathD([[sx, a.y], [sx, bus], [cx, bus], [cx, zb.b]]) + '" marker-end="url(#arrow-applies)"/></g>';
-      });
+    var zs = ["bronze", "silver", "gold"].map(function (id) { return byId[id]; }).filter(function (z) { return z && visible(z); });
+    if (!zs.length) return "";
+    var bs = zs.map(box), x = Math.min.apply(null, bs.map(function (b) { return b.x; })) - 8, y = Math.min.apply(null, bs.map(function (b) { return b.y; })) - 8;
+    var r = Math.max.apply(null, bs.map(function (b) { return b.r; })) + 8, bt = Math.max.apply(null, bs.map(function (b) { return b.b; })) + 8;
+    var html = '<g class="edge edge-applies" data-applies="zones"><rect class="applies-outline" x="' + x + '" y="' + y + '" width="' + (r - x) + '" height="' + (bt - y) + '" rx="6"/></g>';
+    ["env", "iam", "ops"].forEach(function (id, i) {
+      var n = byId[id]; if (!n || !visible(n)) return;
+      var a = box(n), cx = APPLY_CORRIDOR[i], bus = M.baseHeight - 22;
+      var pts = Math.abs(a.cx - cx) < 1 ? [[cx, a.y], [cx, bt]] : [[a.cx, a.y], [a.cx, bus], [cx, bus], [cx, bt]];
+      html += '<g class="edge edge-applies" data-applies="' + id + '"><path d="' + pathD(pts) + '" marker-end="url(#arrow-applies)"/></g>';
     });
-    Object.keys(zones).forEach(function (zid) {
-      var z = zones[zid], txt = "APPLIES TO", w = txt.length * 6.8 + 10, ly = z.y + 78;
-      html += '<g class="edge edge-applies"><rect class="edge-label-bg" x="' + (z.x - w / 2) + '" y="' + (ly - 8) + '" width="' + w + '" height="15" rx="2"/>' +
-        '<text class="edge-label" x="' + z.x + '" y="' + (ly + 3.5) + '" text-anchor="middle">' + txt + "</text></g>";
-    });
+    var txt = "APPLIES TO ALL ZONES", w = txt.length * 6.8 + 10, lx = APPLY_CORRIDOR[1], ly = bt + 70;
+    html += '<g class="edge edge-applies"><rect class="edge-label-bg" x="' + (lx - w / 2) + '" y="' + (ly - 8) + '" width="' + w + '" height="15" rx="2"/>' +
+      '<text class="edge-label" x="' + lx + '" y="' + (ly + 3.5) + '" text-anchor="middle">' + txt + "</text></g>";
     return html;
   }
   function markers() {

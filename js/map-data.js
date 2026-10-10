@@ -72,7 +72,7 @@ window.PORTAL = window.PORTAL || {};
   var N = PORTAL.map.nodes;
 
   N.push({
-    id: "sources", step: "01", tag: "EXT", kind: "ext", title: "Sources", subtitle: "municipalities · service managers",
+    id: "sources", step: "01", tag: "EXT", kind: "ext", title: "Sources", subtitle: "municipal submissions",
     ownerTag: "external", products: ["mpd", "hh"], x: 24, y: 84,
     status: st("ok", "Received"),
     summary: "Quarterly housing-supply submissions from municipalities and aggregated extracts from service managers.",
@@ -109,7 +109,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "svc-clean", step: "03a", tag: "SVC", kind: "svc", title: "Cleaning", subtitle: "shared cleaning rules",
+    id: "svc-clean", step: "03a", tag: "SVC", kind: "svc", title: "Cleaning", subtitle: "cleaning rules",
     ownerTag: "cluster", products: ["mpd", "hh"], x: 220, y: 308,
     status: st("warn", "Warnings · 12"),
     statusBy: { hh: st("ok", "Passing") },
@@ -122,7 +122,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "svc-match", step: "03b", tag: "SVC", kind: "svc", title: "Municipality-name matching", subtitle: "match to provincial list",
+    id: "svc-match", step: "03b", tag: "SVC", kind: "svc", title: "Municipality-name matching", subtitle: "to provincial list",
     ownerTag: "cluster", products: ["mpd"], x: 400, y: 308,
     status: st("ok", "Stable"),
     summary: "Maps submitter municipality names to the provincial reference list; below-threshold matches are flagged, not overwritten.",
@@ -134,7 +134,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "svc-pidrop", step: "03c", tag: "SVC", kind: "svc", title: "Personal-field drop", subtitle: "remove personal fields",
+    id: "svc-pidrop", step: "03c", tag: "SVC", kind: "svc", title: "Personal-field drop", subtitle: "drop personal fields",
     ownerTag: "cluster", products: ["hh"], x: 690, y: 308,
     status: st("ok", "Stable"),
     summary: "Drops fields that could carry personal information so the aggregate-only path stays aggregate-only.",
@@ -146,7 +146,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "svc-suppress", step: "03d", tag: "SVC", kind: "svc", title: "Small-cell suppression", subtitle: "suppress small counts",
+    id: "svc-suppress", step: "03d", tag: "SVC", kind: "svc", title: "Small-cell suppression", subtitle: "suppress small cells",
     ownerTag: "cluster", products: ["hh"], x: 870, y: 308,
     status: st("ok", "Stable"),
     summary: "Suppresses aggregate cells below the approved threshold before publish so small groups cannot be identified.",
@@ -158,7 +158,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "gold", step: "04", tag: "ZONE", kind: "zone", title: "Published / trusted (Gold)", subtitle: "trusted outputs · trust card",
+    id: "gold", step: "04", tag: "ZONE", kind: "zone", title: "Published / trusted (Gold)", subtitle: "trusted · trust card",
     ownerTag: "mmah", products: ["mpd", "hh"], x: 772, y: 84,
     status: st("ok", "Passing"),
     summary: "Trusted, published outputs for both v1 products, each with a trust card.",
@@ -171,7 +171,7 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "catalogue", step: "05", tag: "PUB", kind: "ext", title: "Catalogue / publish", subtitle: "enterprise catalogue · public open-data catalogue",
+    id: "catalogue", step: "05", tag: "PUB", kind: "ext", title: "Catalogue / publish", subtitle: "enterprise · open data",
     ownerTag: "external", products: ["mpd", "hh"], x: 1004, y: 84,
     status: st("tbd", "Not yet linked"),
     summary: "Published outputs are listed in the enterprise catalogue and the public open-data catalogue; the portal links out and does not duplicate them.",

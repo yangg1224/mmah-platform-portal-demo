@@ -58,9 +58,9 @@
       open: function (id, from) {
         if (!o.has(id)) return;
         if (o.beforeOpen) o.beforeOpen(id);
-        // Focus goes back to whatever opened the drawer first; in-drawer "goto" links keep that opener.
+        // Focus returns to the opener; after an in-drawer "goto" link, to the node now shown.
         if (from && from.el) opener = { el: from.el };
-        else if (!opener || (from && !from.goto)) opener = { id: id };
+        else if (from || !opener) opener = { id: id };
         current = id;
         select(id);
         body.innerHTML = o.render(id);

@@ -10,6 +10,8 @@ window.PORTAL.toolkit in the shape js/blueprint.js reads. Needs PyYAML
 """
 import argparse
 import json
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -21,6 +23,24 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "config" / "toolkit.yaml"
 OUT = ROOT / "js" / "toolkit-manifest.generated.js"
+IAC_PATH = re.compile(r"^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)*\.[A-Za-z0-9]+$")
+
+
+def defined_in(path):
+    """TKT-4: 'Defined in' = repo file path + short SHA of the last commit touching that file.
+    Runs locally only (needs .git); the result is written into the committed generated manifest.
+    Fails rather than inventing a SHA."""
+    if path in ("na", "tbd"):
+        return path
+    if not IAC_PATH.match(path) or not (ROOT / path).is_file():
+        sys.exit(f"iac path must be an existing repo file (path/file.ext): {path}")
+    sha = subprocess.run(["git", "log", "-1", "--format=%h", "--abbrev=7", "--", path], cwd=ROOT,
+                         capture_output=True, text=True).stdout.strip()[:7]
+    if not re.fullmatch(r"[0-9a-f]{7}", sha):
+        sys.exit(f"no git history for {path}: commit it first (no fake SHAs)")
+    return f"{path}@{sha}"
+
+
 ENV_CODE = {"planned": "p", "prov": "v", "live": "l", "na": "n"}
 
 HEADER = """/* GENERATED FILE - DO NOT EDIT.
@@ -51,7 +71,7 @@ def tool_to_node(t, envs):
         "statusByEnv": [ENV_CODE[by_env.get(e, "planned")] for e in envs],
         "summary": t["summary"],
         "why": t["why"],
-        "iac": t.get("iac", "tbd"),
+        "iac": defined_in(t.get("iac", "tbd")),
         "docs": t.get("docs") or [],
         "upstream": t.get("upstream") or [],
         "downstream": t.get("downstream") or [],
