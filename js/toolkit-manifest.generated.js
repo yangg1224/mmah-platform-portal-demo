@@ -7,7 +7,7 @@ PORTAL.toolkit = {
  "manifest": "config/toolkit.yaml (sample manifest)",
  "asOf": "6 Oct 2026, 9:30 PM ET",
  "banner": {
-  "text": "Intended platform: Microsoft Fabric. Per Yang 2026-10-07, not yet ministry-confirmed.",
+  "text": "Intended platform: Microsoft Fabric. Per Team lead 2026-10-07, not yet ministry-confirmed.",
   "linkLabel": "Open questions",
   "href": "#open-questions"
  },

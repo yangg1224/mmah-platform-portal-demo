@@ -6,7 +6,7 @@
 #                                            Branch (DAB) chart box or band; exits non-zero otherwise
 #
 # Schema keys and type tags are vendor-neutral. Product names appear only as values (MAP-11 exception).
-# Content: /workspace/mmah-fabric-toolkit-ideal-state.md (2026-10-07). Fabric = intended platform per Yang
+# Content: /workspace/mmah-fabric-toolkit-ideal-state.md (2026-10-07). Fabric = intended platform per Team lead
 # 2026-10-07, not yet ministry-confirmed.
 #
 # DEMO DATA: statuses, per-environment breakdowns, IaC paths and commit hashes are mock sample values.
@@ -32,7 +32,7 @@ manifest_ref: config/toolkit.yaml (sample manifest)
 as_of: 6 Oct 2026, 9:30 PM ET
 
 banner:
-  text: 'Intended platform: Microsoft Fabric. Per Yang 2026-10-07, not yet ministry-confirmed.'
+  text: 'Intended platform: Microsoft Fabric. Per Team lead 2026-10-07, not yet ministry-confirmed.'
   link_label: Open questions
   href: '#open-questions'
 
