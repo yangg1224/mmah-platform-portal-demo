@@ -1,301 +1,239 @@
-/* Resource hierarchy from config/toolkit.yaml, generated as PORTAL.toolkit.
-   Permalinks preserve resource selection, branch ownership, delivery phases and alternative views. */
+/* Platform blueprint / Toolkit renderer (TKT-1, TKT-5, TKT-6, TKT-13). Renders PORTAL.toolkit.
+   Permalink (restored on load, kept current with replaceState):
+     blueprint.html#node=<id>&colour=<function|unit|none>&value=<fn or unit>&box=<branch box>&phases=v1,next,future&view=<list|branch>
+   Data: js/toolkit-manifest.generated.js, built from config/toolkit.yaml (node ids are listed there). */
 (function () {
   "use strict";
   var K = window.PORTAL && PORTAL.toolkit;
   if (!K) return;
 
-  var TYPE = { EXT: "Source", ING: "Ingestion", STORE: "Data storage", PROC: "Processing", SERVE: "Analytics",
-    ENR: "Enrichment", SVC: "Shared service", GOV: "Governance", MON: "Monitoring", PLAT: "Platform", PORTAL: "Portal" };
-  var KIND = { boundary: "Boundary", "azure-resource": "Azure resource", "fabric-item": "Fabric item",
-    "logical-layer": "Logical layer", external: "External source", "saas-service": "Shared service" };
-  var byId = Object.create(null), children = Object.create(null), boxFn = Object.create(null),
-    fnById = Object.create(null), unitById = Object.create(null), phaseById = Object.create(null), roots = [];
-  K.nodes.forEach(function (n) {
-    byId[n.id] = n;
-    if (n.parent == null) roots.push(n);
-    else (children[n.parent] = children[n.parent] || []).push(n);
-  });
+  var GAPS = [60, 60, 80, 60, 60], NODE_W = 140, NODE_H = 104, PITCH = 130;
+  var TOP_Y = 34, COL_TOP = 192, BAR_START = 860, BAR_H = 140, BAR_GAP = 10, W = 1190;
+  var TYPE = { EXT: "Source", ING: "Ingest tool", STORE: "Store", PROC: "Process tool", SERVE: "Serve tool", ENR: "Enrich tool",
+    SVC: "Reusable service", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
+  var byId = {}, colX = {}, boxFn = {}, fnById = {}, unitById = {}, phaseById = {};
+  K.nodes.forEach(function (n) { byId[n.id] = n; });
   K.boxes.forEach(function (b) { boxFn[b.id] = b.fn; });
   K.functions.forEach(function (f) { fnById[f.id] = f; });
   K.units.forEach(function (u) { unitById[u.id] = u; });
   K.phases.forEach(function (p) { phaseById[p.id] = p; });
-  var order = [];
-  function walk(n) { order.push(n); (children[n.id] || []).forEach(walk); }
-  roots.forEach(walk);
-  var state = { node: null, section: "iac", step: "", colour: "none", value: "", box: "", phases: { v1: true, next: true, future: true }, view: "map" };
+  var x = 12;
+  K.columns.forEach(function (c, i) { colX[c.id] = x; x += NODE_W + (GAPS[i] || 0); });
+  // Bars span exactly from the first column frame's left edge to the last column frame's right edge (TKT-1).
+  var BAR_L = colX[K.columns[0].id] - 10, BAR_R = colX[K.columns[K.columns.length - 1].id] + NODE_W + 10;
 
-  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
-  function ancestors(n) {
-    var path = [], seen = Object.create(null);
-    while (n && !seen[n.id]) { seen[n.id] = true; path.unshift(n); n = n.parent == null ? null : byId[n.parent]; }
-    return path;
+  var state = { node: null, colour: "none", value: "", box: "", phases: { v1: true, next: true, future: true }, view: "map" };
+
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+  /* ---- Layout from the manifest: column + row, container slot, or bar slot ---- */
+  var order = [];
+  K.columns.forEach(function (c) {
+    order = order.concat(K.nodes.filter(function (n) { return n.column === c.id; }).sort(function (a, b) { return a.row - b.row; }));
+  });
+  K.containers.forEach(function (c) { order = order.concat(K.nodes.filter(function (n) { return n.container === c.id; })); });
+  K.bars.forEach(function (b) { order = order.concat(K.nodes.filter(function (n) { return n.bar === b.id; })); });
+
+  function barTop(id) {
+    for (var i = 0; i < K.bars.length; i++) if (K.bars[i].id === id) return BAR_START + i * (BAR_H + BAR_GAP);
+    return 0;
   }
-  function allPhases() { return Object.keys(state.phases).every(function (p) { return state.phases[p]; }); }
+  var boxes = {};
+  order.forEach(function (n) {
+    var b;
+    if (n.column) b = { x: colX[n.column], y: COL_TOP + n.row * PITCH, w: NODE_W, h: NODE_H };
+    else if (n.container) {
+      var c = K.containers.filter(function (k) { return k.id === n.container; })[0];
+      var idx = K.nodes.filter(function (m) { return m.container === c.id; }).indexOf(n);
+      b = { x: c.slots[idx], y: TOP_Y, w: c.nodeW, h: NODE_H };
+    } else {
+      var mem = K.nodes.filter(function (m) { return m.bar === n.bar; }), slot = (BAR_R - BAR_L - 24) / mem.length;
+      var w = Math.min(Math.round(slot - 12), 210), i = mem.indexOf(n);
+      b = { x: Math.round(BAR_L + 12 + i * slot + (slot - w) / 2), y: barTop(n.bar) + 26, w: w, h: NODE_H };
+    }
+    b.r = b.x + b.w; b.b = b.y + b.h; b.cx = b.x + b.w / 2; b.cy = b.y + b.h / 2;
+    boxes[n.id] = b;
+  });
+  function frameOf(containerId) {
+    var bs = K.nodes.filter(function (n) { return n.container === containerId; }).map(function (n) { return boxes[n.id]; });
+    var l = Math.min.apply(null, bs.map(function (b) { return b.x; })) - 14, r = Math.max.apply(null, bs.map(function (b) { return b.r; })) + 14;
+    var t = TOP_Y - 26, bt = TOP_Y + NODE_H + 12;
+    return { x: l, y: t, w: r - l, h: bt - t, b: bt };
+  }
+
+  /* ---- Filters ---- */
+  function allPhases() { return state.phases.v1 && state.phases.next && state.phases.future; }
   function matches(n) {
     if (state.colour === "function" && state.value) return n.branchBoxes.some(function (b) { return boxFn[b] === state.value; });
     if (state.colour === "unit" && state.value) return n.unit === state.value;
     return true;
   }
-  function isDim(n) { return !matches(n) || !state.phases[n.phase]; }
-  function fnOf(n) { return fnById[state.colour === "function" && state.value && matches(n) ? state.value : boxFn[n.branchBoxes[0]]]; }
-  function chipText(n) {
-    var item = state.colour === "function" ? fnOf(n) : unitById[n.unit];
-    return item ? item.short || item.label : n.unit;
+  function phaseOn(n) { return !!state.phases[n.phase]; }
+  function isDim(n) { return !matches(n) || !phaseOn(n); }
+  function isSoft(n) { return allPhases() && n.phase !== "v1"; }
+  function fnOf(n) {
+    if (state.colour === "function" && state.value && matches(n)) return fnById[state.value];
+    return fnById[boxFn[n.branchBoxes[0]]];
   }
+  function chipText(n) { return state.colour === "function" ? fnOf(n).short : unitById[n.unit].label; }
   function colourOf(n) {
-    var item = state.colour === "function" ? fnOf(n) : state.colour === "unit" ? unitById[n.unit] : null;
-    return item ? item.color : null;
+    if (state.colour === "function") return fnOf(n).color;
+    if (state.colour === "unit") return unitById[n.unit].color;
+    return null;
   }
   function phaseHtml(n) {
     var p = phaseById[n.phase];
-    return '<span class="badge-phase phase-' + p.id + '"><span aria-hidden="true">' + p.icon + '</span> ' + esc(p.label) + '</span>';
+    return '<span class="badge-phase phase-' + p.id + '"><span aria-hidden="true">' + p.icon + "</span> " + esc(p.label) + "</span>";
   }
   function statusHtml(key) {
     var s = K.statuses[key];
-    return '<span class="status status-' + s.cls + '"><span class="icon" aria-hidden="true">' + s.icon + '</span> ' + esc(s.word) + '</span>';
+    return '<span class="status status-' + s.cls + '"><span class="icon" aria-hidden="true">' + s.icon + "</span> " + esc(s.word) + "</span>";
   }
+  function titlesOf(ids) { return ids.filter(function (id) { return byId[id]; }).map(function (id) { return byId[id].title; }); }
   function ariaLabel(n) {
-    return (n.resourceType || TYPE[n.tag]) + ': ' + n.title + '. ' + n.subtitle + '. Phase ' + phaseById[n.phase].label +
-      '. ' + K.statuses[n.status].word + '. Proposed owner ' + n.unit + '.' + (isDim(n) ? ' Outside the current filter.' : '');
+    var parts = [(TYPE[n.tag] || n.tag) + ": " + n.title + " (" + n.subtitle + ").", "Phase " + phaseById[n.phase].label + ".",
+      K.statuses[n.status].word + ".", "Owner " + n.unit + "."];
+    var up = titlesOf(n.upstream), down = titlesOf(n.downstream);
+    if (up.length) parts.push("From " + up.join(", ") + ".");
+    if (down.length) parts.push("To " + down.join(", ") + ".");
+    if (isDim(n)) parts.push("Outside the current filter.");
+    return parts.join(" ");
   }
-  var diagram = K.architecture.diagram, layouts = Object.create(null);
-  diagram.nodes.forEach(function (p) { layouts[p.id] = p; });
-  var connectionMode = 'data', scale = 1, fitted = true;
-  var reducedMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
-  var running = !reducedMotion.matches;
-  var icons = {
-    azure:'<path d="m16 3-9 20h7l5-7-4-1 3-8 7 17H7l5-4"/>',
-    fabric:'<path d="M5 9 17 3l10 5-12 6Zm0 6 10 5 12-6M5 21l10 5 12-6M5 9v12M15 14v12M27 8v12"/>',
-    lake:'<ellipse cx="16" cy="7" rx="10" ry="4"/><path d="M6 7v17c0 5 20 5 20 0V7M6 15c0 5 20 5 20 0M6 22c0 5 20 5 20 0"/>',
-    database:'<ellipse cx="16" cy="7" rx="9" ry="4"/><path d="M7 7v17c0 5 18 5 18 0V7M7 15c0 5 18 5 18 0"/>',
-    pipeline:'<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="21" y="20" width="8" height="8" rx="2"/><path d="M7 11v13h14M21 20l4-4 4 4M21 7h7M25 3l4 4-4 4"/>',
-    network:'<path d="m16 3 12 7v13l-12 7-12-7V10ZM4 10l12 7 12-7M16 17v13"/>',
-    key:'<circle cx="11" cy="11" r="7"/><path d="m16 16 12 12M21 21l4-4M25 25l4-4"/>',
-    identity:'<circle cx="12" cy="10" r="5"/><path d="M3 26v-4c0-7 18-7 18 0v4M23 6l6 3v7c0 5-6 8-6 8"/>',
-    shield:'<path d="m16 3 11 4v10c0 7-11 12-11 12S5 24 5 17V7ZM10 15l4 4 8-9"/>',
-    catalog:'<path d="M4 5h10l3 3h11v20H4ZM9 14h14M9 19h14M9 24h8"/>',
-    code:'<path d="m10 7-7 9 7 9M22 7l7 9-7 9M19 4l-6 24"/>',
-    monitor:'<rect x="3" y="4" width="26" height="19" rx="2"/><path d="m6 17 5-6 5 7 6-9 4 4M16 23v6M10 29h12"/>',
-    powerbi:'<rect x="5" y="17" width="5" height="12" rx="1"/><rect x="13" y="10" width="5" height="19" rx="1"/><rect x="21" y="3" width="5" height="26" rx="1"/>',
-    model:'<rect x="11" y="2" width="10" height="7" rx="1"/><rect x="2" y="23" width="10" height="7" rx="1"/><rect x="21" y="23" width="10" height="7" rx="1"/><path d="M16 9v8M7 23v-6h19v6"/>',
-    capacity:'<rect x="8" y="8" width="16" height="16" rx="2"/><path d="M12 2v6M20 2v6M12 24v6M20 24v6M2 12h6M2 20h6M24 12h6M24 20h6M13 13h6v6h-6Z"/>',
-    workspace:'<rect x="3" y="6" width="26" height="23" rx="2"/><path d="M11 6V2h10v4M3 14h26M11 14v15"/>',
-    source:'<path d="M5 3h16l6 6v20H5ZM21 3v7h6M10 16h12M10 22h12"/>',
-    link:'<path d="m12 8 3-3c7-7 17 3 10 10l-3 3M10 14l-3 3c-7 7 3 17 10 10l3-3M11 21l10-10"/>'
-  };
-  function icon(kind) { return '<svg class="service-icon" viewBox="0 0 32 32" aria-hidden="true">' + (icons[kind] || icons.workspace) + '</svg>'; }
-  function visibleId(id) {
-    var n = byId[id];
-    while (n && !layouts[n.id]) n = n.parent == null ? null : byId[n.parent];
-    return n ? n.id : null;
-  }
-  function category(e) {
-    if (/^(pl-entra|pl-network|pl-dns|pl-kv|g-catalog)$/.test(e.from)) return 'access';
-    if (/^(m-logs|m-hub|pl-workspaces|azure)$/.test(e.to) && /^(pl-capacity|pl-repo|i-adf|i-fabric)$/.test(e.from)) return 'ops';
-    if (e.type === 'return') return 'ops';
-    return e.type === 'primary' ? 'data' : 'control';
-  }
-  var connections = [];
-  K.edges.forEach(function (edge) {
-    var a = visibleId(edge.from), b = visibleId(edge.to), type = category(edge);
-    if (!a || !b || a === b) return;
-    var existing = connections.find(function (e) { return e.from === a && e.to === b; });
-    if (existing) { existing.edges.push(edge); if(type==='data')existing.kind='data'; return; }
-    connections.push({ from:a, to:b, kind:type, label:edge.label, edges:[edge] });
-  });
-  function shown(e) { return connectionMode === 'all' || (connectionMode === 'access' ? e.kind === 'access' : e.kind === 'data' || e.kind === 'control'); }
-  var routes = {
-    'sources>i-adf': [[185,398],[215,398],[215,352],[250,352]],
-    'i-adf>st-bronze': [[415,352],[445,352],[445,388],[485,388]],
-    'i-adf>st-quarantine': [[333,405],[333,450],[715,450],[715,433]],
-    'i-adf>i-fabric': [[333,300],[333,220],[860,220],[860,385],[1015,385],[1015,403]],
-    'st-bronze>st-bronze-view': [[558,433],[558,480],[847,480],[847,598],[925,598]],
-    'i-fabric>p-spark': [[1105,445],[1250,445]],
-    'st-bronze-view>p-spark': [[1000,550],[1000,520],[1215,520],[1215,445],[1250,445]],
-    'p-spark>st-silver': [[1357,488],[1357,520],[1190,520],[1190,550]],
-    'st-silver>p-spark': [[1190,550],[1190,503],[1230,503],[1230,463],[1250,463]],
-    'st-silver>st-gold': [[1265,598],[1305,598]],
-    'st-gold>sv-model': [[1385,645],[1385,679],[1190,679],[1190,703]],
-    'sv-model>sv-pbi': [[1265,739],[1305,739]],
-    'pl-network>st-adls': [[270,742],[235,742],[235,455],[465,455]],
-    'pl-network>pl-kv': [[505,742],[550,742],[550,681],[590,681]],
-    'pl-dns>pl-vnet': [[590,770],[525,770]],
-    'pl-kv>i-adf': [[590,681],[550,681],[550,612],[435,612],[435,275],[333,275],[333,300]],
-    'pl-entra>st-adls': [[779,102],[779,135],[847,135],[847,232],[780,232],[780,248]],
-    'pl-entra>pl-workspaces': [[795,102],[795,130],[864,130],[864,367],[900,367]],
-    'pl-entra>sv-model': [[820,102],[820,126],[1536,126],[1536,685],[1190,685],[1190,703]],
-    'g-catalog>st-adls': [[1030,102],[1030,138],[842,138],[842,235],[620,235],[620,248]],
-    'g-catalog>pl-workspaces': [[1050,102],[1050,134],[1530,134],[1530,363],[1495,363]],
-    'i-adf>m-logs': [[333,405],[333,448],[450,448],[450,548],[535,548]],
-    'i-fabric>m-hub': [[1105,423],[1168,423],[1168,309],[1345,309],[1345,296]],
-    'pl-capacity>pl-workspaces': [[415,545],[440,545],[440,608],[860,608],[860,749],[900,749]],
-    'pl-repo>azure': [[1300,102],[1300,143],[500,143],[500,155]],
-    'pl-repo>pl-workspaces': [[1400,102],[1400,133],[1545,133],[1545,380],[1495,380]],
-    'p-spark>st-quarantine': [[1465,445],[1506,445],[1506,812],[818,812],[818,448],[715,448],[715,433]]
-  };
-  var labels = {
-    'sources>i-adf':[145,287,'Approved feeds'],
-    'i-adf>st-bronze':[438,334,'Copy'],
-    'i-adf>i-fabric':[605,212,'Batch handoff'],
-    'st-bronze>st-bronze-view':[714,497,'Shortcut · no copy'],
-    'i-fabric>p-spark':[1175,436,'Run notebook'],
-    'st-bronze-view>p-spark':[1080,512,'Read raw'],
-    'p-spark>st-silver':[1340,538,'Validate'],
-    'st-silver>st-gold':[1285,585,'Curate'],
-    'st-gold>sv-model':[1320,672,'Model source'],
-    'pl-network>st-adls':[330,446,'Private connection'],
-    'pl-network>pl-kv':[560,729,'Private link'],
-    'pl-kv>i-adf':[484,604,'Secret reference'],
-    'pl-entra>st-adls':[702,228,'Data permissions'],
-    'pl-entra>pl-workspaces':[865,312,'Workspace roles'],
-    'g-catalog>pl-workspaces':[1430,133,'Metadata / lineage'],
-    'pl-capacity>pl-workspaces':[681,622,'Assign capacity']
-  };
-  function pathFor(e) {
-    var pts = routes[e.from + '>' + e.to], a = layouts[e.from], b = layouts[e.to];
-    if (!pts) {
-      var ax=a.x+a.w, ay=a.y+a.h/2, bx=b.x, by=b.y+b.h/2, mid=(ax+bx)/2;
-      pts=[[ax,ay],[mid,ay],[mid,by],[bx,by]];
+
+  /* ---- Edges ---- */
+  function route(e) {
+    var a = boxes[e.from];
+    if (e.to.indexOf("container:") === 0) {
+      var f = frameOf(e.to.slice(10));
+      return { pts: [[a.cx, a.y], [a.cx, f.b]], lx: a.cx + 6, ly: (a.y + f.b) / 2, side: true };
     }
-    // Rounded orthogonal corners keep crossing routes legible.
-    var d='M'+pts[0].join(' ');
-    for (var i=1;i<pts.length;i++) {
-      var p=pts[i], prev=pts[i-1], next=pts[i+1];
-      if (!next) { d+=' L'+p.join(' '); break; }
-      var r=Math.min(9,Math.hypot(p[0]-prev[0],p[1]-prev[1])/2,Math.hypot(next[0]-p[0],next[1]-p[1])/2);
-      d+=' L'+(p[0]-Math.sign(p[0]-prev[0])*r)+' '+(p[1]-Math.sign(p[1]-prev[1])*r)+' Q'+p.join(' ')+' '+(p[0]+Math.sign(next[0]-p[0])*r)+' '+(p[1]+Math.sign(next[1]-p[1])*r);
+    var b = boxes[e.to], na = byId[e.from], nb = byId[e.to];
+    if (na.column && na.column === nb.column) {
+      var down = b.y > a.y, p = down ? [[a.cx, a.b], [a.cx, b.y]] : [[a.cx, a.y], [a.cx, b.b]];
+      return { pts: p, lx: a.cx + 6, ly: (p[0][1] + p[1][1]) / 2, side: true };
+    }
+    if (Math.abs(a.cy - b.cy) < 1) {
+      var fwd = b.x > a.x, s = fwd ? [[a.r, a.cy], [b.x, b.cy]] : [[a.x, a.cy], [b.r, b.cy]];
+      return { pts: s, lx: (s[0][0] + s[1][0]) / 2, ly: a.cy };
+    }
+    var dir = b.cy > a.cy ? 1 : -1, ya = a.cy + 18 * dir, yb = b.cy - 18 * dir, lane;
+    if (b.x > a.r) {
+      var adjacent = b.x - a.r < 100;
+      lane = adjacent ? a.r + 22 : b.x - 22;
+      return { pts: [[a.r, ya], [lane, ya], [lane, yb], [b.x, yb]],
+        lx: adjacent ? (lane + b.x) / 2 : (a.r + lane) / 2, ly: adjacent ? yb : ya };
+    }
+    lane = a.x - 22;
+    return { pts: [[a.x, ya], [lane, ya], [lane, yb], [b.r, yb]], lx: (lane + b.r) / 2, ly: yb };
+  }
+  function pathD(pts) {
+    var d = "M" + pts[0][0] + " " + pts[0][1], r = 6;
+    for (var i = 1; i < pts.length; i++) {
+      var p = pts[i], prev = pts[i - 1], next = pts[i + 1];
+      if (!next) { d += " L" + p[0] + " " + p[1]; break; }
+      d += " L" + (p[0] - Math.sign(p[0] - prev[0]) * r) + " " + (p[1] - Math.sign(p[1] - prev[1]) * r) +
+        " Q" + p[0] + " " + p[1] + " " + (p[0] + Math.sign(next[0] - p[0]) * r) + " " + (p[1] + Math.sign(next[1] - p[1]) * r);
     }
     return d;
   }
   function edgesSvg() {
-    var h='<svg class="bp-wires" width="'+diagram.width+'" height="'+diagram.height+'" aria-label="Directed service connections"><defs>';
-    ['data','control','access','ops'].forEach(function (type) {
-      h+='<marker id="arrow-'+type+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" class="arrow-'+type+'"/></marker>';
-    });
-    h+='</defs>';
-    connections.forEach(function (e,i) {
-      if (!shown(e)) return;
-      var label=labels[e.from+'>'+e.to], d=pathFor(e), description=byId[e.from].title+' → '+byId[e.to].title+': '+e.edges.map(function(x){return x.label;}).join('; ');
-      h+='<g class="bp-connection connection-'+e.kind+'" data-connection="'+i+'" data-from="'+e.from+'" data-to="'+e.to+'" role="button" tabindex="0" aria-label="'+esc(description)+'"><title>'+esc(description)+'</title>'+
-        '<path class="wire-hit" d="'+d+'"/><path class="wire-base" d="'+d+'" marker-end="url(#arrow-'+e.kind+')"/><path class="flow-pulse" d="'+d+'"/>';
-      if(label) h+='<text class="wire-label" x="'+label[0]+'" y="'+label[1]+'" text-anchor="middle">'+esc(label[2])+'</text>';
-      h+='</g>';
-    });
-    return h+'</svg>';
+    var seen = {};
+    return K.edges.map(function (e) {
+      var g = route(e), na = byId[e.from], nb = byId[e.to];
+      var dim = isDim(na) || (nb && isDim(nb));
+      var html = '<g class="edge edge-' + e.type + (dim ? " is-dim" : "") + '"><path d="' + pathD(g.pts) + '" marker-end="url(#arrow-' + e.type + ')"/>';
+      var key = e.to + "|" + e.label; // one label per target + action (e.g. both "upload" edges)
+      if (e.label && !seen[key]) {
+        seen[key] = true;
+        var t = e.label.toUpperCase(), w = t.length * 5.9 + 8;
+        var rx = g.side ? g.lx : g.lx - w / 2;
+        html += '<rect class="edge-label-bg" x="' + rx + '" y="' + (g.ly - 7) + '" width="' + w + '" height="13" rx="2"/>' +
+          '<text class="edge-label bp-edge-label" x="' + (rx + w / 2) + '" y="' + (g.ly + 3) + '" text-anchor="middle">' + esc(t) + "</text>";
+      }
+      return html + "</g>";
+    }).join("");
   }
-  function nodeHtml(p) {
-    var n=byId[p.id], col=colourOf(n), members=children[n.id] || [];
-    var tone=/bronze/.test(n.id)?'bronze':n.id==='st-silver'?'silver':n.id==='st-gold'?'gold':p.icon==='powerbi'?'bi':'';
-    var clazz='bp-node '+(p.boundary?'bp-boundary-head':'bp-service')+(isDim(n)?' is-dim':'')+(state.node===n.id?' is-selected':'');
-    if(state.box && n.branchBoxes.indexOf(state.box)>-1) clazz+=' is-traced';
-    var style='left:'+p.x+'px;top:'+p.y+'px;width:'+p.w+'px;height:'+(p.boundary?70:p.h)+'px;'+(col?'--ownership-color:'+col+';':'');
-    return '<button type="button" id="bp-node-'+n.id+'" class="'+clazz+' tone-'+tone+' service-'+p.icon+'" data-node="'+n.id+'" style="'+style+'" aria-label="'+esc(ariaLabel(n))+'" aria-controls="map-drawer" aria-expanded="'+(state.node===n.id)+'">'+icon(p.icon)+
-      '<span class="service-copy"><strong>'+esc(p.label)+'</strong><span>'+esc(p.caption)+'</span></span>'+
-      (members.length?'<span class="inside-count" aria-label="'+members.length+' components inside">'+members.length+' inside</span>':'')+
-      '<svg class="node-open" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8"/></svg></button>';
-  }
-  function render() {
-    var canvas=document.getElementById('bp-canvas');
-    if(!canvas) return;
-    var boundaries=diagram.nodes.filter(function(p){return p.boundary;}).map(function(p){
-      return '<div class="bp-boundary boundary-'+p.id+'" data-boundary="'+p.id+'" style="left:'+p.x+'px;top:'+p.y+'px;width:'+p.w+'px;height:'+p.h+'px" aria-hidden="true"></div>';
-    }).join('');
-    canvas.innerHTML='<div class="bp-world'+(running?'':' is-paused')+'" id="bp-world">'+boundaries+edgesSvg()+diagram.nodes.map(nodeHtml).join('')+
-      '<div class="diagram-footnote" style="left:240px;top:846px">Azure PaaS services sit outside the customer VNet. Fabric is a connected SaaS service.</div></div>';
-    var active=order.filter(function(n){return !isDim(n);}).length;
-    document.getElementById('bp-filter-status').textContent=active===order.length?'Select a component to explore inside. Hover to trace connections.':active+' of '+order.length+' components match your filters.';
-    if(BP.afterRender) BP.afterRender();
-    resizeScene();
-    highlight(state.node);
-  }
-  function resizeScene() {
-    var viewport=document.getElementById('bp-scroll'), world=document.getElementById('bp-world'), canvas=document.getElementById('bp-canvas');
-    if(!world || !viewport.clientWidth) return;
-    if(fitted) scale=Math.max(0.65,Math.min(1.12,(viewport.clientWidth-24)/diagram.width));
-    world.style.width=diagram.width+'px';world.style.height=diagram.height+'px';world.style.transform='scale('+scale+')';
-    canvas.style.width=diagram.width*scale+'px';canvas.style.height=diagram.height*scale+'px';
-    var label=document.getElementById('bp-zoom-label');if(label) label.textContent=Math.round(scale*100)+'%';
-  }
-  function highlight(id) {
-    var selected=visibleId(id), related=Object.create(null), focusIds=Object.create(null);
-    function include(n) { if(!n)return; var visible=visibleId(n.id); if(visible){focusIds[visible]=true;related[visible]=true;} (children[n.id]||[]).forEach(include); }
-    include(byId[id]);
-    connections.filter(shown).forEach(function(e){if(focusIds[e.from] || focusIds[e.to]){related[e.from]=true;related[e.to]=true;}});
-    document.querySelectorAll('.bp-connection').forEach(function(el){
-      var relevant=focusIds[el.dataset.from] || focusIds[el.dataset.to];
-      el.classList.toggle('is-muted',!!selected && !relevant);el.classList.toggle('is-active',!!selected && relevant);
-    });
-    document.querySelectorAll('#bp-canvas .bp-service').forEach(function(el){
-      el.classList.toggle('is-unrelated',!!selected && !related[el.dataset.node]);el.classList.toggle('is-connected',!!selected && !!related[el.dataset.node]);
-    });
-  }
-  function setupSceneControls() {
-    document.querySelectorAll('[data-connection-mode]').forEach(function(button){button.addEventListener('click',function(){
-      connectionMode=button.dataset.connectionMode;
-      document.querySelectorAll('[data-connection-mode]').forEach(function(b){b.setAttribute('aria-pressed',String(b===button));});
-      render();
-    });});
-    var play=document.getElementById('bp-play');
-    function animationLabel(){play.disabled=reducedMotion.matches;play.textContent=reducedMotion.matches?'Motion reduced':running?'Pause flow':'Play flow';play.setAttribute('aria-pressed',String(running));}
-    play.addEventListener('click',function(){running=!running;document.getElementById('bp-world').classList.toggle('is-paused',!running);animationLabel();});
-    animationLabel();
-    if(reducedMotion.addEventListener) reducedMotion.addEventListener('change',function(e){if(e.matches){running=false;document.getElementById('bp-world').classList.add('is-paused');}animationLabel();});
-    document.querySelectorAll('[data-zoom]').forEach(function(button){button.addEventListener('click',function(){
-      var action=button.dataset.zoom; fitted=action==='fit';
-      if(!fitted) scale=Math.max(0.45,Math.min(1.6,scale+(action==='in'?0.15:-0.15)));
-      resizeScene();
-    });});
-    var viewport=document.getElementById('bp-scroll');
-    viewport.addEventListener('pointerover',function(e){var b=e.target.closest('[data-node]');if(b)highlight(b.dataset.node);});
-    viewport.addEventListener('pointerout',function(e){if(e.target.closest('[data-node]'))highlight(state.node);});
-    viewport.addEventListener('focusin',function(e){var b=e.target.closest('[data-node]');if(b)highlight(b.dataset.node);});
-    viewport.addEventListener('focusout',function(){highlight(state.node);});
-    function openConnection(e){var edge=e.target.closest('[data-connection]');if(!edge)return;var c=connections[Number(edge.dataset.connection)];BP.openDrawer(c.edges[0].from,{el:edge},'connections');}
-    viewport.addEventListener('click',openConnection);
-    viewport.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-connection]')){e.preventDefault();openConnection(e);}});
-    // Drag blank space to pan; touch users retain native scrolling and pinch zoom.
-    var drag=null;
-    viewport.addEventListener('pointerdown',function(e){if(e.pointerType==='touch'||e.button!==0||e.target.closest('button,[data-connection]'))return;drag={x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop};viewport.setPointerCapture(e.pointerId);viewport.classList.add('is-panning');});
-    viewport.addEventListener('pointermove',function(e){if(drag){viewport.scrollLeft=drag.left-(e.clientX-drag.x);viewport.scrollTop=drag.top-(e.clientY-drag.y);}});
-    function stopDrag(){drag=null;viewport.classList.remove('is-panning');}
-    viewport.addEventListener('pointerup',stopDrag);viewport.addEventListener('pointercancel',stopDrag);
-    window.addEventListener('resize',resizeScene);
+  function markers() {
+    return "<defs>" + ["primary", "request", "return"].map(function (t) {
+      return '<marker id="arrow-' + t + '" class="marker-' + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker>';
+    }).join("") + "</defs>";
   }
 
+  /* ---- Frames: columns, side containers, full-width bars ---- */
+  function framesHtml() {
+    // Column captions sit on the bottom edge so connectors entering from above never cross them.
+    var h = "", colH = 4 * PITCH + NODE_H + 38;
+    K.columns.forEach(function (c) {
+      h += '<div class="map-container bp-col cap-bottom" aria-hidden="true" style="left:' + (colX[c.id] - 10) + "px;top:" + (COL_TOP - 12) + "px;width:" + (NODE_W + 20) + "px;height:" + colH +
+        'px"><span class="map-container-cap">' + c.step + " · " + esc(c.label) + "</span></div>";
+    });
+    K.containers.forEach(function (c) {
+      var f = frameOf(c.id);
+      h += '<div class="map-container bp-side" aria-hidden="true" style="left:' + f.x + "px;top:" + f.y + "px;width:" + f.w + "px;height:" + f.h +
+        'px"><span class="map-container-cap">' + esc(c.label) + "</span></div>";
+    });
+    K.bars.forEach(function (b) {
+      h += '<div class="map-container bp-bar" aria-hidden="true" style="left:' + BAR_L + "px;top:" + barTop(b.id) + "px;width:" + (BAR_R - BAR_L) + "px;height:" + BAR_H +
+        'px"><span class="map-container-cap">' + esc(b.label) + " · spans every column</span></div>";
+    });
+    return h;
+  }
+
+  function nodeHtml(n) {
+    var b = boxes[n.id], col = colourOf(n);
+    var cls = "map-node bp-node kind-" + n.tag.toLowerCase() + (isDim(n) ? " is-dim" : isSoft(n) ? " is-soft" : "") +
+      (state.box && n.branchBoxes.indexOf(state.box) > -1 ? " is-traced" : "") + (state.node === n.id ? " is-focal is-selected" : "");
+    return '<button type="button" class="' + cls + '" id="bp-node-' + n.id + '" data-node="' + n.id + '" aria-controls="map-drawer" aria-expanded="' +
+      (state.node === n.id) + '" aria-label="' + esc(ariaLabel(n)) + '" style="left:' + b.x + "px;top:" + b.y + "px;width:" + b.w + "px;height:" + b.h + "px" +
+      (col ? ";border-left:5px solid " + col : "") + '">' +
+      '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span></span>" +
+      '<span class="map-title">' + esc(n.title) + '</span><span class="map-sub bp-sub">' + esc(n.subtitle) + "</span>" +
+      '<span class="bp-badges">' + phaseHtml(n) + statusHtml(n.status) + "</span></button>";
+  }
+
+  function render() {
+    var canvas = document.getElementById("bp-canvas");
+    if (!canvas) return;
+    var h = BAR_START + K.bars.length * (BAR_H + BAR_GAP) + 40;
+    canvas.style.width = W + "px";
+    canvas.style.height = h + "px";
+    canvas.innerHTML = framesHtml() + '<svg class="map-edges" aria-hidden="true" focusable="false" width="' + W + '" height="' + h + '" viewBox="0 0 ' + W + " " + h + '">' +
+      markers() + edgesSvg() + "</svg>" + order.map(nodeHtml).join("");
+    canvas.querySelectorAll(".bp-node").forEach(function (el) {
+      if (el.scrollHeight > el.clientHeight + 1 && window.console) console.warn("Blueprint node content overflows:", el.id);
+    });
+    if (BP.afterRender) BP.afterRender();
+  }
+
+  /* ---- Permalink ---- */
   function writeHash() {
     var p = [];
-    if (state.section !== 'iac' || state.node) p.push('section=' + state.section);
-    if (state.step && state.section !== 'resources') p.push('step=' + encodeURIComponent(state.step));
-    if (state.node) p.push('node=' + encodeURIComponent(state.node));
-    if (state.colour !== 'none') p.push('colour=' + state.colour);
-    if (state.value) p.push('value=' + encodeURIComponent(state.value));
-    if (state.box) p.push('box=' + encodeURIComponent(state.box));
-    if (!allPhases()) p.push('phases=' + Object.keys(state.phases).filter(function (k) { return state.phases[k]; }).join(','));
-    if (state.view !== 'map') p.push('view=' + state.view);
-    try { history.replaceState(null, '', location.pathname + location.search + (p.length ? '#' + p.join('&') : '')); } catch (err) { /* file:// preview */ }
+    if (state.node) p.push("node=" + state.node);
+    if (state.colour !== "none") p.push("colour=" + state.colour);
+    if (state.value) p.push("value=" + encodeURIComponent(state.value));
+    if (state.box) p.push("box=" + state.box);
+    if (!allPhases()) p.push("phases=" + ["v1", "next", "future"].filter(function (k) { return state.phases[k]; }).join(","));
+    if (state.view !== "map") p.push("view=" + state.view);
+    try { history.replaceState(null, "", location.pathname + location.search + (p.length ? "#" + p.join("&") : "")); } catch (err) { /* file:// */ }
   }
   function readState() {
-    var raw = location.hash.slice(1), h = new URLSearchParams(raw.indexOf('=') > -1 ? raw : '');
-    var colour = h.get('colour'), phases = h.get('phases'), view = h.get('view');
-    state.colour = colour === 'function' || colour === 'unit' ? colour : 'none';
-    state.value = h.get('value') || '';
-    if (state.colour === 'function' && !fnById[state.value] || state.colour === 'unit' && !unitById[state.value] || state.colour === 'none') state.value = '';
-    state.box = boxFn[h.get('box')] ? h.get('box') : '';
+    var raw = location.hash.slice(1), h = new URLSearchParams(raw.indexOf("=") > -1 ? raw : "");
+    var colour = h.get("colour"), phases = h.get("phases"), view = h.get("view");
+    state.colour = colour === "function" || colour === "unit" ? colour : "none";
+    state.value = h.get("value") || "";
+    if (state.colour === "function" && !fnById[state.value]) state.value = "";
+    if (state.colour === "unit" && !unitById[state.value]) state.value = "";
+    state.box = boxFn[h.get("box")] ? h.get("box") : "";
     state.phases = { v1: true, next: true, future: true };
-    if (h.has('phases')) Object.keys(state.phases).forEach(function (k) { state.phases[k] = phases.split(',').indexOf(k) > -1; });
-    state.view = view === 'list' || view === 'branch' ? view : 'map';
-    var node = h.get('node');
-    var section = h.get('section');
-    state.section = section === 'resources' || K.architecture.journeys.some(function(j){return j.id === section;}) ? section :
-      (byId[node] || h.has('view') || h.has('colour') || h.has('phases') ? 'resources' : 'iac');
-    var journey = K.architecture.journeys.find(function(j){return j.id === state.section;});
-    state.step = journey && journey.steps.some(function(s){return s.id === h.get('step');}) ? h.get('step') : journey ? journey.steps[0].id : '';
+    if (phases) Object.keys(state.phases).forEach(function (k) { state.phases[k] = phases.split(",").indexOf(k) > -1; });
+    state.view = view === "list" || view === "branch" ? view : "map";
+    var node = h.get("node");
     return node && byId[node] ? node : null;
   }
+
   var BP = PORTAL.blueprint = {
     K: K, state: state, byId: byId, boxFn: boxFn, fnById: fnById, unitById: unitById, phaseById: phaseById,
     esc: esc, statusHtml: statusHtml, phaseHtml: phaseHtml, isDim: isDim, typeName: function (t) { return TYPE[t] || t; },
-    icon: icon, layouts: layouts, visibleId: visibleId, setupSceneControls: setupSceneControls, resizeScene: resizeScene, order: order, roots: roots, children: children, ancestors: ancestors, render: render, writeHash: writeHash, readState: readState, chipText: chipText
+    order: order, render: render, writeHash: writeHash, readState: readState, chipText: chipText
   };
 })();

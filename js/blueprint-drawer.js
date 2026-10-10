@@ -1,5 +1,5 @@
-/* Platform blueprint: resource details, hierarchy and branch responsibility views, toolbar wiring.
-   The drawer shell
+/* Platform blueprint: drawer field renderer for tool nodes (TKT-4 field order), list and branch
+   views (TKT-8, TKT-10), considered list (TKT-12), open questions, toolbar wiring. The drawer shell
    (open / close, focus, Esc, goto links) is the shared component in js/drawer.js, the same one the
    home process map uses. Read-only. */
 (function () {
@@ -20,54 +20,31 @@
     }).join("");
   }
 
-  var selectedTab = 'overview', connectionFocus = null;
-  var tabs = [{id:'overview',label:'Inside'},{id:'setup',label:'Set up'},{id:'access',label:'Access'},{id:'connections',label:'Connections'}];
-  function resourceIcon(n) { return BP.icon(BP.layouts[n.id] ? BP.layouts[n.id].icon : n.tag === 'STORE' ? 'database' : n.tag === 'EXT' ? 'source' : 'workspace'); }
   function content(n) {
-    var members = BP.children[n.id] || [];
-    var h = '<div class="inspector-icon">'+resourceIcon(n)+'</div>'+D.head(n.tag, esc(n.resourceType), n.title, n.subtitle);
-    h += '<div class="inspector-tabs" role="tablist" aria-label="Component details">'+tabs.map(function(t){
-      return '<button type="button" role="tab" id="inspector-tab-'+t.id+'" data-inspector-tab="'+t.id+'" aria-controls="inspector-panel-'+t.id+'" aria-selected="'+(selectedTab===t.id)+'" tabindex="'+(selectedTab===t.id?'0':'-1')+'">'+t.label+'</button>';
-    }).join('')+'</div>';
-    function panel(id,body) { return '<div role="tabpanel" id="inspector-panel-'+id+'" aria-labelledby="inspector-tab-'+id+'" tabindex="0"'+(selectedTab===id?'':' hidden')+'>'+body+'</div>'; }
-    var overview = sec('Location','<nav class="bp-path" aria-label="Resource hierarchy">'+BP.ancestors(n).map(function(item){
-      return item.id===n.id?'<span aria-current="location">'+esc(item.title)+'</span>':'<button type="button" class="drawer-goto" data-goto="'+item.id+'">'+esc(item.title)+'</button>';
-    }).join('<span class="bp-path-separator" aria-hidden="true"> / </span>')+'</nav>');
-    overview += sec('What it does','<p>'+esc(n.summary)+'</p>');
-    if(members.length) overview += sec('Inside this component','<div class="inside-grid">'+members.map(function(child){
-      return '<button type="button" class="drawer-goto inside-item" data-goto="'+child.id+'">'+resourceIcon(child)+'<span>'+esc(child.title)+'</span><small>Explore component →</small></button>';
-    }).join('')+'</div>');
-    overview += sec('Ownership','<p>'+esc(n.owner)+'</p><ul class="drawer-rel">'+n.branchBoxes.map(function(id){
-      var box=K.boxes.find(function(x){return x.id===id;});
-      return '<li><button type="button" class="drawer-goto" data-box="'+id+'" aria-pressed="'+(S.box===id)+'">'+esc(box.label)+'</button></li>';
-    }).join('')+'</ul>');
-    if(n.architectureNotes.length) overview += sec('Design notes','<ul class="bp-architecture-notes">'+n.architectureNotes.map(function(note){return '<li>'+esc(note)+'</li>';}).join('')+'</ul>');
-    overview += '<p class="inspector-note">'+BP.statusHtml(n.status)+' · '+esc(K.asOf)+'. This design has not provisioned a resource.</p>';
-    var setup='<p class="inspector-note">Implementation guide for your platform team. Adapt to approved region, tenant capabilities and environment. These steps do not execute changes.</p>';
-    setup += '<ol class="setup-steps">'+n.setupSteps.map(function(step){return '<li><strong>'+esc(step.title)+'</strong><p>'+esc(step.detail)+'</p></li>';}).join('')+'</ol>';
-    setup += sec('Service documentation',D.links(n.docs));
-    var access='<p class="inspector-note">Grant permissions to approved groups and workload identities at the narrowest practical scope. Network reachability and data authorization are separate controls.</p>';
-    access += n.accessControls.map(function(a){return '<article class="access-card"><strong>'+esc(a.principal)+'</strong><span class="access-role">'+esc(a.role)+'</span><p class="access-scope">Scope: '+esc(a.scope)+'</p><p>'+esc(a.note)+'</p></article>';}).join('');
-    var contained=Object.create(null);
-    function include(item){contained[item.id]=true;(BP.children[item.id]||[]).forEach(include);}
-    include(n);
-    var incoming=K.edges.filter(function(e){return contained[e.to]&&!contained[e.from];}), outgoing=K.edges.filter(function(e){return contained[e.from]&&!contained[e.to];});
-    function connectionRows(edges,direction) { return edges.map(function(e){var other=byId[direction==='in'?e.from:e.to];return '<div class="connection-detail"><span class="connection-direction" aria-hidden="true">'+(direction==='in'?'↘':'↗')+'</span><div><small>'+(direction==='in'?'From':'To')+'</small><button type="button" class="drawer-goto" data-goto="'+other.id+'">'+esc(other.title)+'</button><p>'+esc(e.label)+'</p></div></div>';}).join(''); }
-    var connections='<p class="inspector-note">Arrows show the direction of data or control in the proposed design. They are illustrative, not evidence of deployed connectivity.</p>';
-    if(incoming.length) connections += sec('Incoming',connectionRows(incoming,'in'));
-    if(outgoing.length) connections += sec('Outgoing',connectionRows(outgoing,'out'));
-    if(!incoming.length&&!outgoing.length) connections += '<p class="inspector-note">This is a containing boundary or logical component. Explore its children for their individual connections.</p>';
-    if(members.length) connections += sec('Explore internal connections','<div class="inside-grid">'+members.map(function(child){return '<button type="button" class="drawer-goto inside-item" data-goto="'+child.id+'">'+resourceIcon(child)+esc(child.title)+'</button>';}).join('')+'</div>');
-    return h+panel('overview',overview)+panel('setup',setup)+panel('access',access)+panel('connections',connections);
-  }
-  function activateTab(id,focus) {
-    selectedTab=id;
-    tabs.forEach(function(t){
-      var button=document.getElementById('inspector-tab-'+t.id),panel=document.getElementById('inspector-panel-'+t.id);
-      if(!button||!panel)return;
-      button.setAttribute('aria-selected',String(t.id===id));button.tabIndex=t.id===id?0:-1;panel.hidden=t.id!==id;
-      if(focus&&t.id===id)button.focus();
-    });
+    var u = BP.unitById[n.unit], p = BP.phaseById[n.phase];
+    var h = D.head(n.tag, esc(BP.typeName(n.tag)), n.title, n.subtitle);
+    h += sec("Summary", "<p>" + esc(n.summary) + "</p>");
+    h += sec("Why we use it", "<p>" + esc(n.why) + "</p>");
+    h += sec("Status", "<p>" + BP.statusHtml(n.status) + ' <span class="drawer-asof">(sample) as of ' + esc(K.asOf) + "</span></p>" +
+      '<p class="drawer-note bp-sample-note">Sample statuses, not real infrastructure.</p>' +
+      '<ul class="drawer-counts">' + K.envs.map(function (e, i) {
+        return "<li>" + esc(e) + " " + BP.statusHtml(ENV_KEY[n.statusByEnv[i]] || "planned") + ' <span class="drawer-asof">(sample)</span></li>';
+      }).join("") + "</ul>" + (n.statusNote ? '<p class="drawer-note">' + esc(n.statusNote) + "</p>" : "") +
+      '<p class="drawer-note">Status source: ' + esc(n.statusSource || "manifest only") + " · manifest " + esc(K.manifest) + ".</p>");
+    h += sec("Owner", "<p>" + esc(n.owner) + '</p><p class="drawer-note">Owning unit: ' + esc(u.label) + " · " + esc(u.name) + "</p>");
+    h += sec("Branch box", '<ul class="drawer-rel">' + n.branchBoxes.map(function (id) {
+      var b = K.boxes.filter(function (x) { return x.id === id; })[0], f = BP.fnById[b.fn];
+      return '<li><button type="button" class="drawer-goto" data-box="' + id + '" aria-pressed="' + (S.box === id) + '">' + esc(b.label) +
+        '</button> <span class="drawer-how">' + esc(f.label) + "</span></li>";
+    }).join("") + '</ul><p class="drawer-note">Choosing a box filters the map to its DAB function and highlights every tool that traces to it.</p>');
+    h += sec("Phase", "<p>" + BP.phaseHtml(n) + ' <span class="drawer-note">' + esc(p.why) + "</span></p>");
+    h += sec("Defined in", n.iac === "na" ? NOT_APPLICABLE : n.iac === "tbd" ? NOT_DEFINED : '<p><code class="defined-in">' + esc(n.iac) + "</code></p>");
+    h += sec("Linked docs", '<ul class="drawer-links">' + n.docs.map(function (d) { return "<li>" + link(d) + "</li>"; }).join("") + "</ul>");
+    h += sec("Upstream / downstream", n.upstream.length || n.downstream.length
+      ? '<ul class="drawer-rel">' + rel(n.upstream, "←") + rel(n.downstream, "→") + "</ul>" : NOT_APPLICABLE);
+    var deeper = (n.homeNode ? [{ label: "Process map: " + homeTitle(n.homeNode), href: "../index.html#node=" + n.homeNode }] : []).concat(n.deeper);
+    h += sec("Links deeper", D.links(deeper));
+    return h;
   }
 
   var shell = D.create({
@@ -75,39 +52,29 @@
     render: function (id) { return content(byId[id]); },
     select: function (id) { S.node = id; BP.render(); BP.writeHash(); },
     deselect: function () { S.node = null; BP.render(); BP.writeHash(); },
-    nodeEl: function (id) { return S.section === 'resources' && S.view === "map" ? document.getElementById("bp-node-" + BP.visibleId(id)) : null; },
+    nodeEl: function (id) { return S.view === "map" ? document.getElementById("bp-node-" + id) : null; },
     focusTarget: function (id) {
-      if(S.section !== 'resources') return document.querySelector('[data-journey-resource="'+id+'"]') || document.getElementById('journey-step-'+S.step);
-      if(S.view === 'map' && connectionFocus !== null) {
-        var edge=document.querySelector('[data-connection="'+connectionFocus+'"]');
-        if(edge)return edge;
-      }
-      return S.view === "map" ? document.getElementById("bp-node-" + BP.visibleId(id)) : document.querySelector('[data-list-node="' + id + '"]');
+      return S.view === "map" ? document.getElementById("bp-node-" + id) : document.querySelector('[data-list-node="' + id + '"]');
     }
   });
   function drawer() { return document.getElementById("map-drawer"); }
-  BP.openDrawer = function (id, from, tab) {
-    selectedTab=tab || 'overview';
-    connectionFocus=from && from.el && from.el.hasAttribute('data-connection') ? from.el.dataset.connection : null;
-    if(connectionFocus!==null)from={where:'connection'};
-    if (shell) shell.open(id, from);
-  };
+  BP.openDrawer = function (id, from) { if (shell) shell.open(id, from); };
   BP.closeDrawer = function (silent) { if (shell) shell.close(silent); };
 
   /* ---- List and branch views (same nodes, badges and drawer) ---- */
   function row(n, i, all, inBranch) {
-    // Branch view repeats a resource under each responsibility it serves.
+    // Branch view repeats a tool under each box it serves, so only the list view carries ids.
     return '<li class="map-list-item' + (BP.isDim(n) ? " is-dim" : "") + '"><button type="button" class="map-list-btn"' +
       (inBranch === true ? "" : ' id="bp-list-' + n.id + '"') + ' data-list-node="' + n.id +
-      '" aria-controls="map-drawer" aria-expanded="' + (S.node === n.id) + '">' + esc(n.title) + "</button> " + BP.phaseHtml(n) +
-      ' <span class="bp-chip">' + esc(BP.chipText(n)) + '</span><p class="bp-list-kind">' + esc(n.resourceType || BP.typeName(n.tag)) +
-      '</p><p class="drawer-note">' + esc(n.subtitle) + '</p><p class="bp-list-path">' + esc(BP.ancestors(n).map(function (item) { return item.title; }).join(' / ')) + "</p></li>";
+      '" aria-controls="map-drawer"><span class="map-tag">' + esc(n.tag) + "</span> " + esc(n.title) + "</button> " + BP.phaseHtml(n) + " " + BP.statusHtml(n.status) +
+      ' <span class="bp-chip">' + esc(BP.chipText(n)) + '</span><p class="drawer-note">' + esc(n.subtitle) + "</p></li>";
   }
   function groupsHtml() {
-    return BP.roots.map(function (root) {
-      return '<h3 class="bp-list-h">' + esc(root.title) + '</h3><ol class="map-list">' + BP.order.filter(function (n) {
-        return BP.ancestors(n)[0].id === root.id;
-      }).map(row).join("") + "</ol>";
+    var g = K.columns.map(function (c) { return { label: c.step + " " + c.label, test: function (n) { return n.column === c.id; } }; })
+      .concat(K.containers.map(function (c) { return { label: c.label, test: function (n) { return n.container === c.id; } }; }))
+      .concat(K.bars.map(function (b) { return { label: b.label + " bar", test: function (n) { return n.bar === b.id; } }; }));
+    return g.map(function (x) {
+      return '<h3 class="bp-list-h">' + esc(x.label) + '</h3><ol class="map-list">' + BP.order.filter(x.test).map(row).join("") + "</ol>";
     }).join("");
   }
   function branchHtml() {
@@ -116,7 +83,7 @@
         K.boxes.filter(function (b) { return b.fn === f.id; }).map(function (b) {
           var tools = BP.order.filter(function (n) { return n.branchBoxes.indexOf(b.id) > -1; });
           return '<h4 class="bp-box-h">' + esc(b.label) + "</h4>" + (tools.length ? '<ul class="map-list">' + tools.map(function (n) { return row(n, 0, null, true); }).join("") + "</ul>"
-            : '<p class="drawer-empty">No technical resource assigned; this responsibility remains a branch activity.</p>');
+            : '<p class="drawer-empty">No tools on the blueprint yet</p>');
         }).join("");
     }).join("");
   }
@@ -144,8 +111,7 @@
     var lv = document.getElementById("bp-list");
     lv.hidden = S.view === "map";
     lv.innerHTML = S.view === "list" ? '<h2 class="sr-only">Blueprint as a list</h2>' + groupsHtml()
-      : S.view === "branch" ? '<h2 class="sr-only">Resources by branch function and responsibility</h2><p class="drawer-note">Proposed technical ownership follows the branch functions. Resource mappings support these responsibilities; they do not replace policy, stewardship or business approval.</p>' + branchHtml() : "";
-    if(BP.journeys) BP.journeys.render();
+      : S.view === "branch" ? '<h2 class="sr-only">Branch view: tools by DAB function and box</h2>' + branchHtml() : "";
   };
 
   function update() { BP.render(); BP.writeHash(); }
@@ -153,18 +119,14 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     if (!document.getElementById("bp-canvas")) return;
-    document.getElementById('bp-asof').textContent = 'Planning baseline · ' + K.asOf;
-    document.querySelectorAll('[data-phase]').forEach(function (button) {
-      button.textContent = BP.phaseById[button.getAttribute('data-phase')].label;
-    });
-    document.getElementById('bp-notes').innerHTML = (K.architecture.notes || []).map(function (note) {
-      return '<article class="bp-note"><h3>' + esc(note.title) + '</h3><p>' + esc(note.text) + '</p></article>';
-    }).join('');
     var banner = document.getElementById("bp-banner");
     banner.querySelector("[data-banner-text]").textContent = K.banner.text;
     var bl = banner.querySelector("[data-banner-link]");
     bl.textContent = K.banner.linkLabel;
     bl.setAttribute("href", K.banner.href);
+    function pin() { var hd = document.querySelector(".site-header"); banner.style.top = (hd ? hd.offsetHeight : 0) + "px"; }
+    pin();
+    window.addEventListener("resize", pin);
     document.getElementById("bp-considered").innerHTML = K.considered.map(function (c) {
       return "<li><strong>" + esc(c.name) + "</strong> · " + esc(c.reason) + "</li>";
     }).join("");
@@ -175,7 +137,7 @@
     document.addEventListener("click", function (e) {
       var t = e.target.closest("[data-node],[data-list-node],[data-box],[data-colour],[data-value],[data-phase],#bp-view-list,#bp-view-branch");
       if (!t) return;
-      if (t.hasAttribute("data-node")) return BP.openDrawer(t.getAttribute("data-node"), { where: "map" });
+      if (t.hasAttribute("data-node") && t.classList.contains("bp-node")) return BP.openDrawer(t.getAttribute("data-node"), { where: "map" });
       if (t.hasAttribute("data-list-node")) return BP.openDrawer(t.getAttribute("data-list-node"), { where: "list" });
       if (t.hasAttribute("data-box")) {
         var box = t.getAttribute("data-box");
@@ -197,21 +159,7 @@
       if (node) BP.openDrawer(node, null); else BP.closeDrawer(true);
       BP.writeHash();
     }
-    window.addEventListener("hashchange", function () {
-      if (location.hash === '#open-questions') document.getElementById('open-questions').open = true;
-      else apply();
-    });
+    window.addEventListener("hashchange", function () { if (location.hash.indexOf("=") > -1) apply(); });
     apply();
-    BP.setupSceneControls();
-    drawer().addEventListener('click',function(e){var button=e.target.closest('[data-inspector-tab]');if(button)activateTab(button.dataset.inspectorTab,false);});
-    drawer().addEventListener('keydown',function(e){
-      var button=e.target.closest('[data-inspector-tab]');if(!button)return;
-      var index=tabs.findIndex(function(t){return t.id===button.dataset.inspectorTab;});
-      if(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='Home'||e.key==='End'){
-        e.preventDefault();
-        index=e.key==='Home'?0:e.key==='End'?tabs.length-1:(index+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
-        activateTab(tabs[index].id,true);
-      }
-    });
   });
 })();

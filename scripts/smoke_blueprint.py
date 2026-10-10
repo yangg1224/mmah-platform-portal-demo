@@ -1,18 +1,23 @@
-"""Browser regression checks. Requires Playwright and Chromium; starts its own local server.
+"""Browser regression checks for the restored Platform blueprint (PRD §6.6 TKT-1..14), the home map
+(MAP-11 / sample statuses) and the IaC guide page. Requires Playwright + Chromium; starts its own server.
 
-    python3 scripts/smoke_blueprint.py --screenshots /tmp/blueprint-review
+    python3 scripts/smoke_blueprint.py [--site-dir dist] [--screenshots DIR]
+The detailed IaC guide walkthrough checks live in scripts/smoke_iac_guide.py.
 """
 import argparse
 import functools
-import json
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
+import re
 import shutil
 import threading
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
-from playwright.sync_api import expect, sync_playwright
+from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
+PRODUCTS = re.compile(r"\b(azure|fabric|entra|purview|databricks|onelake|power ?bi|key vault|log analytics|"
+                      r"ontario data catalogue|private endpoints?|synapse)\b", re.I)
+IPISH = re.compile(r"\b\d{1,3}(\.\d{1,3}){3}\b|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -20,254 +25,138 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
-def smoke(base, screenshot_dir):
-    checks, errors = [], []
+def smoke(base, shots):
+    errors, results = [], []
 
-    def passed(message):
-        checks.append(message)
-        print("PASS:", message, flush=True)
+    def ok(cond, msg):
+        results.append((bool(cond), msg))
+        print(("PASS: " if cond else "FAIL: ") + msg, flush=True)
 
-    with sync_playwright() as playwright:
-        executable = shutil.which("chromium") or shutil.which("google-chrome")
-        browser = playwright.chromium.launch(**({"executable_path": executable} if executable else {}))
-        page = browser.new_page(viewport={"width": 1600, "height": 1160})
-        page.on("pageerror", lambda error: errors.append(str(error)))
-        page.on("requestfailed", lambda request: errors.append(request.url + ": " + str(request.failure)))
-        page.on("response", lambda response: errors.append(f"HTTP {response.status}: {response.url}") if response.status >= 400 else None)
+    with sync_playwright() as p:
+        exe = shutil.which("chromium") or shutil.which("google-chrome")
+        browser = p.chromium.launch(**({"executable_path": exe} if exe else {}))
+        page = browser.new_page(viewport={"width": 1280, "height": 900})
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.on("console", lambda m: errors.append("console " + m.type + ": " + m.text) if m.type in ("error", "warning") else None)
+        page.on("response", lambda r: errors.append(f"HTTP {r.status}: {r.url}") if r.status >= 400 else None)
+
+        # Home map: MAP-11 and the sample-status rule.
+        page.goto(base + "/index.html#overlays=setup,releases", wait_until="networkidle")
+        ok(not PRODUCTS.search(page.inner_text("body")), "MAP-11 home map + overlays show no product names")
+        sts = page.eval_on_selector_all('[data-node^="lane-"] .map-status', "els=>els.map(e=>e.innerText.replace(/\\s+/g,' '))")
+        ok(sts and all("Sample:" in s for s in sts), "Releases lane statuses all carry 'Sample:' " + str(sts))
+        ok("SAMPLE STATUSES, NOT REAL INFRASTRUCTURE" in page.inner_text("#map-canvas").upper(), "Releases overlay label says sample statuses")
+        for nid in page.eval_on_selector_all(".map-node", "els=>els.map(e=>e.dataset.node)"):
+            page.goto(base + "/index.html#overlays=setup,releases&node=" + nid, wait_until="networkidle")
+            page.reload(wait_until="networkidle")
+            t = page.inner_text("#map-drawer")
+            if PRODUCTS.search(t):
+                ok(False, f"MAP-11 drawer {nid} names a product: {PRODUCTS.search(t).group(0)}")
+        ok(True, "Home drawers opened")
+        if shots:
+            page.goto(base + "/index.html#overlays=releases", wait_until="networkidle")
+            page.screenshot(path=str(shots / "home-releases.png"))
+
+        # Blueprint layout (TKT-1).
         page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
-        expect(page.locator(".section-card")).to_have_count(3)
-        expect(page.locator("#bp-resource-view")).to_be_hidden()
-        expect(page.locator("#bp-journey")).to_have_attribute("data-journey", "iac")
-        expect(page.locator('[data-step-direction="-1"]')).to_be_disabled()
-        expect(page.locator(".journey-node")).to_have_count(5)
-        pulse = page.locator(".journey-pulse").first
-        offset = pulse.evaluate("el=>getComputedStyle(el).strokeDashoffset")
-        page.wait_for_function("old=>getComputedStyle(document.querySelector('.journey-pulse')).strokeDashoffset!==old", arg=offset)
-        page.locator("#journey-play").click()
-        assert pulse.evaluate("el=>getComputedStyle(el).animationPlayState") == "paused"
-        page.locator('[data-step-direction="1"]').click()
-        expect(page.locator("#journey-guide-title")).to_have_text("Codify the platform")
-        expect(page.locator("#journey-step-codify")).to_be_focused()
-        expect(page.locator("#journey-play")).to_have_text("Play flow")
-        page.locator("#journey-play").click()
+        caps = page.eval_on_selector_all(".bp-col .map-container-cap", "els=>els.map(e=>e.textContent)")
+        ok([c.split("·")[-1].strip() for c in caps] == ["Sources", "Ingest", "Store", "Process", "Serve", "Enrich"], "TKT-1 columns " + str(caps))
+        geo = page.evaluate("""(()=>{const r=e=>e.getBoundingClientRect();
+          const cols=[...document.querySelectorAll('.bp-col')].map(r), bars=[...document.querySelectorAll('.bp-bar')].map(r);
+          const cv=r(document.getElementById('bp-canvas'));
+          return {colBottom:Math.max(...cols.map(b=>b.bottom)), barTops:bars.map(b=>b.top), barW:bars.map(b=>b.width),
+                  colSpan:Math.max(...cols.map(b=>b.right))-Math.min(...cols.map(b=>b.left)), n:bars.length,
+                  barText:[...document.querySelectorAll('.bp-bar .map-container-cap')].map(e=>e.innerText)}})()""")
+        ok(geo["n"] == 3 and all(t >= geo["colBottom"] for t in geo["barTops"]) and all(w >= geo["colSpan"] - 2 for w in geo["barW"]),
+           f"TKT-1 three full-width bars under the columns {geo}")
+        sides = page.eval_on_selector_all(".bp-side .map-container-cap", "els=>els.map(e=>e.textContent)")
+        ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
+        store = page.inner_text("#bp-canvas")
+        ok(all(w in store for w in ("Bronze", "Silver", "Gold")) and page.locator("#bp-node-st-ref").count() == 1, "TKT-1 Store lakehouses + reference table")
 
-        journeys = page.evaluate("PORTAL.toolkit.architecture.journeys")
-        for journey in journeys:
-            page.locator('.section-card[data-section="' + journey["id"] + '"]').click()
-            expect(page.locator(".journey-line[marker-end]")).to_have_count(4)
-            expect(page.locator(".journey-return[marker-end]")).to_have_count(1)
-            for step in journey["steps"]:
-                page.locator('[data-journey-step="' + step["id"] + '"]').click()
-                expect(page.locator("#journey-guide-title")).to_have_text(step["title"])
-                expect(page.locator(".guide-actions li")).to_have_count(len(step["actions"]))
-                expect(page.locator(".guide-gate")).to_contain_text(step["gate"])
-                expect(page.locator(".journey-resource")).to_have_count(len(step["resources"]))
-            expect(page.locator('[data-step-direction="1"]')).to_be_disabled()
-            page.locator("#journey-exception").click()
-            expect(page.locator("#journey-exception-detail")).to_contain_text(journey["exception"]["detail"])
-            page.locator("#journey-exception").click()
-            expect(page.locator("#journey-exception-detail")).to_be_hidden()
-            page.locator("#guide-tab-setup").focus()
-            page.keyboard.press("ArrowRight")
-            expect(page.locator("#guide-tab-access")).to_be_focused()
-            expect(page.locator("#guide-panel-access")).to_contain_text(journey["steps"][-1]["access"][0])
-            page.keyboard.press("Home")
-            expect(page.locator("#guide-tab-setup")).to_be_focused()
-            page.locator('[data-journey-step="' + journey["steps"][1]["id"] + '"]').click()
-            if screenshot_dir:
-                page.screenshot(path=str(screenshot_dir / (journey["id"] + ".png")), full_page=True)
-        passed("Three visual guides, all 15 steps, input/action/output gates, exception paths, animation and keyboard access tabs")
-
-        page.locator('[data-journey-step="silver"]').click()
-        page.locator('[data-journey-resource="st-silver"]').click()
-        page.get_by_role("tab", name="Set up", exact=True).click()
-        expect(page.locator(".setup-steps")).to_be_visible()
-        page.keyboard.press("Escape")
-        expect(page.locator('[data-journey-resource="st-silver"]')).to_be_focused()
-        page.reload(wait_until="networkidle")
-        expect(page.locator("#journey-guide-title")).to_have_text("Silver")
-        expect(page.locator('.section-card[data-section="medallion"]')).to_have_attribute("aria-pressed", "true")
-        page.locator('[data-journey-resource="p-spark"]').click()
-        page.reload(wait_until="networkidle")
-        expect(page.locator("#drawer-title")).to_have_text("Spark notebooks")
-        expect(page.locator("#journey-guide-title")).to_have_text("Silver")
-        page.keyboard.press("Escape")
-        page.goto(base + "/pages/blueprint.html#section=unknown&step=missing", wait_until="networkidle")
-        expect(page.locator("#journey-guide-title")).to_have_text("Define environments")
-        page.emulate_media(reduced_motion="reduce")
-        expect(page.locator("#journey-play")).to_be_disabled()
-        assert page.locator(".journey-pulse").first.evaluate("el=>getComputedStyle(el).animationName") == "none"
-        page.emulate_media(reduced_motion="no-preference")
-        page.set_viewport_size({"width": 390, "height": 844})
-        page.locator('[data-section="medallion"]').click()
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        assert page.locator("#journey-scroll").evaluate("el=>el.scrollWidth>el.clientWidth")
-        page.locator('[data-journey-step="serve"]').click()
-        expect(page.locator("#journey-guide-title")).to_have_text("Power BI")
-        assert page.locator("#journey-scroll").evaluate("el=>el.scrollLeft>0")
-        page.locator('[data-journey-resource="sv-pbi"]').click()
-        expect(page.locator("#drawer-title")).to_have_text("Power BI reports & apps")
-        page.keyboard.press("Escape")
-        expect(page.locator('[data-journey-resource="sv-pbi"]')).to_be_focused()
-        if screenshot_dir:
-            page.evaluate("window.scrollTo(0, 0)")
-            page.screenshot(path=str(screenshot_dir / "journey-mobile.png"), full_page=True)
-        passed("Step and resource permalinks, invalid-link fallback, inspector focus, mobile scroll and reduced motion")
-        page.set_viewport_size({"width": 1600, "height": 1160})
-        page.locator('[data-section="resources"]').click()
-        expect(page.locator("#bp-journey")).to_be_hidden()
-        expect(page.locator("#bp-resource-view")).to_be_visible()
-        nodes = page.evaluate("PORTAL.toolkit.nodes.length")
-        overview = page.evaluate("PORTAL.toolkit.architecture.diagram.nodes.length")
-        expect(page.locator("#bp-canvas [data-node]")).to_have_count(overview)
-        expect(page.locator('[data-boundary="azure"]')).to_be_visible()
-        expect(page.locator('[data-boundary="fabric"]')).to_be_visible()
-        assert page.evaluate("""() => {
-          const box=id=>document.querySelector('[data-boundary="'+id+'"]').getBoundingClientRect();
-          const node=id=>document.getElementById('bp-node-'+id).getBoundingClientRect();
-          const inside=(a,b)=>a.x>=b.x&&a.y>=b.y&&a.right<=b.right&&a.bottom<=b.bottom;
-          return inside(node('st-bronze'),box('st-adls')) && inside(box('st-adls'),box('azure')) &&
-            inside(node('pl-network'),box('pl-vnet')) && inside(node('st-silver'),box('pl-workspaces')) &&
-            !inside(box('fabric'),box('azure'));
-        }""")
-        data_edges = page.locator(".bp-connection").count()
-        assert data_edges > 5
-        assert page.locator('.wire-base[marker-end]').count() == data_edges
-        # The resource map stays paused after a reduced-motion preference is removed.
-        # Resume explicitly before checking animation, as a user would.
-        if page.locator("#bp-play").get_attribute("aria-pressed") == "false":
-            page.locator("#bp-play").click()
-        offset = page.locator(".flow-pulse").first.evaluate("el=>getComputedStyle(el).strokeDashoffset")
-        page.wait_for_function("old=>getComputedStyle(document.querySelector('.flow-pulse')).strokeDashoffset!==old", arg=offset)
-        page.locator("#bp-play").click()
-        expect(page.locator("#bp-world")).to_have_class("bp-world is-paused")
-        assert page.locator(".flow-pulse").first.evaluate("el=>getComputedStyle(el).animationPlayState") == "paused"
-        page.locator("#bp-play").click()
-        passed("Subscription and service nesting, directed arrows, animated flow and pause control")
-
-        page.locator('[data-connection-mode="access"]').click()
-        assert page.locator(".connection-access").count() >= 7
-        assert page.locator(".bp-connection:not(.connection-access)").count() == 0
-        page.locator('[data-connection-mode="all"]').click()
-        assert page.locator(".bp-connection").count() > data_edges
-        page.locator('[data-connection-mode="data"]').click()
-        page.locator("#bp-node-st-adls").hover()
-        assert page.locator(".bp-connection.is-active").count() >= 2
-        passed("Data / access / all connection views and parent-service connection tracing")
-
-        page.locator("#bp-node-st-adls").click()
-        expect(page.locator("#drawer-title")).to_have_text("Azure Data Lake Storage Gen2")
-        expect(page.locator("#inspector-panel-overview .inside-item")).to_have_count(2)
-        page.get_by_role("tab", name="Set up", exact=True).click()
-        assert page.locator(".setup-steps li").count() >= 3
-        expect(page.locator("#inspector-panel-setup")).to_contain_text("hierarchical namespace")
-        if screenshot_dir:
-            page.screenshot(path=str(screenshot_dir / "setup.png"))
-        page.get_by_role("tab", name="Access", exact=True).click()
-        expect(page.locator("#inspector-panel-access")).to_contain_text("Storage Blob Data Contributor")
-        page.keyboard.press("ArrowRight")
-        expect(page.get_by_role("tab", name="Connections", exact=True)).to_be_focused()
-        expect(page.locator("#inspector-panel-connections")).to_contain_text("Azure Data Factory")
-        expect(page.locator("#inspector-panel-connections")).to_contain_text("ADLS Bronze shortcut")
-        page.get_by_role("tab", name="Inside", exact=True).click()
-        page.locator('#inspector-panel-overview [data-goto="st-quarantine"]').click()
-        page.get_by_role("tab", name="Access", exact=True).click()
-        expect(page.locator("#inspector-panel-access")).to_contain_text("no quarantine access")
-        page.keyboard.press("Escape")
-        expect(page.locator("#map-drawer")).to_be_hidden()
-        expect(page.locator("#bp-node-st-quarantine")).to_be_focused()
-        passed("Component interiors, setup instructions, scoped access, aggregate connections and keyboard tabs")
-
-        edge = page.locator('.bp-connection[data-from="i-adf"][data-to="st-bronze"]')
-        edge.focus()
-        page.keyboard.press("Enter")
-        expect(page.locator("#drawer-title")).to_have_text("Azure Data Factory")
-        expect(page.get_by_role("tab", name="Connections", exact=True)).to_have_attribute("aria-selected", "true")
-        page.keyboard.press("Escape")
-        expect(edge).to_be_focused()
-        original_zoom = page.locator("#bp-zoom-label").inner_text()
-        page.locator('[data-zoom="in"]').click()
-        assert page.locator("#bp-zoom-label").inner_text() != original_zoom
-        viewport = page.locator("#bp-scroll").bounding_box()
-        page.mouse.move(viewport["x"] + 450, viewport["y"] + 8)
-        page.mouse.down()
-        page.mouse.move(viewport["x"] + 150, viewport["y"] + 8, steps=5)
-        page.mouse.up()
-        assert page.locator("#bp-scroll").evaluate("el=>el.scrollLeft") > 0
-        page.locator('[data-zoom="fit"]').click()
-        expect(page.locator("#bp-zoom-label")).to_have_text(original_zoom)
-        passed("Keyboard-activated connections, zoom, fit and drag-to-pan")
-
-        page.locator(".bp-options summary").click()
+        nodes = page.locator("#bp-canvas .bp-node")
+        n = nodes.count()
+        badges = page.evaluate("""[...document.querySelectorAll('#bp-canvas .bp-node')].map(e=>({chip:!!e.querySelector('.bp-chip')&&e.querySelector('.bp-chip').innerText.trim().length>0,
+            phase:!!e.querySelector('.badge-phase'), status:/(Planned|Provisioned|Live)/.test(e.innerText)}))""")
+        ok(n >= 40 and all(b["chip"] and b["phase"] and b["status"] for b in badges), f"TKT-5/6/7 every node ({n}) has unit chip, phase badge and status badge")
+        ok(page.locator('[data-phase="v1"]').inner_text().strip() == "v1", "TKT-6 phase toggle reads v1 · Next · Future")
         page.locator('[data-colour="unit"]').click()
-        page.locator('[data-value="BIRU"]').click()
-        page.locator("#bp-view-list").click()
-        expect(page.locator("#bp-list [data-list-node]")).to_have_count(nodes)
-        page.locator('#bp-list [data-list-node="st-shortcut"]').click()
-        expect(page.locator("#drawer-title")).to_have_text("ADLS Bronze shortcut")
-        page.keyboard.press("Escape")
-        page.locator("#bp-view-branch").click()
-        assert page.locator("#bp-list [data-list-node]").count() > nodes
-        page.goto(base + "/pages/blueprint.html#node=st-ref&colour=unit&value=SDGU-G&phases=", wait_until="networkidle")
-        expect(page.locator("#drawer-title")).to_have_text("Reference & master tables")
-        assert not any(page.evaluate("PORTAL.blueprint.state.phases").values())
-        page.keyboard.press("Escape")
-        passed("Complete resource list, branch view and deep links to components inside services")
+        vals = page.eval_on_selector_all("#bp-values button", "els=>els.map(e=>e.innerText.trim())")
+        ok(all(v in " ".join(vals) for v in ("BIRU", "SDGU-G", "SDGU-E", "DPU", "CLUSTER?")), "TKT-5 owning-unit values " + str(vals))
+        ok(page.locator("#bp-legend-colour").is_visible(), "TKT-5 legend updates with the colour toggle")
+        page.locator('[data-colour="none"]').click()
+        banner = page.inner_text("#bp-banner")
+        ok("Intended platform: Microsoft Fabric" in banner and page.locator("#bp-banner a[href='#open-questions']").count() == 1, "TKT-9 banner")
+        ok("Sample statuses, not real infrastructure" in page.inner_text(".map-legend"), "Sample-status note in legend")
+        ok(page.locator(".map-legend .lg-gate").count() == 1, "TKT-13 legend has MAP-4 edge types incl. gate")
+        ok(page.locator("a[href='iac-guide.html']").count() >= 1, "IaC guide link on blueprint")
 
-        page.emulate_media(reduced_motion="reduce")
-        page.goto(base + "/pages/blueprint.html#section=resources", wait_until="networkidle")
-        expect(page.locator("#bp-play")).to_be_disabled()
-        assert page.locator(".flow-pulse").first.evaluate("el=>getComputedStyle(el).animationName") == "none"
-        page.emulate_media(reduced_motion="no-preference")
-        if screenshot_dir:
-            page.screenshot(path=str(screenshot_dir / "architecture.png"), full_page=True)
-            page.locator('[data-connection-mode="access"]').click()
-            page.screenshot(path=str(screenshot_dir / "access-network.png"), full_page=True)
-        page.set_viewport_size({"width": 390, "height": 844})
-        page.goto(base + "/pages/blueprint.html#section=resources", wait_until="networkidle")
-        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        assert page.locator("#bp-scroll").evaluate("el=>el.scrollWidth>el.clientWidth")
-        page.locator("#bp-node-sv-pbi").click()
-        page.get_by_role("tab", name="Access", exact=True).click()
-        expect(page.locator("#inspector-panel-access")).to_contain_text("App audience")
-        if screenshot_dir:
-            page.screenshot(path=str(screenshot_dir / "mobile.png"))
+        # Drawer (TKT-4 order, TKT-7 per-env sample status, TKT-14 back link).
+        page.locator("#bp-node-st-silver").click()
+        heads = page.eval_on_selector_all("#map-drawer .drawer-body h3, #map-drawer .drawer-body .drawer-h", "els=>els.map(e=>e.innerText.trim().toUpperCase())")
+        want = ["SUMMARY", "WHY WE USE IT", "STATUS", "OWNER", "BRANCH BOX", "PHASE", "DEFINED IN", "LINKED DOCS", "UPSTREAM / DOWNSTREAM", "LINKS DEEPER"]
+        ok([h for h in heads if h in want] == want, "TKT-4 drawer order " + str(heads))
+        dt = page.inner_text("#map-drawer")
+        ok("as of" in dt and dt.count("(sample)") >= 5 and "Sample statuses, not real infrastructure" in dt, "TKT-7 per-environment sample status with as-of")
+        ok(page.locator("#map-drawer a[href*='index.html#node=']").count() >= 1, "TKT-14 blueprint node links back to the home map")
+        if shots:
+            page.screenshot(path=str(shots / "blueprint-panel.png"))
         page.keyboard.press("Escape")
-        expect(page.locator("#map-drawer")).to_be_hidden()
-        passed("Reduced-motion preference, mobile canvas scrolling and mobile permissions inspector")
 
-        page.set_viewport_size({"width": 1440, "height": 1000})
-        page.goto(base + "/", wait_until="networkidle")
-        page.locator("#map-node-silver").click()
-        expect(page.locator("#drawer-title")).to_contain_text("Standardize")
-        page.keyboard.press("Escape")
-        page.locator("#global-search").fill("Key Vault")
-        expect(page.locator("#search-results")).to_contain_text("Azure and Fabric")
+        # TKT-3 branch-box filter + TKT-8 branch view + TKT-10 list view.
+        page.goto(base + "/pages/blueprint.html#box=ingest", wait_until="networkidle")
+        ok(page.locator("#bp-canvas .bp-node.is-traced").count() > 0, "TKT-3 branch-box permalink filters the map")
+        page.goto(base + "/pages/blueprint.html#view=branch", wait_until="networkidle")
+        ok(page.locator("#bp-list").is_visible() and "BIRU" in page.inner_text("#bp-list"), "TKT-8 branch view")
+        page.goto(base + "/pages/blueprint.html#view=list", wait_until="networkidle")
+        rows = page.locator("#bp-list [data-list-node]")
+        lt = page.inner_text("#bp-list")
+        ok(rows.count() == n and all(w in lt for w in ("Planned", "v1")), f"TKT-10 list has all {rows.count()} nodes with status and phase")
+        order = page.eval_on_selector_all("#bp-list h3.bp-list-h", "els=>els.map(e=>e.textContent)")
+        ok(order[:1] and "Sources" in order[0] and any("Governance" in o for o in order[-3:]), "TKT-10 list order columns → containers → bars " + str(order))
+        ok(not IPISH.search(page.content()), "TKT-11 no IPs / GUID-like identifiers on the blueprint")
+
+        # TKT-14: home SVC / ENV / IAM / OPS drawers link to blueprint nodes.
+        for nid in ("svc-clean", "env", "iam", "ops"):
+            page.goto(base + "/index.html#overlays=setup&node=" + nid, wait_until="networkidle")
+            page.reload(wait_until="networkidle")
+            ok(page.locator("#map-drawer a[href*='blueprint.html#node=']").count() >= 1, f"TKT-14 home {nid} links to a blueprint node")
+
+        # IaC guide page.
+        page.goto(base + "/pages/iac-guide.html", wait_until="networkidle")
+        ok(page.locator("h1").inner_text().startswith("Infrastructure-as-code guide") and page.locator(".section-card").count() == 3
+           and page.locator("a[href='blueprint.html']").count() >= 1 and page.locator("#global-search").count() == 1,
+           "IaC guide loads with its guides, nav, search and a link back to the blueprint")
+        txt = page.inner_text("body")
+        ok(not IPISH.search(page.content()) and not re.search(r"\bLive\b", txt), "IaC guide: no IPs/IDs and no 'Live' status claims")
+
         for path in sorted((ROOT / "pages").glob("*.html")):
-            if path.name == "blueprint.html":
-                continue
-            response = page.goto(base + "/pages/" + path.name, wait_until="networkidle")
-            assert response.status == 200
-            assert page.locator("h1").count() == 1
-        assert not errors, errors
-        passed("Home navigation and all content pages render without script or request failures")
+            r = page.goto(base + "/pages/" + path.name, wait_until="networkidle")
+            ok(r.status == 200 and page.locator("h1").count() == 1, "page loads: " + path.name)
+            for href in page.eval_on_selector_all("a[href]", "els=>els.map(e=>e.getAttribute('href'))"):
+                if href.startswith(("http", "#", "mailto")) or "://" in href:
+                    continue
+                target = (ROOT / "pages" / href.split("#")[0]).resolve() if href.split("#")[0] else path
+                if not target.exists():
+                    ok(False, f"broken link in {path.name}: {href}")
+        ok(not errors, "no console errors / failed requests " + str(errors[:5]))
         browser.close()
-    return {"checks": checks, "errors": errors}
+    return results
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--screenshots", type=Path)
-    parser.add_argument("--site-dir", type=Path, default=ROOT, help="Serve the source tree or a built static site directory")
-    args = parser.parse_args()
-    if args.screenshots:
-        args.screenshots.mkdir(parents=True, exist_ok=True)
-    server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(QuietHandler, directory=str(args.site_dir.resolve())))
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--site-dir", type=Path, default=ROOT)
+    ap.add_argument("--screenshots", type=Path)
+    a = ap.parse_args()
+    if a.screenshots:
+        a.screenshots.mkdir(parents=True, exist_ok=True)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(QuietHandler, directory=str(a.site_dir.resolve())))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
     try:
-        print(json.dumps(smoke(f"http://127.0.0.1:{server.server_port}", args.screenshots), indent=2))
+        res = smoke(f"http://127.0.0.1:{srv.server_port}", a.screenshots)
     finally:
-        server.shutdown()
-        server.server_close()
-        thread.join()
+        srv.shutdown()
+    failed = [m for good, m in res if not good]
+    print(f"\n{len(res) - len(failed)} passed, {len(failed)} failed")
+    raise SystemExit(1 if failed else 0)

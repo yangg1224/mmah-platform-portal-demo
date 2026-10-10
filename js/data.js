@@ -199,7 +199,15 @@ PORTAL.catalog = [
     name: "Platform blueprint / toolkit",
     tech: "config/toolkit.yaml",
     href: "pages/blueprint.html",
-    keywords: ["blueprint", "toolkit", "azure", "fabric", "ADLS", "data lake", "bronze", "silver", "gold", "VNet", "Key Vault", "Power BI", "branch", "DAB", "phase"]
+    keywords: ["blueprint", "toolkit", "tools", "fabric", "branch", "DAB", "phase", "bronze", "silver", "gold"]
+  },
+  {
+    id: "view-iac-guide",
+    type: "view",
+    name: "Infrastructure-as-code guide",
+    tech: "config/iac-guide.yaml",
+    href: "pages/iac-guide.html",
+    keywords: ["iac", "infrastructure", "guide", "azure", "fabric", "ADLS", "data lake", "VNet", "Key Vault", "Power BI", "terraform", "bicep"]
   }
 ];
 

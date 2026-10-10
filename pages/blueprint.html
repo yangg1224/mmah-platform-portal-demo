@@ -37,50 +37,85 @@
   <!-- Rendered from the toolkit manifest config/toolkit.yaml (built into js/toolkit-manifest.generated.js by scripts/build_toolkit.py). Permalink:
        blueprint.html#node=<id>&colour=<function|unit|none>&value=<id>&box=<box>&phases=v1,next,future&view=<list|branch> -->
   <main id="main" class="main main-wide">
-    <div class="bp-heading">
-      <div><p class="bp-eyebrow">MMAH · SOLUTION ARCHITECTURE</p><h1>Platform blueprint <span class="proposal-pill">Proposed</span></h1>
-      <p class="bp-summary" id="bp-summary">Build the foundation. Agree the rules. Move data from source to insight.</p></div>
-      <nav aria-label="Map views"><ul class="view-switch"><li><a href="../index.html">Process map</a></li><li><a href="blueprint.html" aria-current="page">Architecture</a></li></ul></nav>
-    </div>
-    <nav class="blueprint-sections" aria-label="Blueprint sections" id="bp-sections"></nav>
-    <section id="bp-journey" class="journey" aria-label="Step-by-step platform guide">
-      <noscript><p>Enable JavaScript to explore the platform flows.</p></noscript>
-    </section>
-    <div id="bp-resource-view" hidden>
-    <div class="resource-view-heading"><div><p class="bp-eyebrow">CONNECTED SERVICES</p><h2>Azure &amp; Fabric resource architecture</h2></div><button type="button" class="journey-text-button" data-section="iac">← Back to the guides</button></div>
-    <section class="architecture-explorer" aria-label="Interactive Azure and Fabric architecture">
-      <div class="diagram-toolbar">
-        <div class="connection-switch" role="group" aria-label="Connections to display">
-          <button type="button" data-connection-mode="data" aria-pressed="true"><span class="connection-dot dot-data"></span>Data flow</button>
-          <button type="button" data-connection-mode="access" aria-pressed="false"><span class="connection-dot dot-access"></span>Access &amp; network</button>
-          <button type="button" data-connection-mode="all" aria-pressed="false">All connections</button>
-        </div>
-        <div class="diagram-actions"><button type="button" id="bp-play" aria-pressed="true">Pause flow</button><span class="toolbar-divider"></span>
-          <button type="button" data-zoom="out" aria-label="Zoom out">−</button><span id="bp-zoom-label" aria-live="polite">100%</span><button type="button" data-zoom="in" aria-label="Zoom in">+</button><button type="button" data-zoom="fit">Fit</button>
-        </div>
+    <header class="map-header">
+      <h1>Platform blueprint</h1>
+      <nav aria-label="Map views">
+        <ul class="view-switch">
+          <li><a href="../index.html">Process map</a></li>
+          <li><a href="blueprint.html" aria-current="page">Platform blueprint</a></li>
+        </ul>
+      </nav>
+      <p class="bp-iac-link"><a href="iac-guide.html">Infrastructure-as-code guide →</a></p>
+      <p class="as-of" data-as-of></p>
+    </header>
+
+    <p class="bp-banner" id="bp-banner" role="note"><span class="bp-banner-icon" aria-hidden="true">ⓘ</span> <span data-banner-text></span> <a data-banner-link href="#open-questions"></a></p>
+
+    <div class="map-toolbar">
+      <div class="ctl-group" role="group" aria-labelledby="colour-cap">
+        <span class="ctl-label" id="colour-cap">Colour by</span>
+        <span class="seg">
+          <button type="button" class="chip-btn" data-colour="function" aria-pressed="false">DAB function</button>
+          <button type="button" class="chip-btn" data-colour="unit" aria-pressed="false">Owning unit</button>
+          <button type="button" class="chip-btn" data-colour="none" aria-pressed="true">None</button>
+        </span>
       </div>
-      <div class="diagram-status"><p id="bp-filter-status" role="status" aria-live="polite"></p><span>Animated illustration · no live telemetry</span></div>
-      <div class="map-scroll" id="bp-scroll" tabindex="0" role="region" aria-label="Architecture canvas. Scroll or drag empty space to pan; use zoom controls for detail.">
-        <div class="map-canvas" id="bp-canvas"><noscript><p>This interactive diagram requires JavaScript.</p></noscript></div>
+      <div class="ctl-group" id="bp-values" hidden></div>
+      <div class="ctl-group" role="group" aria-labelledby="phase-cap">
+        <span class="ctl-label" id="phase-cap">Phase</span>
+        <button type="button" class="chip-btn solo" data-phase="v1" aria-pressed="true">v1</button>
+        <button type="button" class="chip-btn solo" data-phase="next" aria-pressed="true">Next</button>
+        <button type="button" class="chip-btn solo" data-phase="future" aria-pressed="true">Future</button>
+      </div>
+      <div class="ctl-group">
+        <button type="button" class="chip-btn solo" id="bp-view-list" aria-pressed="false" aria-controls="bp-list">View as list</button>
+        <button type="button" class="chip-btn solo" id="bp-view-branch" aria-pressed="false" aria-controls="bp-list">Branch view</button>
+      </div>
+    </div>
+
+    <section class="map-section" aria-labelledby="bp-h">
+      <h2 id="bp-h" class="sr-only">Platform blueprint map</h2>
+      <p class="map-scroll-hint"><span aria-hidden="true">↔</span> Scroll sideways to see the whole blueprint</p>
+      <div class="map-scroll" id="bp-scroll">
+        <div class="map-canvas" id="bp-canvas" role="group" aria-label="Platform blueprint: columns Sources to Enrich, then side containers, then Governance, Monitoring and Platform bars">
+          <noscript><p class="drawer-note">The blueprint is rendered from the toolkit manifest and needs JavaScript.</p></noscript>
+        </div>
       </div>
       <div id="bp-list" class="bp-list" hidden></div>
-      <div class="diagram-legend"><span><i class="legend-wire wire-data"></i>Data movement</span><span><i class="legend-wire wire-control"></i>Orchestration</span><span><i class="legend-wire wire-access"></i>Identity / private access</span><span><i class="legend-wire wire-ops"></i>Operations</span><span class="diagram-hint">Click a service to open its architecture, setup and permissions</span></div>
+
+      <div class="map-legend">
+        <span class="legend-cap" id="bp-legend-cap">Legend</span>
+        <ul class="legend-list" aria-labelledby="bp-legend-cap">
+          <li><span class="lg-box lg-focal" aria-hidden="true"></span>Selected / traced</li>
+          <li><span class="lg-box lg-ext" aria-hidden="true"></span>Source</li>
+          <li><span class="lg-box lg-zone" aria-hidden="true"></span>Store</li>
+          <li><span class="lg-box lg-pipe" aria-hidden="true"></span>Process</li>
+          <li><span class="lg-box lg-tool" aria-hidden="true"></span>Ingest / Serve / bar tool</li>
+          <li><span class="lg-box lg-svc" aria-hidden="true"></span>Reusable service</li>
+          <li><span class="lg-box lg-overlay" aria-hidden="true"></span>Portal / Enrich</li>
+        </ul>
+        <ul class="legend-list" aria-label="Phase and status badges">
+          <li><span class="badge-phase phase-v1">◆ v1</span><span class="badge-phase phase-next">◇ Next</span><span class="badge-phase phase-future">◌ Future</span></li>
+          <li>○ Planned · ◐ Provisioned · ✓ Live <strong class="bp-sample-note">Sample statuses, not real infrastructure</strong></li>
+        </ul>
+        <ul class="legend-list" aria-label="Edge types">
+          <li><svg class="lg-line lg-primary" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#d9622b"/></svg>Primary flow</li>
+          <li><svg class="lg-line lg-request" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#2f5fa8"/></svg>Request</li>
+          <li><svg class="lg-line lg-return" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><path d="M22 1 L30 5 L22 9 z" fill="#7d8792"/></svg>Return / async</li>
+          <li><svg class="lg-line lg-gate" viewBox="0 0 30 10" aria-hidden="true"><line x1="0" y1="5" x2="24" y2="5"/><line x1="12" y1="0" x2="12" y2="10" style="stroke-width:3"/><path d="M22 1 L30 5 L22 9 z" fill="#39424e"/></svg>Gate</li>
+        </ul>
+        <ul class="legend-list" id="bp-legend-colour" aria-label="Colour key" hidden></ul>
+      </div>
     </section>
-    <details class="bp-options"><summary>Ownership filters &amp; alternative views</summary>
-      <div class="map-toolbar">
-        <div class="ctl-group" role="group" aria-labelledby="colour-cap"><span class="ctl-label" id="colour-cap">Colour by</span><span class="seg">
-          <button type="button" class="chip-btn" data-colour="function" aria-pressed="false">DAB function</button><button type="button" class="chip-btn" data-colour="unit" aria-pressed="false">Owning unit</button><button type="button" class="chip-btn" data-colour="none" aria-pressed="true">None</button>
-        </span></div><div class="ctl-group" id="bp-values" hidden></div>
-        <div class="ctl-group" role="group" aria-label="Delivery phase"><span class="ctl-label">Phase</span><button type="button" class="chip-btn" data-phase="v1" aria-pressed="true">Core</button><button type="button" class="chip-btn" data-phase="next" aria-pressed="true">Next</button><button type="button" class="chip-btn" data-phase="future" aria-pressed="true">Future</button></div>
-        <div class="ctl-group"><button type="button" class="chip-btn" id="bp-view-list" aria-pressed="false" aria-controls="bp-list">Resource list</button><button type="button" class="chip-btn" id="bp-view-branch" aria-pressed="false" aria-controls="bp-list">Branch responsibilities</button></div>
-      </div><ul class="legend-list" id="bp-legend-colour" aria-label="Ownership colour key" hidden></ul>
+
+    <details class="bp-details">
+      <summary>Considered, not on the blueprint</summary>
+      <ul id="bp-considered" class="bp-plain"></ul>
     </details>
-    </div>
-    <details class="bp-details"><summary>Architecture decisions &amp; assumptions</summary><div id="bp-notes" class="bp-notes"></div>
-      <p class="bp-banner" id="bp-banner"><span data-banner-text></span> <a data-banner-link href="#open-questions"></a></p><p class="as-of" id="bp-asof"></p>
+    <details class="bp-details" id="open-questions">
+      <summary>Open questions (toolkit doc §6; PRD open decision D10)</summary>
+      <ol id="bp-oq" class="bp-plain"></ol>
     </details>
-    <details class="bp-details"><summary>Alternatives and future capabilities</summary><ul id="bp-considered" class="bp-plain"></ul></details>
-    <details class="bp-details" id="open-questions"><summary>Decisions to confirm before implementation</summary><ol id="bp-oq" class="bp-plain"></ol></details>
   </main>
 
   <aside id="map-drawer" class="map-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title" hidden>
@@ -101,6 +136,5 @@
   <script src="../js/blueprint.js"></script>
   <script src="../js/drawer.js"></script>
   <script src="../js/blueprint-drawer.js"></script>
-  <script src="../js/blueprint-journeys.js"></script>
 </body>
 </html>

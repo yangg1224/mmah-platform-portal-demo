@@ -21,5 +21,7 @@ jobs:
         run: python3 scripts/build_toolkit.py --check
       - name: Branch-box traceability and schema (TKT-3)
         run: python3 scripts/validate_toolkit.py
-      - name: Resource hierarchy regression tests
+      - name: IaC guide manifest is current and valid
+        run: python3 scripts/build_iac_guide.py --check && python3 scripts/validate_iac_guide.py
+      - name: Manifest regression tests (blueprint + IaC guide)
         run: python3 -m unittest discover -s scripts -p 'test_*.py'

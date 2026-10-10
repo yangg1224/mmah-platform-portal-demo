@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Infrastructure-as-code guide · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/map.css">
+  <link rel="stylesheet" href="../css/iac-guide.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">Platform Portal<span class="brand-sub">MMAH data platform</span></a>
+      <nav aria-label="Primary">
+        <ul class="nav-main">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="data-products.html">Data products</a></li>
+          <li><a href="flows.html">Flows / lineage</a></li>
+          <li><a href="platform-setup.html">Platform setup</a></li>
+          <li><a href="rules.html">Rules / config</a></li>
+          <li><a href="shared-services.html">Shared services</a></li>
+          <li><a href="releases.html">Releases &amp; gates</a></li>
+        </ul>
+      </nav>
+      <div class="search-wrap">
+        <label for="global-search" class="sr-only">Search catalog</label>
+        <input id="global-search" type="search" placeholder="Search datasets, rules, services…" autocomplete="off" aria-controls="search-results">
+        <div id="search-results" class="search-results" role="region" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Rendered from the toolkit manifest config/iac-guide.yaml (built into js/iac-guide-manifest.generated.js by scripts/build_iac_guide.py). Permalink:
+       iac-guide.html#node=<id>&colour=<function|unit|none>&value=<id>&box=<box>&phases=v1,next,future&view=<list|branch> -->
+  <main id="main" class="main main-wide">
+    <div class="bp-heading">
+      <div><p class="bp-eyebrow">MMAH · SOLUTION ARCHITECTURE</p><h1>Infrastructure-as-code guide <span class="proposal-pill">Proposed</span></h1>
+      <p class="bp-summary" id="bp-summary">Build the foundation. Agree the rules. Move data from source to insight.</p></div>
+      <nav aria-label="Map views"><ul class="view-switch"><li><a href="../index.html">Process map</a></li><li><a href="blueprint.html">Platform blueprint</a></li><li><a href="iac-guide.html" aria-current="page">IaC guide</a></li></ul></nav>
+      <p class="iac-backlink"><a href="blueprint.html">← Back to the Platform blueprint</a></p>
+    </div>
+    <nav class="blueprint-sections" aria-label="Blueprint sections" id="bp-sections"></nav>
+    <section id="bp-journey" class="journey" aria-label="Step-by-step platform guide">
+      <noscript><p>Enable JavaScript to explore the platform flows.</p></noscript>
+    </section>
+    <div id="bp-resource-view" hidden>
+    <div class="resource-view-heading"><div><p class="bp-eyebrow">CONNECTED SERVICES</p><h2>Azure &amp; Fabric resource architecture</h2></div><button type="button" class="journey-text-button" data-section="iac">← Back to the guides</button></div>
+    <section class="architecture-explorer" aria-label="Interactive Azure and Fabric architecture">
+      <div class="diagram-toolbar">
+        <div class="connection-switch" role="group" aria-label="Connections to display">
+          <button type="button" data-connection-mode="data" aria-pressed="true"><span class="connection-dot dot-data"></span>Data flow</button>
+          <button type="button" data-connection-mode="access" aria-pressed="false"><span class="connection-dot dot-access"></span>Access &amp; network</button>
+          <button type="button" data-connection-mode="all" aria-pressed="false">All connections</button>
+        </div>
+        <div class="diagram-actions"><button type="button" id="bp-play" aria-pressed="true">Pause flow</button><span class="toolbar-divider"></span>
+          <button type="button" data-zoom="out" aria-label="Zoom out">−</button><span id="bp-zoom-label" aria-live="polite">100%</span><button type="button" data-zoom="in" aria-label="Zoom in">+</button><button type="button" data-zoom="fit">Fit</button>
+        </div>
+      </div>
+      <div class="diagram-status"><p id="bp-filter-status" role="status" aria-live="polite"></p><span>Animated illustration · no live telemetry</span></div>
+      <div class="map-scroll" id="bp-scroll" tabindex="0" role="region" aria-label="Architecture canvas. Scroll or drag empty space to pan; use zoom controls for detail.">
+        <div class="map-canvas" id="bp-canvas"><noscript><p>This interactive diagram requires JavaScript.</p></noscript></div>
+      </div>
+      <div id="bp-list" class="bp-list" hidden></div>
+      <div class="diagram-legend"><span><i class="legend-wire wire-data"></i>Data movement</span><span><i class="legend-wire wire-control"></i>Orchestration</span><span><i class="legend-wire wire-access"></i>Identity / private access</span><span><i class="legend-wire wire-ops"></i>Operations</span><span class="diagram-hint">Click a service to open its architecture, setup and permissions</span></div>
+    </section>
+    <details class="bp-options"><summary>Ownership filters &amp; alternative views</summary>
+      <div class="map-toolbar">
+        <div class="ctl-group" role="group" aria-labelledby="colour-cap"><span class="ctl-label" id="colour-cap">Colour by</span><span class="seg">
+          <button type="button" class="chip-btn" data-colour="function" aria-pressed="false">DAB function</button><button type="button" class="chip-btn" data-colour="unit" aria-pressed="false">Owning unit</button><button type="button" class="chip-btn" data-colour="none" aria-pressed="true">None</button>
+        </span></div><div class="ctl-group" id="bp-values" hidden></div>
+        <div class="ctl-group" role="group" aria-label="Delivery phase"><span class="ctl-label">Phase</span><button type="button" class="chip-btn" data-phase="v1" aria-pressed="true">Core</button><button type="button" class="chip-btn" data-phase="next" aria-pressed="true">Next</button><button type="button" class="chip-btn" data-phase="future" aria-pressed="true">Future</button></div>
+        <div class="ctl-group"><button type="button" class="chip-btn" id="bp-view-list" aria-pressed="false" aria-controls="bp-list">Resource list</button><button type="button" class="chip-btn" id="bp-view-branch" aria-pressed="false" aria-controls="bp-list">Branch responsibilities</button></div>
+      </div><ul class="legend-list" id="bp-legend-colour" aria-label="Ownership colour key" hidden></ul>
+    </details>
+    </div>
+    <details class="bp-details"><summary>Architecture decisions &amp; assumptions</summary><div id="bp-notes" class="bp-notes"></div>
+      <p class="bp-banner" id="bp-banner"><span data-banner-text></span> <a data-banner-link href="#open-questions"></a></p><p class="as-of" id="bp-asof"></p>
+    </details>
+    <details class="bp-details"><summary>Alternatives and future capabilities</summary><ul id="bp-considered" class="bp-plain"></ul></details>
+    <details class="bp-details" id="open-questions"><summary>Decisions to confirm before implementation</summary><ol id="bp-oq" class="bp-plain"></ol></details>
+  </main>
+
+  <aside id="map-drawer" class="map-drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-bar">
+      <button type="button" class="drawer-close" aria-label="Close details"><span aria-hidden="true">✕</span> Close</button>
+    </div>
+    <div class="drawer-body"></div>
+  </aside>
+
+  <footer class="site-footer">
+    <p>Platform Portal · read-only lens on metadata and config-as-code · mock data · changes go through version control &amp; GO-ITS 35 · demo for Yang</p>
+  </footer>
+  <script src="../js/data.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/map-data.js"></script>
+  <script src="../js/map-data-overlays.js"></script>
+  <script src="../js/iac-guide-manifest.generated.js"></script>
+  <script src="../js/iac-guide.js"></script>
+  <script src="../js/drawer.js"></script>
+  <script src="../js/iac-guide-drawer.js"></script>
+  <script src="../js/iac-guide-journeys.js"></script>
+</body>
+</html>

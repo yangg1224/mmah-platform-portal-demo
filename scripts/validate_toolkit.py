@@ -8,8 +8,8 @@ Exits 1 when any check fails, 0 otherwise. Checks:
     exists on the Data and Analytics Branch (DAB) chart (ALLOWED_BRANCH_BOXES below, taken from
     /workspace/mmah-dab-current-structure.png and §3 of the ideal-state toolkit doc). The manifest's
     own `branch_boxes` catalogue must match the chart too, so a new box can't be invented there.
-  * Schema (TKT-2): required fields, unique ids, resource kinds, valid acyclic containment,
-    known owning unit, phase, status, per-environment statuses and valid relationship / flow ids.
+  * Schema (TKT-2): required fields, unique ids, exactly one of column / bar / container, known
+    owning unit, phase, status, per-environment statuses, valid upstream / downstream / edge ids.
   * TKT-11: no IP addresses or ranges, GUID-style identifiers, connection strings or secrets.
   * The generated js/toolkit-manifest.generated.js is up to date (run scripts/build_toolkit.py).
 Needs PyYAML (`pip install --user pyyaml`).
@@ -65,8 +65,7 @@ ALLOWED_BRANCH_BOXES = {
 }
 TAGS = {"EXT", "ING", "STORE", "PROC", "SERVE", "ENR", "SVC", "GOV", "MON", "PLAT", "PORTAL"}
 REQUIRED = ("id", "tag", "title", "subtitle", "branch_boxes", "owning_unit", "phase", "status",
-            "status_source", "status_by_env", "summary", "why", "iac", "docs", "resource_kind", "resource_type")
-RESOURCE_KINDS = {"boundary", "azure-resource", "fabric-item", "logical-layer", "external", "saas-service"}
+            "status_source", "status_by_env", "summary", "why", "iac", "docs")
 ENV_STATUSES = {"planned", "prov", "live", "na"}
 FORBIDDEN = [
     (re.compile(r"\b\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?\b"), "IP address or range"),
@@ -93,6 +92,9 @@ def validate(manifest, raw_text):
         else:
             catalogue[b["id"]] = b
 
+    columns = {c["id"] for c in manifest.get("columns") or []}
+    bars = {b["id"] for b in manifest.get("bars") or []}
+    containers = {c["id"] for c in manifest.get("containers") or []}
     units = {u["id"] for u in manifest.get("units") or []}
     phases = {p["id"] for p in manifest.get("phases") or []}
     statuses = set((manifest.get("statuses") or {}).keys()) - {"na"}
@@ -100,12 +102,6 @@ def validate(manifest, raw_text):
     tools = manifest.get("tools") or []
     ids = [t.get("id") for t in tools]
     known = set(ids)
-    by_id = {t.get("id"): t for t in tools}
-
-    if manifest.get("schema_version") != 2:
-        err("schema_version must be 2 for the resource hierarchy")
-    if not tools:
-        err("tools must contain at least one resource")
 
     for i, t in enumerate(tools):
         name = t.get("id") or f"tools[{i}]"
@@ -121,27 +117,17 @@ def validate(manifest, raw_text):
                 err(f"{name}: branch box '{b}' is not on the DAB chart")
             elif b not in catalogue:
                 err(f"{name}: branch box '{b}' is missing from the manifest's branch_boxes catalogue")
-        if not isinstance(t.get("id"), str) or not re.fullmatch(r"[a-z][a-z0-9-]*", t["id"]):
-            err(f"{name}: id must be a lowercase, hyphen-separated identifier")
-        if "parent" not in t:
-            err(f"{name}: missing parent (use null for a top-level boundary)")
-        elif t["parent"] is not None and (not isinstance(t["parent"], str) or t["parent"] not in known):
-            err(f"{name}: unknown parent '{t['parent']}'")
-        if any(k in t for k in ("column", "bar", "container", "row")):
-            err(f"{name}: use parent containment instead of column / bar / container / row")
-        if t.get("resource_kind") not in RESOURCE_KINDS:
-            err(f"{name}: unknown resource_kind '{t.get('resource_kind')}'")
-        notes = t.get("architecture_notes", [])
-        if not isinstance(notes, list) or any(not isinstance(note, str) or not note.strip() for note in notes):
-            err(f"{name}: architecture_notes must be a list of nonempty strings")
-        for field, required_keys in (("setup_steps", ("title", "detail")),
-                                     ("access_controls", ("principal", "role", "scope", "note"))):
-            entries = t.get(field, [])
-            if not isinstance(entries, list) or not entries or any(
-                not isinstance(entry, dict) or any(not isinstance(entry.get(key), str) or not entry[key].strip()
-                                                   for key in required_keys) for entry in entries
-            ):
-                err(f"{name}: {field} requires entries with {', '.join(required_keys)}")
+        places = [k for k in ("column", "bar", "container") if t.get(k)]
+        if len(places) != 1:
+            err(f"{name}: needs exactly one of column / bar / container (has {places or 'none'})")
+        if t.get("column") and t["column"] not in columns:
+            err(f"{name}: unknown column '{t['column']}'")
+        if t.get("column") and not isinstance(t.get("row"), int):
+            err(f"{name}: column tools need an integer row")
+        if t.get("bar") and t["bar"] not in bars:
+            err(f"{name}: unknown bar '{t['bar']}'")
+        if t.get("container") and t["container"] not in containers:
+            err(f"{name}: unknown container '{t['container']}'")
         if t.get("tag") not in TAGS:
             err(f"{name}: tag '{t.get('tag')}' is not a vendor-neutral type tag")
         if t.get("owning_unit") not in units:
@@ -163,119 +149,12 @@ def validate(manifest, raw_text):
 
     for dup in sorted({x for x in ids if ids.count(x) > 1}):
         err(f"duplicate tool id '{dup}'")
-    # Cycles would make the nested renderer and ancestry navigation recurse forever.
-    reported_cycles = set()
-    for resource_id in ids:
-        chain = []
-        current = resource_id
-        while isinstance(current, str) and current in by_id:
-            if current in chain:
-                cycle = chain[chain.index(current):]
-                key = frozenset(cycle)
-                if key not in reported_cycles:
-                    err("resource containment cycle: " + " -> ".join(cycle + [current]))
-                    reported_cycles.add(key)
-                break
-            chain.append(current)
-            current = by_id[current].get("parent")
-
-    architecture = manifest.get("architecture") or {}
-    journeys = architecture.get("journeys")
-    if not isinstance(journeys, list) or len(journeys) != 3:
-        err("architecture.journeys must contain the three platform guides")
-        journeys = []
-    journey_ids = []
-    for journey in journeys:
-        if not isinstance(journey, dict):
-            err("architecture.journeys: each guide must be an object")
-            continue
-        name = str(journey.get("id"))
-        journey_ids.append(name)
-        for field in ("title", "subtitle", "icon", "intro", "outcome"):
-            if not isinstance(journey.get(field), str) or not journey[field].strip():
-                err(f"journey {name}: missing {field}")
-        steps = journey.get("steps")
-        if not isinstance(steps, list) or len(steps) != 5:
-            err(f"journey {name}: five ordered steps are required by the flow layout")
-            continue
-        step_ids = set()
-        for step in steps:
-            if not isinstance(step, dict):
-                err(f"journey {name}: each step must be an object")
-                continue
-            step_id = step.get("id")
-            if not isinstance(step_id, str) or not re.fullmatch(r"[a-z][a-z0-9-]*", step_id) or step_id in step_ids:
-                err(f"journey {name}: invalid or duplicate step id")
-            else:
-                step_ids.add(step_id)
-            for field in ("title", "caption", "icon", "handoff", "summary", "input", "output", "gate"):
-                if not isinstance(step.get(field), str) or not step[field].strip():
-                    err(f"journey {name}/{step_id}: missing {field}")
-            for field in ("items", "actions", "access", "resources"):
-                entries = step.get(field)
-                if not isinstance(entries, list) or not entries or any(not isinstance(v, str) or not v.strip() for v in entries):
-                    err(f"journey {name}/{step_id}: {field} must contain nonempty strings")
-                elif field == "resources" and any(v not in known for v in entries):
-                    err(f"journey {name}/{step_id}: unknown resource in step")
-        lanes = journey.get("lanes")
-        coverage = []
-        if not isinstance(lanes, list) or not lanes:
-            err(f"journey {name}: lanes are required")
-            lanes = []
-        for lane in lanes:
-            if (not isinstance(lane, dict) or not isinstance(lane.get("label"), str) or not lane["label"].strip()
-                    or type(lane.get("start")) is not int or type(lane.get("end")) is not int
-                    or not 0 <= lane["start"] <= lane["end"] < len(steps)):
-                err(f"journey {name}: invalid lane bounds or label")
-            else:
-                coverage.extend(range(lane["start"], lane["end"] + 1))
-        if sorted(coverage) != list(range(len(steps))):
-            err(f"journey {name}: lanes must cover each step exactly once")
-        exception = journey.get("exception")
-        if (not isinstance(exception, dict) or any(not isinstance(exception.get(k), str) or not exception[k].strip() for k in ("label", "detail"))
-                or any(type(exception.get(k)) is not int for k in ("from", "to"))
-                or not 0 <= exception["to"] < exception["from"] < len(steps)):
-            err(f"journey {name}: exception must describe a backward path between valid steps")
-    if sorted(journey_ids) != ["contracts", "iac", "medallion"]:
-        err("architecture.journeys: expected unique iac, contracts and medallion guides")
-    for field in ("title", "summary"):
-        if not isinstance(architecture.get(field), str) or not architecture[field].strip():
-            err(f"architecture.{field} is required")
-    flow = architecture.get("flow") or []
-    if not flow:
-        err("architecture.flow must describe the primary data path")
-    for step in flow:
-        if step.get("node") not in known:
-            err(f"architecture.flow: unknown resource '{step.get('node')}'")
-        if not step.get("label") or not step.get("detail"):
-            err("architecture.flow: each step needs a label and detail")
-    for note in architecture.get("notes") or []:
-        if not note.get("title") or not note.get("text"):
-            err("architecture.notes: each note needs a title and text")
-    diagram = architecture.get("diagram") or {}
-    for field in ("width", "height"):
-        if not isinstance(diagram.get(field), (int, float)) or diagram[field] <= 0:
-            err(f"architecture.diagram: positive {field} is required")
-    if not diagram.get("nodes"):
-        err("architecture.diagram: overview nodes are required")
-    displayed = set()
-    for item in diagram.get("nodes", []):
-        node_id = item.get("id")
-        if node_id not in known or node_id in displayed:
-            err(f"architecture.diagram: unknown or duplicate node '{node_id}'")
-        displayed.add(node_id)
-        for field in ("x", "y", "w", "h"):
-            if not isinstance(item.get(field), (int, float)) or item[field] < (1 if field in ("w", "h") else 0):
-                err(f"architecture.diagram {node_id}: invalid {field}")
-        for position, size, extent in (("x", "w", "width"), ("y", "h", "height")):
-            values = [item.get(position), item.get(size), diagram.get(extent)]
-            if all(isinstance(v, (int, float)) for v in values) and values[0] + values[1] > values[2]:
-                err(f"architecture.diagram {node_id}: exceeds canvas {extent}")
     for e in manifest.get("edges") or []:
         for end in ("from", "to"):
             v = e.get(end, "")
-            if v not in known:
-                err(f"edge {e.get('from')} -> {e.get('to')}: '{v}' is not a resource")
+            ok = v in known or (v.startswith("container:") and v[10:] in containers)
+            if not ok:
+                err(f"edge {e.get('from')} -> {e.get('to')}: '{v}' is not a tool or container")
         if e.get("type") not in (manifest.get("edge_types") or {}):
             err(f"edge {e.get('from')} -> {e.get('to')}: unknown type '{e.get('type')}'")
     for c in manifest.get("considered_not_on_blueprint") or []:
