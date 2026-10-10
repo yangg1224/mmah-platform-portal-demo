@@ -297,7 +297,7 @@ tools:
     status_source: 'intake-log adapter (mock): submissions received per environment'
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: Aggregated housing and homelessness extracts; no person-level data.
-    why: Source for Housing & Homelessness, live in Prod since 29 Sep 2026 (Release 0.3).
+    why: "Sample: live in Prod since 29 Sep 2026 (Release 0.3). Source for Housing & Homelessness."
     iac: na
     docs:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
@@ -334,7 +334,7 @@ tools:
     row: 3
     branch_boxes: [ingest]
     owning_unit: CLUSTER?
-    owner: Cluster / enterprise (verify)
+    owner: Cluster / enterprise (to be confirmed)
     phase: next
     status: planned
     status_source: manifest only
@@ -430,7 +430,7 @@ tools:
     row: 3
     branch_boxes: [ingest]
     owning_unit: CLUSTER?
-    owner: SDGU-E / Cluster (verify)
+    owner: SDGU-E / Cluster (to be confirmed)
     phase: next
     status: planned
     status_source: manifest only (no adapter has found it yet)
@@ -1053,7 +1053,7 @@ tools:
     bar: mon
     branch_boxes: [dqm, access]
     owning_unit: SDGU-E
-    owner: SDGU-E / Cluster (verify central workspace)
+    owner: SDGU-E / Cluster (to be confirmed) · central workspace
     phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)
@@ -1118,7 +1118,7 @@ tools:
     bar: plat
     branch_boxes: [access]
     owning_unit: SDGU-G
-    owner: SDGU-G defines, Cluster (verify) operates
+    owner: SDGU-G defines, Cluster (to be confirmed) operates
     phase: v1
     status: prov
     status_source: 'iac-state adapter (mock): found in at least one environment'
@@ -1140,7 +1140,7 @@ tools:
     bar: plat
     branch_boxes: [access, policy]
     owning_unit: SDGU-E
-    owner: SDGU-E / Cluster (verify)
+    owner: SDGU-E / Cluster (to be confirmed)
     phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)
@@ -1184,7 +1184,7 @@ tools:
     bar: plat
     branch_boxes: [access, ingest]
     owning_unit: CLUSTER?
-    owner: Cluster (verify) network, SDGU-E
+    owner: Cluster (to be confirmed) network, SDGU-E
     phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)
@@ -1208,7 +1208,7 @@ tools:
     bar: plat
     branch_boxes: [procimp, projmgmt]
     owning_unit: CLUSTER?
-    owner: Cluster (verify) buys, SDGU-E operates
+    owner: Cluster (to be confirmed) buys, SDGU-E operates
     phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)
@@ -1286,7 +1286,7 @@ tools:
     bar: plat
     branch_boxes: [access, ingest]
     owning_unit: CLUSTER?
-    owner: Cluster / CISO (verify)
+    owner: Cluster / CISO (to be confirmed)
     phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)

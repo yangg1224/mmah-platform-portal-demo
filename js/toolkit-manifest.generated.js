@@ -498,7 +498,7 @@ PORTAL.toolkit = {
     "l"
    ],
    "summary": "Aggregated housing and homelessness extracts; no person-level data.",
-   "why": "Source for Housing & Homelessness, live in Prod since 29 Sep 2026 (Release 0.3).",
+   "why": "Sample: live in Prod since 29 Sep 2026 (Release 0.3). Source for Housing & Homelessness.",
    "iac": "na",
    "docs": [
     {
@@ -563,7 +563,7 @@ PORTAL.toolkit = {
     "ingest"
    ],
    "unit": "CLUSTER?",
-   "owner": "Cluster / enterprise (verify)",
+   "owner": "Cluster / enterprise (to be confirmed)",
    "phase": "next",
    "status": "planned",
    "statusSource": "manifest only",
@@ -743,7 +743,7 @@ PORTAL.toolkit = {
     "ingest"
    ],
    "unit": "CLUSTER?",
-   "owner": "SDGU-E / Cluster (verify)",
+   "owner": "SDGU-E / Cluster (to be confirmed)",
    "phase": "next",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -1927,7 +1927,7 @@ PORTAL.toolkit = {
     "access"
    ],
    "unit": "SDGU-E",
-   "owner": "SDGU-E / Cluster (verify central workspace)",
+   "owner": "SDGU-E / Cluster (to be confirmed) · central workspace",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -2045,7 +2045,7 @@ PORTAL.toolkit = {
     "access"
    ],
    "unit": "SDGU-G",
-   "owner": "SDGU-G defines, Cluster (verify) operates",
+   "owner": "SDGU-G defines, Cluster (to be confirmed) operates",
    "phase": "v1",
    "status": "prov",
    "statusSource": "iac-state adapter (mock): found in at least one environment",
@@ -2085,7 +2085,7 @@ PORTAL.toolkit = {
     "policy"
    ],
    "unit": "SDGU-E",
-   "owner": "SDGU-E / Cluster (verify)",
+   "owner": "SDGU-E / Cluster (to be confirmed)",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -2165,7 +2165,7 @@ PORTAL.toolkit = {
     "ingest"
    ],
    "unit": "CLUSTER?",
-   "owner": "Cluster (verify) network, SDGU-E",
+   "owner": "Cluster (to be confirmed) network, SDGU-E",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -2209,7 +2209,7 @@ PORTAL.toolkit = {
     "projmgmt"
    ],
    "unit": "CLUSTER?",
-   "owner": "Cluster (verify) buys, SDGU-E operates",
+   "owner": "Cluster (to be confirmed) buys, SDGU-E operates",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -2353,7 +2353,7 @@ PORTAL.toolkit = {
     "ingest"
    ],
    "unit": "CLUSTER?",
-   "owner": "Cluster / CISO (verify)",
+   "owner": "Cluster / CISO (to be confirmed)",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",

@@ -96,6 +96,10 @@ def validate(manifest, raw_text):
     bars = {b["id"] for b in manifest.get("bars") or []}
     containers = {c["id"] for c in manifest.get("containers") or []}
     units = {u["id"] for u in manifest.get("units") or []}
+    for u in manifest.get("units") or []:
+        for fld in ("label", "legend_label", "name"):
+            if VERIFY_WORDING.search(str(u.get(fld) or "")):
+                err(f"unit {u['id']}: {fld} uses '(verify)' / 'to verify'; use '(to be confirmed)'")
     phases = {p["id"] for p in manifest.get("phases") or []}
     statuses = set((manifest.get("statuses") or {}).keys()) - {"na"}
     envs = manifest.get("environments") or []
@@ -109,6 +113,9 @@ def validate(manifest, raw_text):
             if f not in t or t[f] in (None, ""):
                 if f != "branch_boxes":
                     err(f"{name}: missing required field '{f}'")
+        for fld in ("owner", "name"):
+            if VERIFY_WORDING.search(str(t.get(fld) or "")):
+                err(f"{name}: {fld} uses '(verify)' / 'to verify'; use '(to be confirmed)' (CLUSTER? legend wording)")
         both = set(t.get("upstream") or []) & set(t.get("downstream") or [])
         if both:
             err(f"{name}: {sorted(both)} listed as both upstream and downstream")
@@ -181,6 +188,7 @@ def validate(manifest, raw_text):
     return errors
 
 
+VERIFY_WORDING = re.compile(r"\(\s*verify|\bto verify\b", re.I)
 DEFINED_IN = re.compile(r"^([A-Za-z0-9_.\-]+(?:/[A-Za-z0-9_.\-]+)*\.[A-Za-z0-9]+)@([0-9a-f]{7})$")
 
 

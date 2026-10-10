@@ -88,5 +88,12 @@ class BlueprintManifestTests(unittest.TestCase):
             self.assertIsNone(validate_toolkit.check_defined_in(v))
         self.assertIsNotNone(validate_toolkit.check_defined_in("config/toolkit.yaml@0000000"))
 
+    def test_verify_owner_wording_fails(self):
+        self.manifest["tools"][0]["owner"] = "Cluster (verify)"
+        self.assertTrue(any("to be confirmed" in e for e in self.errors()))
+        self.manifest["tools"][0]["owner"] = "SDGU-E"
+        self.manifest["units"][-1]["name"] = "Cluster / enterprise (to verify)"
+        self.assertTrue(any("to be confirmed" in e for e in self.errors()))
+
 if __name__ == "__main__":
     unittest.main()
