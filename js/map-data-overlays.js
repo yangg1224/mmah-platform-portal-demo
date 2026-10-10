@@ -13,7 +13,7 @@
     ownerTag: "setup", overlay: "setup", products: ["mpd", "hh"], x: 268, band: "setup", dy: 36,
     status: st("warn", "1 flag · Test"),
     summary: "Four environments defined in IaC; Test has one storage zone missing its retention tag.",
-    statusNote: "Tag compliance: zone.silver.scratch on Test missing retention tag. Deployed: Dev 0.4-dev.12 · Test 0.4-rc.3 · Pre-Prod 0.4 · Prod 0.3.",
+    statusNote: "Tag compliance: zone.silver.scratch on Test missing retention tag. Sample releases (not real infrastructure): Dev 0.4-dev.12 · Test 0.4-rc.3 · Pre-Prod 0.4 · Prod 0.3.",
     owner: "Platform engineering",
     lastRun: NA, dq: NA,
     rules: [
@@ -36,7 +36,7 @@
     lastRun: NA, dq: NA,
     rules: [{ label: "Roles: platform.engineer, data.steward, program.viewer, governance.reviewer", path: "iac/modules/identity/roles.tf@c4d12ef", version: "c4d12ef", approver: ENV_APPROVER, href: "pages/platform-setup.html#roles-h" }],
     appliesTo: ["bronze", "silver", "gold"],
-    links: [{ label: "Roles (name and purpose)", href: "pages/platform-setup.html#roles-h" }, { label: "Platform blueprint: Entra ID groups", href: "pages/blueprint.html#node=pl-entra" }]
+    links: [{ label: "Roles (name and purpose)", href: "pages/platform-setup.html#roles-h" }, { label: "Platform blueprint: Identity groups", href: "pages/blueprint.html#node=pl-entra" }]
   });
 
   N.push({
@@ -53,7 +53,7 @@
     ],
     appliesTo: ["bronze", "silver", "gold"],
     links: [{ label: "Platform setup: environments side by side", href: "pages/platform-setup.html#env-h" },
-      { label: "Platform blueprint: Azure Monitor + Log Analytics", href: "pages/blueprint.html#node=m-logs" }, { label: "Platform blueprint: Key Vault", href: "pages/blueprint.html#node=pl-kv" }, { label: "Platform blueprint: Private endpoints", href: "pages/blueprint.html#node=pl-network" }]
+      { label: "Platform blueprint: Central monitoring and logging", href: "pages/blueprint.html#node=m-logs" }, { label: "Platform blueprint: Key management", href: "pages/blueprint.html#node=pl-kv" }, { label: "Platform blueprint: Private network access", href: "pages/blueprint.html#node=pl-network" }]
   });
 
   /* ---- Releases and gates band: promotion lane with GATE nodes between environments ---- */
@@ -63,7 +63,7 @@
       ownerTag: "releases", overlay: "releases", products: products, x: x, w: 140, band: "releases", dy: 36,
       status: status,
       summary: title + " runs " + rel + ".",
-      statusNote: "Deployed release: " + rel + ".",
+      statusNote: "Sample: Deployed release " + rel + " (not real infrastructure).",
       owner: "Platform engineering",
       lastRun: NA, dq: NA,
       rules: [{ label: title + " environment", path: path, version: title, approver: ENV_APPROVER, href: "pages/platform-setup.html#" + envAnchor }],
@@ -85,12 +85,12 @@
   var L04 = [{ label: "Release 0.4 · Municipal Planning Data", href: "pages/releases.html#rel-04" }];
   var L03 = [{ label: "Release 0.3 · Housing & Homelessness", href: "pages/releases.html#rel-03" }];
 
-  lane("lane-dev", "Dev", "0.4-dev.12", st("ok", "Deployed"), 16, ["mpd"], "env-dev", "iac/envs/dev/@b1c44e9", L04);
+  lane("lane-dev", "Dev", "0.4-dev.12", st("ok", "Sample: Deployed"), 16, ["mpd"], "env-dev", "iac/envs/dev/@b1c44e9", L04);
   gate("gate-dev-test", "Dev → Test", "promotion gate", st("tbd", "Not yet defined"), 186, ["mpd"],
     "The Dev → Test promotion gate is not yet established, so it is shown as not yet defined (GOV-12).",
     [{ item: "Promotion checklist", state: "tbd", note: "No gate source in version control yet" }],
     TBD, L04);
-  lane("lane-test", "Test", "0.4-rc.3", st("ok", "Deployed"), 336, ["mpd"], "env-test", "iac/envs/test/storage.tf@a3f91c2", L04);
+  lane("lane-test", "Test", "0.4-rc.3", st("ok", "Sample: Deployed"), 336, ["mpd"], "env-test", "iac/envs/test/storage.tf@a3f91c2", L04);
   gate("gate-test-preprod", "Test → Pre-Prod", "0.4-rc.3 → 0.4", st("ok", "Passed"), 506, ["mpd"],
     "Release 0.4 passed the Test → Pre-Prod checks and is now at Pre-Prod.",
     [
@@ -99,7 +99,7 @@
       { item: "Steward approval", state: "pass", note: "22 Sep 2026 · Data & Analytics Branch (mock)" }
     ],
     [REL04], L04);
-  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal Planning", st("info", "Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/@d9e01aa", L04);
+  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal Planning", st("info", "Sample: Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/@d9e01aa", L04);
   gate("gate-preprod-prod", "Pre-Prod → Prod", "release 0.4", st("fail", "Blocked"), 826, ["mpd"],
     "Release 0.4 is waiting at Pre-Prod; the Prod gate is blocked until a CAB reference is linked.",
     [
@@ -110,9 +110,9 @@
       { item: "CAB reference (GO-ITS 35)", state: "fail", note: "Missing · blocking. No CAB record linked yet" }
     ],
     [REL04], L04.concat([{ label: "Mock CAB record (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-000000" }]));
-  lane("lane-prod", "Prod", "0.3 · Housing & HH", st("ok", "Live"), 976, ["hh"], "env-prod", "iac/envs/prod/@f2a88b1", L03);
+  lane("lane-prod", "Prod", "0.3 · Housing & HH", st("ok", "Sample: Live"), 976, ["hh"], "env-prod", "iac/envs/prod/@f2a88b1", L03);
   // Release 0.3's own gates (passed) are reachable from the Prod drawer.
-  N[N.length - 1].statusNote = "Deployed release: 0.3 · Housing & Homelessness aggregates, live since 29 Sep 2026.";
+  N[N.length - 1].statusNote = "Sample: Live (not real infrastructure). Sample release 0.3 · Housing & Homelessness aggregates, shown as live since 29 Sep 2026.";
   N[N.length - 1].rules.push(REL03);
   N[N.length - 1].links.push({ label: "CAB CHANGE-004821 (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-004821" });
 
