@@ -1,0 +1,5 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+# Draft Dev -> Test promotion gate. Not yet approved (GOV-12).
+gate: dev-to-test
+status: draft
+checks: [unit_tests, dq_smoke, iac_plan_review]
