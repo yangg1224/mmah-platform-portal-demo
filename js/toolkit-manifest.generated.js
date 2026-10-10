@@ -4,7 +4,7 @@
    Platform blueprint / Toolkit manifest (PRD §6.6 TKT-2). Mock sample metadata only. */
 window.PORTAL = window.PORTAL || {};
 PORTAL.toolkit = {
- "manifest": "config/toolkit.yaml@4d7e2b9 (mock)",
+ "manifest": "config/toolkit.yaml (sample manifest)",
  "asOf": "6 Oct 2026, 9:30 PM ET",
  "banner": {
   "text": "Intended platform: Microsoft Fabric. Per Yang 2026-10-07, not yet ministry-confirmed.",
@@ -2315,7 +2315,7 @@ PORTAL.toolkit = {
     "v"
    ],
    "summary": "Infrastructure and workspace definitions as code; code-first deployment.",
-   "why": "Every environment item links to repo/path@commit.",
+   "why": "Every environment item links to a repo file path plus the commit that last changed it.",
    "iac": "iac/envs/prod/main.tf@18b64aa",
    "docs": [
     {

@@ -48,7 +48,7 @@ The build copies only `index.html`, `css/`, `js/`, and `pages/` to `dist/`. Keep
 2. **Flows / lineage** (`pages/flows.html`) — visual centerpiece. Municipal Planning path with DQ warning on clean/validate; Housing & HH happy path. Toggle **Table** for the accessible graph equivalent. Click nodes for detail.
 3. **Data products** → **Municipal Planning Data** — tabs Overview (trust card EN+FR) · Lineage · Quality (rule results + open DQ exceptions, deep-linkable as `#dq`) · Definitions · Releases.
 4. **Releases & gates** — promotion board; Release 0.4 gate checklist with CAB link missing and TRA “Not yet defined”; Release 0.3 complete in Prod.
-5. **Platform setup** — Dev / Test / Pre-Prod / Prod side by side; untagged zone on Test; roles by name/purpose; “Defined in: repo/path@commit”.
+5. **Platform setup** — Dev / Test / Pre-Prod / Prod side by side; untagged zone on Test; roles by name/purpose; “Defined in: path/file.ext@<sha of last commit touching it> (stamped by scripts/build_refs.py)”.
 6. **Rules / config** and **Shared services** — config-as-code style entries with used-by / consumer links.
 7. **Global search** — search box on every page (try `housing`, `CAB`, `scratch`, `municipality`).
 

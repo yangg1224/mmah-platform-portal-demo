@@ -24,14 +24,14 @@ window.PORTAL = window.PORTAL || {};
   var HH_RUN_PUBLISH = { flow: "HH publish", start: "6 Oct 2026, 7:49 PM ET", end: "6 Oct 2026, 7:55 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
 
   var R = {
-    contract: { label: "Municipal planning data contract", path: "config/contracts/mpd_ingest_v2.yaml@11ab90c", version: "ingest_v2", approver: "Platform engineer (mock) · 1 Aug 2026", href: "pages/rules.html#rule-contract-mpd" },
-    schema: { label: "Schema / code-list check", path: "config/dq/mpd_schema_codelist.yaml@e7b3c01", version: "v1.4", approver: "Data steward (mock) · 12 Aug 2026", href: "pages/rules.html#rule-schema-mpd" },
-    match: { label: "Municipality-name matching threshold", path: "config/match/municipality_name.yaml@9a1f2d4", version: "v2.1 · threshold 0.86", approver: "Platform lead (mock) · 3 Sep 2026", href: "pages/rules.html#rule-match-muni" },
-    starts: { label: "Housing starts definition", path: "config/biz/housing_starts.yaml@c8e21a0", version: "v1.0", approver: "Program steward (mock) · 22 Sep 2026", href: "pages/rules.html#rule-biz-housing-starts" },
-    smallCell: { label: "Small-cell suppression threshold", path: "config/dq/small_cell_suppression.yaml@55de901", version: "n5 · v1.2", approver: "Privacy advisor (mock) · 10 Sep 2026", href: "pages/rules.html#rule-small-cell" },
-    zoneBronze: { label: "Storage zone zone.bronze.landing", path: "iac/modules/storage/bronze.tf@f2a88b1", version: "retention 2 years", approver: TBD, href: "pages/platform-setup.html#zones-h" },
-    zoneSilver: { label: "Storage zone zone.silver.conform", path: "iac/modules/storage/silver.tf@f2a88b1", version: "retention 5 years", approver: TBD, href: "pages/platform-setup.html#zones-h" },
-    zoneGold: { label: "Storage zone zone.gold.publish", path: "iac/modules/storage/gold.tf@f2a88b1", version: "retention 7 years", approver: TBD, href: "pages/platform-setup.html#zones-h" }
+    contract: { label: "Municipal planning data contract", path: "config/contracts/mpd_ingest_v2.yaml@18b64aa", version: "ingest_v2", approver: "Platform engineer (mock) · 1 Aug 2026", href: "pages/rules.html#rule-contract-mpd" },
+    schema: { label: "Schema / code-list check", path: "config/dq/mpd_schema_codelist.yaml@18b64aa", version: "v1.4", approver: "Data steward (mock) · 12 Aug 2026", href: "pages/rules.html#rule-schema-mpd" },
+    match: { label: "Municipality-name matching threshold", path: "config/match/municipality_name.yaml@ae6d90e", version: "v2.1 · threshold 0.86", approver: "Platform lead (mock) · 3 Sep 2026", href: "pages/rules.html#rule-match-muni" },
+    starts: { label: "Housing starts definition", path: "config/biz/housing_starts.yaml@ae6d90e", version: "v1.0", approver: "Program steward (mock) · 22 Sep 2026", href: "pages/rules.html#rule-biz-housing-starts" },
+    smallCell: { label: "Small-cell suppression threshold", path: "config/dq/small_cell_suppression.yaml@ae6d90e", version: "n5 · v1.2", approver: "Privacy advisor (mock) · 10 Sep 2026", href: "pages/rules.html#rule-small-cell" },
+    zoneBronze: { label: "Storage zone zone.bronze.landing", path: "iac/modules/storage/bronze.tf@ae6d90e", version: "retention 2 years", approver: TBD, href: "pages/platform-setup.html#zones-h" },
+    zoneSilver: { label: "Storage zone zone.silver.conform", path: "iac/modules/storage/silver.tf@ae6d90e", version: "retention 5 years", approver: TBD, href: "pages/platform-setup.html#zones-h" },
+    zoneGold: { label: "Storage zone zone.gold.publish", path: "iac/modules/storage/gold.tf@ae6d90e", version: "retention 7 years", approver: TBD, href: "pages/platform-setup.html#zones-h" }
   };
   function svcRule(label, path, version) { return { label: label, path: path, version: version, approver: TBD }; }
 
@@ -117,7 +117,7 @@ window.PORTAL = window.PORTAL || {};
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
     lastRun: [MPD_RUN_CONFORM, HH_RUN_CONFORM],
     dq: { pass: 3, warn: 1, fail: 0, open: 12 },
-    rules: [svcRule("Service svc.clean_validate", "services/clean_validate/@v3.2.0", "v3.2.0"), R.schema],
+    rules: [svcRule("Service svc.clean_validate", "services/clean_validate/rules.yaml@18b64aa", "v3.2.0"), R.schema],
     links: [{ label: "Shared service: Cleaning / validation", href: "pages/shared-services.html#svc-clean" }, { label: "Platform blueprint: Cleaning library", href: "pages/blueprint.html#node=svc-clean" }]
   });
 
@@ -129,7 +129,7 @@ window.PORTAL = window.PORTAL || {};
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
     lastRun: [MPD_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0 },
-    rules: [svcRule("Service svc.municipality_name_match", "services/municipality_name_match/@v2.1.0", "v2.1.0"), R.match],
+    rules: [svcRule("Service svc.municipality_name_match", "services/municipality_name_match/rules.yaml@18b64aa", "v2.1.0"), R.match],
     links: [{ label: "Shared service: Municipality-name matching", href: "pages/shared-services.html#svc-muni-match" }, { label: "Platform blueprint: Municipality-name matching", href: "pages/blueprint.html#node=svc-match" }]
   });
 
@@ -141,7 +141,7 @@ window.PORTAL = window.PORTAL || {};
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
     lastRun: [HH_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0, note: "Audit: dropped field names counted, never values" },
-    rules: [svcRule("Service svc.personal_field_drop", "services/personal_field_drop/@v1.5.0", "v1.5.0"), { label: "Field allow-list config", path: TBD }],
+    rules: [svcRule("Service svc.personal_field_drop", "services/personal_field_drop/rules.yaml@18b64aa", "v1.5.0"), { label: "Field allow-list config", path: TBD }],
     links: [{ label: "Shared service: Personal-field drop", href: "pages/shared-services.html#svc-pi-drop" }, { label: "Platform blueprint: Personal-field drop", href: "pages/blueprint.html#node=svc-pidrop" }]
   });
 
@@ -153,7 +153,7 @@ window.PORTAL = window.PORTAL || {};
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
     lastRun: [HH_RUN_CONFORM],
     dq: { pass: 1, warn: 0, fail: 0, open: 0 },
-    rules: [svcRule("Service svc.small_cell_suppression", "services/small_cell_suppression/@v1.2.0", "v1.2.0"), R.smallCell],
+    rules: [svcRule("Service svc.small_cell_suppression", "services/small_cell_suppression/rules.yaml@18b64aa", "v1.2.0"), R.smallCell],
     links: [{ label: "Shared service: Small-cell suppression", href: "pages/shared-services.html#svc-suppress" }, { label: "Platform blueprint: Small-cell suppression", href: "pages/blueprint.html#node=svc-suppress" }]
   });
 

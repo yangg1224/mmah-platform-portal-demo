@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # build_refs.py needs git history for file@sha
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -21,6 +23,8 @@ jobs:
         run: python3 scripts/build_toolkit.py --check
       - name: Branch-box traceability and schema (TKT-3)
         run: python3 scripts/validate_toolkit.py
+      - name: Defined in file@sha refs (no folders, tags or made-up SHAs)
+        run: python3 scripts/build_refs.py --check
       - name: IaC guide manifest is current and valid
         run: python3 scripts/build_iac_guide.py --check && python3 scripts/validate_iac_guide.py
       - name: Manifest regression tests (blueprint + IaC guide)

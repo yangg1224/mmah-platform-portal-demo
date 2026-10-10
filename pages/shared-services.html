@@ -48,7 +48,7 @@
       </dl>
       <p><strong>Contract:</strong> Input = Bronze dataset conforming to its data contract · Output = cleaned rows + exception counts by rule.</p>
       <p><strong>Consumers:</strong> <a href="flows.html#node-mpd-clean">MPD transform</a> · <a href="flows.html#node-hh-silver">HH transform</a></p>
-      <p class="muted">Defined in: <span class="defined-in">services/clean_validate/@v3.2.0</span></p>
+      <p class="muted">Defined in: <span class="defined-in">services/clean_validate/rules.yaml@18b64aa</span></p>
     </article>
 
     <article class="entry" id="svc-muni-match">
@@ -61,7 +61,7 @@
       <p><strong>Contract:</strong> Input = cleaned name string · Output = matched reference ID + score · Below-threshold rows flagged, not overwritten.</p>
       <p><strong>Consumers:</strong> <a href="flows.html#node-mpd-silver">MPD Silver conform</a></p>
       <p>Threshold rule: <a href="rules.html#rule-match-muni">match.municipality_name.threshold</a></p>
-      <p class="muted">Defined in: <span class="defined-in">services/municipality_name_match/@v2.1.0</span></p>
+      <p class="muted">Defined in: <span class="defined-in">services/municipality_name_match/rules.yaml@18b64aa</span></p>
     </article>
 
     <article class="entry" id="svc-pi-drop">
@@ -73,7 +73,7 @@
       </dl>
       <p><strong>Contract:</strong> Input = field allow-list config · Output = dataset with non-allowed fields removed · Audit count of dropped field names (not values).</p>
       <p><strong>Consumers:</strong> <a href="flows.html#node-hh-bronze">HH Bronze → Silver</a></p>
-      <p class="muted">Defined in: <span class="defined-in">services/personal_field_drop/@v1.5.0</span></p>
+      <p class="muted">Defined in: <span class="defined-in">services/personal_field_drop/rules.yaml@18b64aa</span></p>
     </article>
 
     <article class="entry" id="svc-suppress">
@@ -86,7 +86,7 @@
       <p><strong>Contract:</strong> Input = aggregate table + threshold rule · Output = same shape with suppressed cells nullled · Count of suppressed cells returned as metadata.</p>
       <p><strong>Consumers:</strong> <a href="flows.html#node-hh-gold">HH Gold publish</a></p>
       <p>Rule: <a href="rules.html#rule-small-cell">dq.suppression.small_cell_n5</a></p>
-      <p class="muted">Defined in: <span class="defined-in">services/small_cell_suppression/@v1.2.0</span></p>
+      <p class="muted">Defined in: <span class="defined-in">services/small_cell_suppression/rules.yaml@18b64aa</span></p>
     </article>
   </main>
 

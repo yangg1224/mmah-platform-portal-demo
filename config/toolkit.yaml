@@ -21,13 +21,13 @@
 #   status            planned | prov | live                        status_source: which adapter sets it (TKT-7)
 #   status_by_env     Dev / Test / Pre-Prod / Prod -> planned | prov | live | na
 #   summary, why      what it is; why we use it
-#   iac               repo/path@commit | na (process / external) | tbd (not yet defined)
+#   iac               repo file path (path/file.ext); build adds @<sha of last commit touching it> | na (process / external) | tbd (not yet defined)
 #   docs              [{label, href}]   href null = not linked in the demo
 #   upstream, downstream, home_node (home process-map node), links_deeper [{label, href}] (hrefs relative to pages/)
 
 schema_version: 1
 
-manifest_ref: config/toolkit.yaml@4d7e2b9 (mock)
+manifest_ref: config/toolkit.yaml (sample manifest)
 
 as_of: 6 Oct 2026, 9:30 PM ET
 
@@ -1265,7 +1265,7 @@ tools:
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: prov}
     status_note: Demo IaC paths (iac/envs/*) exist for all four environments.
     summary: Infrastructure and workspace definitions as code; code-first deployment.
-    why: Every environment item links to repo/path@commit.
+    why: Every environment item links to a repo file path plus the commit that last changed it.
     iac: iac/envs/prod/main.tf
     docs:
       - label: Ideal-state toolkit §2.12 (internal doc · not in this demo)

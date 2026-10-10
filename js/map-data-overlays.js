@@ -17,10 +17,10 @@
     owner: "Platform engineering",
     lastRun: NA, dq: NA,
     rules: [
-      { label: "Test storage (flag: retention tag missing)", path: "iac/envs/test/storage.tf@a3f91c2", version: "Test", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-test" },
-      { label: "Dev environment", path: "iac/envs/dev/@b1c44e9", version: "Dev", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-dev" },
-      { label: "Pre-Prod environment", path: "iac/envs/preprod/@d9e01aa", version: "Pre-Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-preprod" },
-      { label: "Prod environment", path: "iac/envs/prod/@f2a88b1", version: "Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-prod" }
+      { label: "Test storage (flag: retention tag missing)", path: "iac/envs/test/storage.tf@ae6d90e", version: "Test", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-test" },
+      { label: "Dev environment", path: "iac/envs/dev/main.tf@ae6d90e", version: "Dev", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-dev" },
+      { label: "Pre-Prod environment", path: "iac/envs/preprod/main.tf@ae6d90e", version: "Pre-Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-preprod" },
+      { label: "Prod environment", path: "iac/envs/prod/main.tf@18b64aa", version: "Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-prod" }
     ],
     appliesTo: ["bronze", "silver", "gold"],
     links: [{ label: "Platform setup: Test", href: "pages/platform-setup.html#env-test" }, { label: "Storage zones and tags", href: "pages/platform-setup.html#zones-h" },
@@ -34,7 +34,7 @@
     summary: "Four platform roles by name and purpose; memberships are not shown.",
     owner: "Platform engineering",
     lastRun: NA, dq: NA,
-    rules: [{ label: "Roles: platform.engineer, data.steward, program.viewer, governance.reviewer", path: "iac/modules/identity/roles.tf@c4d12ef", version: "c4d12ef", approver: ENV_APPROVER, href: "pages/platform-setup.html#roles-h" }],
+    rules: [{ label: "Roles: platform.engineer, data.steward, program.viewer, governance.reviewer", path: "iac/modules/identity/roles.tf@18b64aa", version: "roles v1", approver: ENV_APPROVER, href: "pages/platform-setup.html#roles-h" }],
     appliesTo: ["bronze", "silver", "gold"],
     links: [{ label: "Roles (name and purpose)", href: "pages/platform-setup.html#roles-h" }, { label: "Platform blueprint: Identity groups", href: "pages/blueprint.html#node=pl-entra" }]
   });
@@ -48,7 +48,7 @@
     owner: "Platform engineering",
     lastRun: NA, dq: NA,
     rules: [
-      { label: "Prod environment (logging, backup, keys)", path: "iac/envs/prod/@f2a88b1", version: "Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-prod" },
+      { label: "Prod environment (logging, backup, keys)", path: "iac/envs/prod/main.tf@18b64aa", version: "Prod", approver: ENV_APPROVER, href: "pages/platform-setup.html#env-prod" },
       { label: "Network configuration", path: TBD }
     ],
     appliesTo: ["bronze", "silver", "gold"],
@@ -80,17 +80,17 @@
       lastRun: NA, dq: NA, checklist: checklist, rules: rules, links: links
     });
   }
-  var REL04 = { label: "Release 0.4 gates", path: "releases/0.4/gates.yaml@88cf12a", version: "0.4", approver: "Steward approval 22 Sep 2026 · Data & Analytics Branch (mock)", href: "pages/releases.html#rel-04" };
-  var REL03 = { label: "Release 0.3 gates", path: "releases/0.3/gates.yaml@71aa0e3", version: "0.3", approver: "Steward approval 18 Sep 2026 (mock)", href: "pages/releases.html#rel-03" };
+  var REL04 = { label: "Release 0.4 gates", path: "releases/0.4/gates.yaml@ae6d90e", version: "0.4", approver: "Steward approval 22 Sep 2026 · Data & Analytics Branch (mock)", href: "pages/releases.html#rel-04" };
+  var REL03 = { label: "Release 0.3 gates", path: "releases/0.3/gates.yaml@ae6d90e", version: "0.3", approver: "Steward approval 18 Sep 2026 (mock)", href: "pages/releases.html#rel-03" };
   var L04 = [{ label: "Release 0.4 · Municipal Planning Data", href: "pages/releases.html#rel-04" }];
   var L03 = [{ label: "Release 0.3 · Housing & Homelessness", href: "pages/releases.html#rel-03" }];
 
-  lane("lane-dev", "Dev", "0.4-dev.12", st("ok", "Sample: Deployed"), 16, ["mpd"], "env-dev", "iac/envs/dev/@b1c44e9", L04);
+  lane("lane-dev", "Dev", "0.4-dev.12", st("ok", "Sample: Deployed"), 16, ["mpd"], "env-dev", "iac/envs/dev/main.tf@ae6d90e", L04);
   gate("gate-dev-test", "Dev → Test", "promotion gate", st("tbd", "Not yet defined"), 186, ["mpd"],
     "The Dev → Test promotion gate is not yet established, so it is shown as not yet defined (GOV-12).",
     [{ item: "Promotion checklist", state: "tbd", note: "No gate source in version control yet" }],
     TBD, L04);
-  lane("lane-test", "Test", "0.4-rc.3", st("ok", "Sample: Deployed"), 336, ["mpd"], "env-test", "iac/envs/test/storage.tf@a3f91c2", L04);
+  lane("lane-test", "Test", "0.4-rc.3", st("ok", "Sample: Deployed"), 336, ["mpd"], "env-test", "iac/envs/test/storage.tf@ae6d90e", L04);
   gate("gate-test-preprod", "Test → Pre-Prod", "0.4-rc.3 → 0.4", st("ok", "Passed"), 506, ["mpd"],
     "Release 0.4 passed the Test → Pre-Prod checks and is now at Pre-Prod.",
     [
@@ -99,7 +99,7 @@
       { item: "Steward approval", state: "pass", note: "22 Sep 2026 · Data & Analytics Branch (mock)" }
     ],
     [REL04], L04);
-  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal", st("info", "Sample: Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/@d9e01aa", L04);
+  lane("lane-preprod", "Pre-Prod", "0.4 · Municipal", st("info", "Sample: Waiting"), 656, ["mpd"], "env-preprod", "iac/envs/preprod/main.tf@ae6d90e", L04);
   gate("gate-preprod-prod", "Pre-Prod → Prod", "release 0.4", st("fail", "Blocked"), 826, ["mpd"],
     "Release 0.4 is waiting at Pre-Prod; the Prod gate is blocked until a CAB reference is linked.",
     [
@@ -110,7 +110,7 @@
       { item: "CAB reference (GO-ITS 35)", state: "fail", note: "Missing · blocking. No CAB record linked yet" }
     ],
     [REL04], L04.concat([{ label: "Mock CAB record (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-000000" }]));
-  lane("lane-prod", "Prod", "0.3 · Housing & HH", st("ok", "Sample: Live"), 976, ["hh"], "env-prod", "iac/envs/prod/@f2a88b1", L03);
+  lane("lane-prod", "Prod", "0.3 · Housing & HH", st("ok", "Sample: Live"), 976, ["hh"], "env-prod", "iac/envs/prod/main.tf@18b64aa", L03);
   // Release 0.3's own gates (passed) are reachable from the Prod drawer.
   N[N.length - 1].statusNote = N[N.length - 1].status.word + " · release 0.3 · Housing & Homelessness aggregates since 29 Sep 2026 (not real infrastructure).";
   N[N.length - 1].rules.push(REL03);
