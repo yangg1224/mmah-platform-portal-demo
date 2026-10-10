@@ -124,6 +124,9 @@
 .edge-request path { stroke: var(--request); stroke-width: 1.25; }
 .edge-return path { stroke: var(--map-line); stroke-width: 1.25; stroke-dasharray: 5 4; }
 .edge-gate path { stroke: var(--map-ink); stroke-width: 1.75; }
+.edge-applies path { stroke: var(--map-line); stroke-width: 1; stroke-dasharray: 4 3; }
+.marker-applies path { fill: var(--map-line); }
+.edge-applies .edge-label { fill: var(--muted, #4c5560); }
 .gate-bar { stroke: var(--map-ink); stroke-width: 3; }
 .marker-primary path { fill: var(--focal); }
 .marker-request path { fill: var(--request); }

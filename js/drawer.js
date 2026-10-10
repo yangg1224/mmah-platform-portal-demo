@@ -58,13 +58,14 @@
       open: function (id, from) {
         if (!o.has(id)) return;
         if (o.beforeOpen) o.beforeOpen(id);
+        // Focus goes back to whatever opened the drawer first; in-drawer "goto" links keep that opener.
         if (from && from.el) opener = { el: from.el };
-        else if (from || !opener) opener = { id: id };
-        if (!opener.el) opener.id = id;
+        else if (!opener || (from && !from.goto)) opener = { id: id };
         current = id;
         select(id);
         body.innerHTML = o.render(id);
         el.hidden = false;
+        el.removeAttribute("inert");
         requestAnimationFrame(function () { el.classList.add("is-open"); });
         var n = o.nodeEl && o.nodeEl(id);
         if (n) n.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -72,15 +73,19 @@
       },
       close: function (silent) {
         if (el.hidden) return;
+        var last = current, hadFocus = el.contains(document.activeElement);
         current = null;
         el.classList.remove("is-open");
         el.hidden = true;
+        el.setAttribute("inert", "");
         deselect();
-        var w = opener;
+        var w = opener || { id: last };
         opener = null;
-        if (silent || !w) return;
-        var t = w.el && document.contains(w.el) ? w.el : o.focusTarget && o.focusTarget(w.id);
+        if (silent && !hadFocus) return;
+        // MAP-3: never leave focus on the hidden drawer. Back to the opener, else the node shown in the drawer.
+        var t = w.el && document.contains(w.el) ? w.el : o.focusTarget && (o.focusTarget(w.id) || o.focusTarget(last));
         if (t) t.focus();
+        else if (el.contains(document.activeElement)) document.activeElement.blur();
       },
       refresh: function () { if (current) body.innerHTML = o.render(current); }
     };
@@ -92,6 +97,7 @@
     });
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape" || el.hidden || e.target.id === "global-search") return;
+      e.preventDefault();
       api.close(false);
     });
     return api;

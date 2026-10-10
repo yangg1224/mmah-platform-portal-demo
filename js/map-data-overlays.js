@@ -116,12 +116,12 @@
   N[N.length - 1].rules.push(REL03);
   N[N.length - 1].links.push({ label: "CAB CHANGE-004821 (external, read-only)", href: "https://example.ontario.ca/cab/CHANGE-004821" });
 
-  E.push({ from: "lane-dev", to: "gate-dev-test", type: "gate", label: "" });
-  E.push({ from: "gate-dev-test", to: "lane-test", type: "gate", label: "" });
-  E.push({ from: "lane-test", to: "gate-test-preprod", type: "gate", label: "" });
-  E.push({ from: "gate-test-preprod", to: "lane-preprod", type: "gate", label: "" });
-  E.push({ from: "lane-preprod", to: "gate-preprod-prod", type: "gate", label: "" });
-  E.push({ from: "gate-preprod-prod", to: "lane-prod", type: "gate", label: "" });
+  E.push({ from: "lane-dev", to: "gate-dev-test", type: "gate", label: "promote", labelPos: "below" });
+  E.push({ from: "gate-dev-test", to: "lane-test", type: "gate", label: "promote", labelPos: "below" });
+  E.push({ from: "lane-test", to: "gate-test-preprod", type: "gate", label: "promote", labelPos: "below" });
+  E.push({ from: "gate-test-preprod", to: "lane-preprod", type: "gate", label: "promote", labelPos: "below" });
+  E.push({ from: "lane-preprod", to: "gate-preprod-prod", type: "gate", label: "promote", labelPos: "below" });
+  E.push({ from: "gate-preprod-prod", to: "lane-prod", type: "gate", label: "promote", labelPos: "below" });
 
   /* Needs-attention line above the map (one line, each item opens a drawer). */
   M.attention = [

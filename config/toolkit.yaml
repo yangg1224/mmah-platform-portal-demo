@@ -103,7 +103,7 @@ units:
     name: Data Policy Unit
     color: '#b5473a'
   - id: CLUSTER?
-    label: CLUSTER?
+    label: "CLUSTER? (Cluster, to be confirmed)"
     name: Cluster / enterprise (to verify)
     color: '#6b7480'
 

@@ -124,6 +124,10 @@
       var mx = (g.pts[0][0] + g.pts[1][0]) / 2, my = g.pts[0][1];
       html += '<line class="gate-bar" x1="' + mx + '" y1="' + (my - 7) + '" x2="' + mx + '" y2="' + (my + 7) + '"/>';
     }
+    if (e.labelPos === "below") { // promotion arrows are short: label sits under the gap between environments
+      var lb = Math.max(box(byId[e.from]).b, box(byId[e.to]).b);
+      g.lx = (g.pts[0][0] + g.pts[g.pts.length - 1][0]) / 2; g.ly = lb + 10;
+    }
     if (e.label && g.lx != null) {
       var txt = e.label.toUpperCase(), w = txt.length * 6.8 + 10;
       html += '<rect class="edge-label-bg" x="' + (g.lx - w / 2) + '" y="' + (g.ly - 8) + '" width="' + w + '" height="15" rx="2"/>' +
@@ -131,8 +135,31 @@
     }
     return html + "</g>";
   }
+  /* MAP-4 Platform setup overlay: thin dashed "applies to" lines from ENV / IAM / OPS up to the zones
+     they apply to. Drawn only while that overlay is on; they run through the gaps between the shared
+     services so nothing is crossed. Not part of M.edges (the drawer and list already show "applies to"). */
+  var APPLY_CORRIDOR = { bronze: 385, silver: 620, gold: 855 };
+  function appliesSvg() {
+    if (!state.overlays.setup) return "";
+    var srcs = M.nodes.filter(function (n) { return n.appliesTo && visible(n); }), zones = {}, html = "";
+    srcs.forEach(function (n, i) {
+      var a = box(n), sx = a.cx + (i - 1) * 14, bus = M.baseHeight - 26 + i * 7;
+      n.appliesTo.forEach(function (zid) {
+        var z = byId[zid]; if (!z || !visible(z)) return;
+        var zb = box(z), cx = (APPLY_CORRIDOR[zid] || zb.cx) + (i - 1) * 6;
+        zones[zid] = { x: APPLY_CORRIDOR[zid] || zb.cx, y: zb.b };
+        html += '<g class="edge edge-applies" data-applies="' + n.id + "-" + zid + '"><path d="' + pathD([[sx, a.y], [sx, bus], [cx, bus], [cx, zb.b]]) + '" marker-end="url(#arrow-applies)"/></g>';
+      });
+    });
+    Object.keys(zones).forEach(function (zid) {
+      var z = zones[zid], txt = "APPLIES TO", w = txt.length * 6.8 + 10, ly = z.y + 78;
+      html += '<g class="edge edge-applies"><rect class="edge-label-bg" x="' + (z.x - w / 2) + '" y="' + (ly - 8) + '" width="' + w + '" height="15" rx="2"/>' +
+        '<text class="edge-label" x="' + z.x + '" y="' + (ly + 3.5) + '" text-anchor="middle">' + txt + "</text></g>";
+    });
+    return html;
+  }
   function markers() {
-    return "<defs>" + ["primary", "request", "return", "gate"].map(function (t) {
+    return "<defs>" + ["primary", "request", "return", "gate", "applies"].map(function (t) {
       return '<marker id="arrow-' + t + '" class="marker-' + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z"/></marker>';
     }).join("") + "</defs>";
   }
@@ -190,7 +217,7 @@
     // Nodes are emitted in model order, which is flow order: 01, 02, 03, 03a-d, 04, 05, then overlays (MAP-9 tab order).
     canvas.innerHTML = containerFrames() +
       '<svg class="map-edges" aria-hidden="true" focusable="false" width="' + CANVAS_W + '" height="' + h + '" viewBox="0 0 ' + CANVAS_W + " " + h + '">' +
-      markers() + edges.map(function (e) { return edgeSvg(e, sl); }).join("") + "</svg>" +
+      markers() + edges.map(function (e) { return edgeSvg(e, sl); }).join("") + appliesSvg() + "</svg>" +
       vis.map(nodeHtml).join("");
     document.querySelectorAll("[data-legend-overlay]").forEach(function (el) {
       el.hidden = !(state.overlays.setup || state.overlays.releases);
