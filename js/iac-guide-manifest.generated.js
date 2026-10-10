@@ -936,7 +936,7 @@ PORTAL.toolkit = {
   {
    "id": "CLUSTER?",
    "label": "CLUSTER?",
-   "name": "Cluster / enterprise (to verify)",
+   "name": "Cluster / enterprise (to be confirmed)",
    "color": "#6b7480"
   }
  ],

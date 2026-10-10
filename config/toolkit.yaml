@@ -105,7 +105,7 @@ units:
   - id: CLUSTER?
     label: CLUSTER?
     legend_label: "CLUSTER? (Cluster, to be confirmed)"
-    name: Cluster / enterprise (to verify)
+    name: Cluster / enterprise (to be confirmed)
     color: '#6b7480'
 
 functions:
@@ -460,7 +460,7 @@ tools:
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Raw submissions, unchanged, tagged with source, schedule, period and received date.
     why: Keeps what was received, for audit and re-runs.
-    iac: tbd
+    iac: iac/modules/storage/bronze.tf
     docs:
       - label: Ideal-state toolkit §2.5 (internal doc · not in this demo)
         href: null
@@ -484,7 +484,7 @@ tools:
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Checked, cleaned, municipality-matched data with personal fields dropped.
     why: One conformed layer both products build on.
-    iac: tbd
+    iac: iac/modules/storage/silver.tf
     docs:
       - label: Ideal-state toolkit §2.5 (internal doc · not in this demo)
         href: null
@@ -509,7 +509,7 @@ tools:
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Aggregated, suppressed, documented outputs.
     why: Source of every trust card and published figure.
-    iac: tbd
+    iac: iac/modules/storage/gold.tf
     docs:
       - label: Ideal-state toolkit §2.5 (internal doc · not in this demo)
         href: null
@@ -1215,7 +1215,7 @@ tools:
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Separate non-prod and prod compute capacity.
     why: Isolate Prod load; pause non-prod out of hours.
-    iac: tbd
+    iac: iac/envs/prod/main.tf
     docs:
       - label: Ideal-state toolkit §2.4 (internal doc · not in this demo)
         href: null

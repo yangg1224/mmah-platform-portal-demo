@@ -87,9 +87,9 @@
 
   lane("lane-dev", "Dev", "0.4-dev.12", st("ok", "Sample: Deployed"), 16, ["mpd"], "env-dev", "iac/envs/dev/main.tf@ae6d90e", L04);
   gate("gate-dev-test", "Dev → Test", "promotion gate", st("tbd", "Not yet defined"), 186, ["mpd"],
-    "The Dev → Test promotion gate is not yet established, so it is shown as not yet defined (GOV-12).",
-    [{ item: "Promotion checklist", state: "tbd", note: "No gate source in version control yet" }],
-    TBD, L04);
+    "A draft Dev → Test gate source exists in version control but is not yet approved, so the gate is shown as not yet defined (GOV-12).",
+    [{ item: "Promotion checklist", state: "tbd", note: "Draft only, not yet approved" }],
+    [{ label: "Dev → Test gate (draft)", path: "releases/0.4/gate-dev-test.yaml@c741ce5", version: "draft", approver: ENV_APPROVER, href: "pages/releases.html#rel-04" }], L04);
   lane("lane-test", "Test", "0.4-rc.3", st("ok", "Sample: Deployed"), 336, ["mpd"], "env-test", "iac/envs/test/storage.tf@ae6d90e", L04);
   gate("gate-test-preprod", "Test → Pre-Prod", "0.4-rc.3 → 0.4", st("ok", "Passed"), 506, ["mpd"],
     "Release 0.4 passed the Test → Pre-Prod checks and is now at Pre-Prod.",

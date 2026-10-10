@@ -649,7 +649,7 @@ units:
   color: '#b5473a'
 - id: CLUSTER?
   label: CLUSTER?
-  name: Cluster / enterprise (to verify)
+  name: Cluster / enterprise (to be confirmed)
   color: '#6b7480'
 functions:
 - id: acq

@@ -118,7 +118,7 @@ PORTAL.toolkit = {
    "id": "CLUSTER?",
    "label": "CLUSTER?",
    "legend_label": "CLUSTER? (Cluster, to be confirmed)",
-   "name": "Cluster / enterprise (to verify)",
+   "name": "Cluster / enterprise (to be confirmed)",
    "color": "#6b7480"
   }
  ],
@@ -799,7 +799,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Raw submissions, unchanged, tagged with source, schedule, period and received date.",
    "why": "Keeps what was received, for audit and re-runs.",
-   "iac": "tbd",
+   "iac": "iac/modules/storage/bronze.tf@ae6d90e",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.5 (internal doc · not in this demo)",
@@ -847,7 +847,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Checked, cleaned, municipality-matched data with personal fields dropped.",
    "why": "One conformed layer both products build on.",
-   "iac": "tbd",
+   "iac": "iac/modules/storage/silver.tf@ae6d90e",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.5 (internal doc · not in this demo)",
@@ -894,7 +894,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Aggregated, suppressed, documented outputs.",
    "why": "Source of every trust card and published figure.",
-   "iac": "tbd",
+   "iac": "iac/modules/storage/gold.tf@ae6d90e",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.5 (internal doc · not in this demo)",
@@ -2221,7 +2221,7 @@ PORTAL.toolkit = {
    ],
    "summary": "Separate non-prod and prod compute capacity.",
    "why": "Isolate Prod load; pause non-prod out of hours.",
-   "iac": "tbd",
+   "iac": "iac/envs/prod/main.tf@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.4 (internal doc · not in this demo)",
