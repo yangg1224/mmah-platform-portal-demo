@@ -43,6 +43,11 @@ def smoke(base, shots):
         # Home map: MAP-11 and the sample-status rule.
         page.goto(base + "/index.html#overlays=setup,releases", wait_until="networkidle")
         ok(not PRODUCTS.search(page.inner_text("body")), "MAP-11 home map + overlays show no product names")
+        for pth in ("/index.html", "/pages/blueprint.html", "/pages/iac-guide.html"):
+            page.goto(base + pth, wait_until="networkidle")
+            st = page.evaluate("() => { const d = document.getElementById('map-drawer'); return [d.hidden, d.inert, getComputedStyle(d).display]; }")
+            ok(st == [True, True, "none"], "WCAG closed drawer at load is hidden + inert + display:none on " + pth + " " + str(st))
+        page.goto(base + "/index.html#overlays=setup,releases", wait_until="networkidle")
         sts = page.eval_on_selector_all('[data-node^="lane-"] .map-status', "els=>els.map(e=>e.innerText.replace(/\\s+/g,' '))")
         ok(sts and all("Sample:" in s for s in sts), "Releases lane statuses all carry 'Sample:' " + str(sts))
         ok("SAMPLE STATUSES, NOT REAL INFRASTRUCTURE" in page.inner_text("#map-canvas").upper(), "Releases overlay label says sample statuses")
