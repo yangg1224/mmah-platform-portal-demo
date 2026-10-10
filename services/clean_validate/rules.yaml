@@ -1,0 +1,6 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+service: clean_validate
+checks:
+  - schema
+  - code_list
+  - null_type_cleaning

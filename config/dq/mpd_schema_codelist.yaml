@@ -1,0 +1,4 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+product: municipal_planning_data
+schema_checks: true
+code_lists: [municipality, housing_type]

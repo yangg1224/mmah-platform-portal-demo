@@ -1,0 +1,5 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+service: municipality_name_match
+reference: provincial_municipality_list
+min_score: 0.92
+on_below_threshold: flag

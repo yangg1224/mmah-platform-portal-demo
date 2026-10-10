@@ -1,0 +1,5 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+contract: mpd_ingest
+version: 2
+format: csv
+required_columns: [municipality, quarter, units]

@@ -1,0 +1,4 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+service: small_cell_suppression
+threshold: approved_by_steward
+method: suppress

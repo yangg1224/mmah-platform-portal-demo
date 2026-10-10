@@ -1,0 +1,3 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+service: personal_field_drop
+drop_fields_tagged: [personal]
