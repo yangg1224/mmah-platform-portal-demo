@@ -1,0 +1,3 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+rule: housing_starts
+definition: units with a building permit issued in the quarter

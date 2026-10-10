@@ -1,0 +1,3 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+release: "0.3"
+gates: [sos, dq_pass, steward_approval, cab_reference]

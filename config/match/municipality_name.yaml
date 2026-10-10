@@ -1,0 +1,3 @@
+# SAMPLE ONLY: mock config for the portal demo, not real infrastructure.
+reference: provincial_municipality_list
+min_score: 0.92
