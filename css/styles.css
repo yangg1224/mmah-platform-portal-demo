@@ -453,3 +453,19 @@ table.data td.flagged { background: var(--warn-bg); }
   .gate-list li { grid-template-columns: 1fr; }
   .promo-board { grid-template-columns: 1fr; }
 }
+
+/* ---- Flow page: ELT stage bands (D12 / FLW-1..5) ---- */
+.stage-bands { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 0.75rem; }
+.stage-band { padding: 0.85rem; border-radius: var(--radius); background: var(--lane-silver); }
+.stage-extract { background: #eef4f8; } .stage-load { background: var(--lane-bronze); } .stage-transform { background: var(--lane-gold); }
+.stage-head h2 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+.stage-step { display: inline-block; min-width: 1.4em; text-align: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.8rem; }
+.stage-head p { margin: 0.2rem 0; font-size: 0.82rem; }
+.stage-question { font-style: italic; }
+.stage-nodes { color: var(--muted); }
+.stage-fields { font-size: 0.8rem; margin: 0.6rem 0; }
+.stage-fields dt { font-weight: 600; margin-top: 0.35rem; }
+.stage-fields dd { margin: 0; }
+.rule-list { margin: 0; padding-left: 1rem; }
+.node.upstream { box-shadow: inset 3px 0 0 #2b7bb9; } .node.downstream { box-shadow: inset 3px 0 0 #d9622b; }
+@media (max-width: 900px) { .stage-bands { grid-template-columns: 1fr; } }

@@ -35,178 +35,57 @@
   <main id="main" class="main">
     <header class="page-header">
       <h1>Flows / lineage</h1>
-      <p class="page-lede">Load → transform → extract / publish. Plain labels first, with Bronze / Silver / Gold underneath.</p>
+      <p class="page-lede" data-purpose>Trace any published number back to its source and see what changed it.</p>
+      <p class="muted elt-note">Order is Extract → Load → Transform (ELT): raw data lands in Bronze before any transform runs.</p>
       <p class="as-of" data-as-of></p>
     </header>
-
     <div class="flow-toolbar">
-      <p class="muted mb-0">Select a node for its summary, status and links.</p>
+      <p class="muted mb-0">Select a node for its upstream / downstream impact and a one-click trace to source.</p>
       <div role="group" aria-label="Lineage view">
         <button type="button" id="view-graph" class="view-toggle" aria-pressed="true">Diagram</button><button type="button" id="view-table" class="view-toggle" aria-pressed="false">Table</button>
       </div>
     </div>
-
     <div id="lineage-graph">
-      <section class="section" aria-labelledby="flow-mpd">
-        <h2 id="flow-mpd">Municipal Planning Data <span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> DQ warning</span></h2>
-        <div class="swimlane" role="group" aria-label="Municipal Planning Data lineage swimlane">
-          <div class="lane lane-bronze">
-            <div class="lane-header">
-              <p class="plain">Raw (as received)</p>
-              <p class="alias">Bronze · load</p>
-            </div>
-            <div class="lane-body">
-              <button type="button" class="node" data-node="mpd-bronze" id="node-mpd-bronze" aria-describedby="node-detail">
-                <span class="node-name">Municipal quarterly submissions</span>
-                <span class="node-tech">bronze.municipal_planning.raw_submissions</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
-              </button>
-            </div>
-          </div>
-          <div class="lane lane-silver">
-            <div class="lane-header">
-              <p class="plain">Standardized and conformed</p>
-              <p class="alias">Silver · transform</p>
-            </div>
-            <div class="lane-body">
-              <button type="button" class="node warning" data-node="mpd-clean" id="node-mpd-clean">
-                <span class="node-name">Clean / validate (shared service)</span>
-                <span class="node-tech">svc.clean_validate</span>
-                <span class="node-meta"><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></span>
-              </button>
-              <p class="edge-hint">↓ <a href="shared-services.html#svc-muni-match">municipality-name matching</a></p>
-              <button type="button" class="node" data-node="mpd-silver" id="node-mpd-silver">
-                <span class="node-name">Conformed municipal planning tables</span>
-                <span class="node-tech">silver.municipal_planning.conform_tables</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
-              </button>
-            </div>
-          </div>
-          <div class="lane lane-gold">
-            <div class="lane-header">
-              <p class="plain">Published (trusted)</p>
-              <p class="alias">Gold · extract / publish</p>
-            </div>
-            <div class="lane-body">
-              <button type="button" class="node" data-node="mpd-gold" id="node-mpd-gold">
-                <span class="node-name">Municipal Planning Data — published measures</span>
-                <span class="node-tech">gold.municipal_planning.published_measures</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span><span class="tag">Low</span></span>
-              </button>
-              <p class="edge-hint"><a href="data-product-municipal.html">Trust card →</a></p>
-            </div>
-          </div>
-        </div>
+      <div class="stage-bands" role="group" aria-label="Flow stages, left to right: Extract, Load, Transform">
+      <section class="stage-band stage-extract" data-stage="extract" aria-labelledby="stage-extract-h">
+        <header class="stage-head">
+          <h2 id="stage-extract-h"><span class="stage-step">1</span> Extract</h2>
+          <p class="stage-nodes">Nodes: 01 Sources</p>
+          <p class="stage-status"><span class="status status-ok" data-stage-status="green"><span class="icon" aria-hidden="true">✓</span> Sample: Green</span></p>
+          <p class="stage-question">Where did this data come from?</p>
+        </header>
+        <dl class="stage-fields" data-fields="extract"><dt>Source system</dt><dd>Municipal planning portal (quarterly submissions) · Program systems (aggregated housing / HH extracts)</dd><dt>Owner</dt><dd>Sample: (to be confirmed)</dd><dt>Extract method</dt><dd>Batch file drop under data contract <code class="defined-in">config/contracts/mpd_ingest_v2.yaml@0000000</code></dd><dt>Schedule</dt><dd>Quarterly (MPD) · Monthly (H&amp;HH)</dd></dl>
+        <div class="lane-body"><button type="button" class="node" data-node="mpd-src" id="node-mpd-src" aria-controls="flow-detail"><span class="node-name">Municipal planning portal submissions</span><span class="node-tech">src.municipal_portal.quarterly</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="hh-src" id="node-hh-src" aria-controls="flow-detail"><span class="node-name">Program-system aggregate extracts</span><span class="node-tech">src.program_systems.agg_extract</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button></div>
       </section>
-
-      <section class="section" aria-labelledby="flow-hh">
-        <h2 id="flow-hh">Housing &amp; Homelessness (aggregated) <span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Healthy</span></h2>
-        <div class="swimlane" role="group" aria-label="Housing and Homelessness lineage swimlane">
-          <div class="lane lane-bronze">
-            <div class="lane-header">
-              <p class="plain">Raw (as received)</p>
-              <p class="alias">Bronze · load</p>
-            </div>
-            <div class="lane-body">
-              <button type="button" class="node" data-node="hh-bronze" id="node-hh-bronze">
-                <span class="node-name">Aggregated housing / homelessness extracts</span>
-                <span class="node-tech">bronze.housing_hh.agg_extracts</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
-              </button>
-            </div>
-          </div>
-          <div class="lane lane-silver">
-            <div class="lane-header">
-              <p class="plain">Standardized and conformed</p>
-              <p class="alias">Silver · transform</p>
-            </div>
-            <div class="lane-body">
-              <p class="edge-hint">via <a href="shared-services.html#svc-pi-drop">personal-field drop</a></p>
-              <button type="button" class="node" data-node="hh-silver" id="node-hh-silver">
-                <span class="node-name">Standardized housing / HH aggregates</span>
-                <span class="node-tech">silver.housing_hh.standard_agg</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span>
-              </button>
-              <p class="edge-hint">↓ <a href="shared-services.html#svc-suppress">small-cell suppression</a></p>
-            </div>
-          </div>
-          <div class="lane lane-gold">
-            <div class="lane-header">
-              <p class="plain">Published (trusted)</p>
-              <p class="alias">Gold · extract / publish</p>
-            </div>
-            <div class="lane-body">
-              <button type="button" class="node" data-node="hh-gold" id="node-hh-gold">
-                <span class="node-name">Housing &amp; Homelessness — published aggregates</span>
-                <span class="node-tech">gold.housing_hh.published_agg</span>
-                <span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span><span class="tag">Medium</span></span>
-              </button>
-              <p class="edge-hint"><a href="data-product-housing.html">Trust card →</a></p>
-            </div>
-          </div>
-        </div>
+      <section class="stage-band stage-load" data-stage="load" aria-labelledby="stage-load-h">
+        <header class="stage-head">
+          <h2 id="stage-load-h"><span class="stage-step">2</span> Load</h2>
+          <p class="stage-nodes">Nodes: 02 Landing / Raw (Bronze)</p>
+          <p class="stage-status"><span class="status status-ok" data-stage-status="green"><span class="icon" aria-hidden="true">✓</span> Sample: Green</span></p>
+          <p class="stage-question">Did it arrive complete?</p>
+        </header>
+        <dl class="stage-fields" data-fields="load"><dt>Last landed</dt><dd>6 Oct 2026, 8:12 PM ET (MPD) · 6 Oct 2026, 7:34 PM ET (H&amp;HH)</dd><dt>Rows landed vs source</dt><dd>MPD 47 / 47 orgs ✓ · H&amp;HH 12 / 12 regions ✓</dd></dl>
+        <div class="lane-body"><button type="button" class="node" data-node="mpd-bronze" id="node-mpd-bronze" aria-controls="flow-detail"><span class="node-name">Municipal quarterly submissions</span><span class="node-tech">bronze.municipal_planning.raw_submissions</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="hh-bronze" id="node-hh-bronze" aria-controls="flow-detail"><span class="node-name">Aggregated housing / homelessness extracts</span><span class="node-tech">bronze.housing_hh.agg_extracts</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button></div>
       </section>
-
-      <div id="node-detail" class="detail-panel" tabindex="-1" hidden aria-live="polite">
-        <p>Select a node to see summary, status, and links.</p>
+      <section class="stage-band stage-transform" data-stage="transform" aria-labelledby="stage-transform-h">
+        <header class="stage-head">
+          <h2 id="stage-transform-h"><span class="stage-step">3</span> Transform</h2>
+          <p class="stage-nodes">Nodes: 03 Standardize (Silver) with shared services · 04 Published (Gold) · 05 Catalogue</p>
+          <p class="stage-status"><span class="status status-warn" data-stage-status="amber"><span class="icon" aria-hidden="true">⚠</span> Sample: Amber</span></p>
+          <p class="stage-question">What rules changed it, and can I trust the result?</p>
+        </header>
+        <dl class="stage-fields" data-fields="transform"><dt>Rules applied (DQ result)</dt><dd><ul class="rule-list"><li><a href="rules.html#rule-schema-mpd">Schema / code-list check</a> · <span class="status status-warn">Warn (12)</span> · <code class="defined-in">config/dq/mpd_schema_codelist.yaml@0000000</code></li><li><a href="rules.html#rule-match-muni">Municipality-name matching</a> · <span class="status status-ok">Pass</span> · <code class="defined-in">config/match/municipality_name.yaml@0000000</code></li><li><a href="rules.html#rule-biz-housing-starts">Housing starts business rule</a> · <span class="status status-ok">Pass</span> · <code class="defined-in">config/biz/housing_starts.yaml@0000000</code></li><li><a href="rules.html#rule-small-cell">Small-cell suppression</a> · <span class="status status-ok">Pass</span> · <code class="defined-in">config/dq/small_cell_suppression.yaml@0000000</code></li></ul></dd><dt>Freshness</dt><dd>Gold refreshed 6 Oct 2026, 8:41 PM ET (MPD) · 7:55 PM ET (H&amp;HH)</dd><dt>Catalogue entry</dt><dd><a href="data-product-municipal.html">Municipal Planning Data</a> · <a href="data-product-housing.html">Housing &amp; Homelessness</a></dd><dt>Downstream consumers</dt><dd>Sample: O. Reg. 73/23 reporting · Housing supply dashboard</dd><dt>Run history</dt><dd><a href="#runs">Start/end, status, rows in/out ↓</a></dd></dl>
+        <div class="lane-body"><button type="button" class="node warning" data-node="mpd-clean" id="node-mpd-clean" aria-controls="flow-detail"><span class="node-name">Clean / validate (shared service)</span><span class="node-tech">svc.clean_validate</span><span class="node-meta"><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></span></button><button type="button" class="node" data-node="mpd-silver" id="node-mpd-silver" aria-controls="flow-detail"><span class="node-name">Conformed municipal planning tables</span><span class="node-tech">silver.municipal_planning.conform_tables</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="hh-silver" id="node-hh-silver" aria-controls="flow-detail"><span class="node-name">Standardized housing / HH aggregates</span><span class="node-tech">silver.housing_hh.standard_agg</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="mpd-gold" id="node-mpd-gold" aria-controls="flow-detail"><span class="node-name">Municipal Planning Data — published measures</span><span class="node-tech">gold.municipal_planning.published_measures</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="hh-gold" id="node-hh-gold" aria-controls="flow-detail"><span class="node-name">Housing &amp; Homelessness — published aggregates</span><span class="node-tech">gold.housing_hh.published_agg</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="mpd-cat" id="node-mpd-cat" aria-controls="flow-detail"><span class="node-name">Catalogue: Municipal Planning Data</span><span class="node-tech">catalogue.municipal_planning</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button><button type="button" class="node" data-node="hh-cat" id="node-hh-cat" aria-controls="flow-detail"><span class="node-name">Catalogue: Housing &amp; Homelessness</span><span class="node-tech">catalogue.housing_hh</span><span class="node-meta"><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></span></button></div>
+      </section>
       </div>
+      <div id="flow-detail" class="detail-panel" tabindex="-1" hidden aria-live="polite"></div>
     </div>
-
     <section id="lineage-table" class="section" aria-labelledby="table-h" hidden>
       <h2 id="table-h">Lineage edges (table view)</h2>
-      <div class="table-wrap">
-        <table class="data">
-          <caption class="sr-only">Lineage edges for both v1 products</caption>
-          <thead>
-            <tr>
-              <th scope="col">Product</th>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
-              <th scope="col">Edge (transform / service)</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Municipal Planning</td>
-              <td>Municipal quarterly submissions<br><span class="muted">Raw / Bronze</span></td>
-              <td>Clean / validate<br><span class="muted">Shared service</span></td>
-              <td><a href="shared-services.html#svc-clean">svc.clean_validate</a></td>
-              <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></td>
-            </tr>
-            <tr>
-              <td>Municipal Planning</td>
-              <td>Clean / validate</td>
-              <td>Conformed tables<br><span class="muted">Silver</span></td>
-              <td><a href="shared-services.html#svc-muni-match">svc.municipality_name_match</a></td>
-              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
-            </tr>
-            <tr>
-              <td>Municipal Planning</td>
-              <td>Conformed tables<br><span class="muted">Silver</span></td>
-              <td>Published measures<br><span class="muted">Gold</span></td>
-              <td>Publish / extract to Gold</td>
-              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
-            </tr>
-            <tr>
-              <td>Housing &amp; HH</td>
-              <td>Aggregated extracts<br><span class="muted">Bronze</span></td>
-              <td>Standard aggregates<br><span class="muted">Silver</span></td>
-              <td><a href="shared-services.html#svc-pi-drop">svc.personal_field_drop</a> + clean</td>
-              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
-            </tr>
-            <tr>
-              <td>Housing &amp; HH</td>
-              <td>Standard aggregates<br><span class="muted">Silver</span></td>
-              <td>Published aggregates<br><span class="muted">Gold</span></td>
-              <td><a href="shared-services.html#svc-suppress">svc.small_cell_suppression</a></td>
-              <td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table class="data"><caption class="sr-only">Lineage edges, Extract → Load → Transform, for both v1 products</caption>
+      <thead><tr><th scope="col">Product</th><th scope="col">From</th><th scope="col">To</th><th scope="col">Edge</th><th scope="col">Status</th></tr></thead>
+      <tbody><tr><td>MPD</td><td>Municipal planning portal submissions · Extract</td><td>Municipal quarterly submissions · Load</td><td>Contract mpd_ingest_v2</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>MPD</td><td>Municipal quarterly submissions · Load</td><td>Clean / validate · Transform</td><td>svc.clean_validate</td><td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Warnings: 12</span></td></tr><tr><td>MPD</td><td>Clean / validate · Transform</td><td>Conformed tables (Silver) · Transform</td><td>svc.municipality_name_match</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>MPD</td><td>Conformed tables (Silver)</td><td>Published measures (Gold)</td><td>Publish to Gold</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>MPD</td><td>Published measures (Gold)</td><td>Catalogue entry</td><td>Catalogue publish</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>H&amp;HH</td><td>Program-system aggregate extracts · Extract</td><td>Aggregated extracts · Load</td><td>Batch file drop</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>H&amp;HH</td><td>Aggregated extracts · Load</td><td>Standard aggregates (Silver) · Transform</td><td>svc.personal_field_drop + clean</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>H&amp;HH</td><td>Standard aggregates (Silver)</td><td>Published aggregates (Gold)</td><td>svc.small_cell_suppression</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr><tr><td>H&amp;HH</td><td>Published aggregates (Gold)</td><td>Catalogue entry</td><td>Catalogue publish</td><td><span class="status status-ok"><span class="icon" aria-hidden="true">✓</span> Passing</span></td></tr></tbody></table></div>
     </section>
-
     <section class="section" id="runs" aria-labelledby="runs-h">
       <h2 id="runs-h">Run history (latest)</h2>
       <div class="table-wrap">
@@ -217,14 +96,14 @@
           </thead>
           <tbody>
             <tr>
-              <td>MPD load → transform → publish</td>
+              <td>MPD extract → load → transform</td>
               <td>6 Oct 2026, 8:05 PM ET</td>
               <td>6 Oct 2026, 8:41 PM ET</td>
               <td>47 orgs → 47 orgs</td>
               <td><span class="status status-warn"><span class="icon" aria-hidden="true">⚠</span> Completed, 12 DQ warnings</span></td>
             </tr>
             <tr>
-              <td>HH load → transform → publish</td>
+              <td>HH extract → load → transform</td>
               <td>6 Oct 2026, 7:30 PM ET</td>
               <td>6 Oct 2026, 7:55 PM ET</td>
               <td>12 regions → 12 regions</td>
@@ -241,5 +120,6 @@
   </footer>
   <script src="../js/data.js"></script>
   <script src="../js/app.js"></script>
+  <script src="../js/flows.js"></script>
 </body>
 </html>
