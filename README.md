@@ -51,6 +51,7 @@ The build copies only `index.html`, `css/`, `js/`, and `pages/` to `dist/`. Keep
 5. **Platform setup** — Dev / Test / Pre-Prod / Prod side by side; untagged zone on Test; roles by name/purpose; “Defined in: path/file.ext@<sha of last commit touching it> (stamped by scripts/build_refs.py)”.
 6. **Rules / config** and **Shared services** — config-as-code style entries with used-by / consumer links.
 7. **Global search** — search box on every page (try `housing`, `CAB`, `scratch`, `municipality`).
+8. **Meeting mode** (`pages/meeting.html`, linked from the home map header; PRD §6.7 MTG-1..10) — a 5-screen presentation walkthrough (`#screen=1`..`#screen=5`, Previous/Next or Arrow/PageUp/PageDown to page) ending in a **To confirm** page (`pages/to-confirm.html`) listing open assumptions.
 
 ## Layout
 

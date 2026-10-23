@@ -1,0 +1,207 @@
+/* ---- Meeting mode (MTG-1..10) ---- */
+
+.mm-body { font-size: 16px; }
+
+.mm-header {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem 0.6rem;
+}
+.mm-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.mm-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-nav-list a {
+  display: inline-block;
+  padding: 0.3rem 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.86rem;
+  border-bottom: 2px solid transparent;
+}
+.mm-nav-list a:hover { color: var(--text); }
+.mm-nav-list a[aria-current="page"] {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+.mm-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem 1.5rem;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mm-screen { padding: 0.5rem 0 1rem; }
+
+.mm-headline {
+  font-size: 2rem;
+  line-height: 1.25;
+  margin: 0.25rem 0 1.25rem;
+  max-width: 34ch;
+}
+
+.mm-visual { font-size: 1.05rem; }
+
+/* Screen 1: question cards */
+.mm-qcards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.mm-qcard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+.mm-qcard p { margin: 0.4rem 0 0; font-weight: 600; }
+.mm-qmark {
+  display: block;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--accent);
+}
+.mm-caption {
+  margin: 1rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Screen 2: numbered principles */
+.mm-principles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+.mm-principles li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+}
+.mm-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+/* Screen 3: data products */
+.mm-products {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.mm-product {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+}
+.mm-product-name { margin: 0 0 0.4rem; font-weight: 700; font-size: 1.1rem; }
+.mm-product-value { margin: 0; color: var(--muted); }
+
+/* Screen 4: ELT flow */
+.mm-sample-label { margin: 0 0 0.6rem; color: var(--muted); font-size: 0.9rem; }
+.mm-flow-bands { grid-template-columns: 1fr 1fr 1fr; }
+.mm-step-title { margin: 0 0 0.3rem; font-weight: 700; }
+.mm-flow-link { margin: 0.9rem 0 0; }
+
+/* Screen 5: timeline + decisions */
+.mm-timeline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+.mm-tl-col {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+}
+.mm-tl-days { margin: 0 0 0.25rem; font-weight: 700; color: var(--accent-dark); }
+.mm-tl-col p + p { margin: 0; }
+.mm-decisions-cap { margin: 1.25rem 0 0.4rem; font-weight: 700; }
+.mm-decisions { margin: 0; padding-left: 1.3rem; }
+.mm-decisions li { margin: 0.2rem 0; }
+
+/* Pager */
+.mm-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.mm-pager-btn {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+.mm-pager-btn:hover:not(:disabled) { background: var(--accent-light); border-color: var(--accent); }
+.mm-pager-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.mm-indicator { margin: 0; font-weight: 600; color: var(--muted); min-width: 5em; text-align: center; }
+
+.mm-footer p { text-align: center; }
+
+/* To confirm page */
+.mm-confirm-main h1 { margin-bottom: 0.4rem; }
+.mm-lede { color: var(--muted); max-width: 62ch; }
+.mm-tc-list {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.tc-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+.tag-assumption {
+  color: var(--warn);
+  border-color: var(--warn);
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .mm-qcards, .mm-principles, .mm-products, .mm-flow-bands, .mm-timeline {
+    grid-template-columns: 1fr;
+  }
+  .mm-headline { font-size: 1.5rem; }
+}

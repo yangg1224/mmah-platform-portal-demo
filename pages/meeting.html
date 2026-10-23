@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Meeting mode · Platform Portal (demo)</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/meeting.css">
+</head>
+<body class="mm-body">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="demo-banner" role="status">Demo · mock metadata only · not a live OPS system · no High Sensitivity or person-level data</div>
+
+  <header class="mm-header">
+    <h1 class="mm-kicker">Meeting mode <span aria-hidden="true">·</span> Platform priorities</h1>
+    <nav aria-label="Meeting">
+      <ul class="mm-nav-list">
+        <li><a href="#screen=1">1 Where we are</a></li>
+        <li><a href="#screen=2">2 Principles</a></li>
+        <li><a href="#screen=3">3 First two data products</a></li>
+        <li><a href="#screen=4">4 How data flows</a></li>
+        <li><a href="#screen=5">5 90 days and decisions</a></li>
+        <li><a href="to-confirm.html">To confirm</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="mm-main">
+    <section class="mm-screen" data-screen="1" data-title="Where we are">
+      <h2 class="mm-headline">Where we are: three questions for you to confirm.</h2>
+      <div class="mm-visual">
+        <div class="mm-qcards">
+          <div class="mm-qcard"><span class="mm-qmark" aria-hidden="true">?</span><p>Is our data scattered across teams and systems?</p></div>
+          <div class="mm-qcard"><span class="mm-qmark" aria-hidden="true">?</span><p>Is reporting still mostly manual?</p></div>
+          <div class="mm-qcard"><span class="mm-qmark" aria-hidden="true">?</span><p>Is there no shared data platform today?</p></div>
+        </div>
+        <p class="mm-caption">Questions, not findings. Please correct me.</p>
+      </div>
+    </section>
+
+    <section class="mm-screen" data-screen="2" data-title="Principles" hidden>
+      <h2 class="mm-headline">Four principles keep the first version small and safe.</h2>
+      <div class="mm-visual">
+        <ol class="mm-principles">
+          <li><span class="mm-num" aria-hidden="true">1</span>Cloud by default (GO-ITS 25.21)</li>
+          <li><span class="mm-num" aria-hidden="true">2</span>Vendor-neutral</li>
+          <li><span class="mm-num" aria-hidden="true">3</span>Thin landing zone, not a second enterprise platform</li>
+          <li><span class="mm-num" aria-hidden="true">4</span>v1 excludes High Sensitivity and person-level By-Name List data</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="mm-screen" data-screen="3" data-title="First two data products" hidden>
+      <h2 class="mm-headline">Start with two data products that show value early.</h2>
+      <div class="mm-visual">
+        <div class="mm-products">
+          <div class="mm-product">
+            <p class="mm-product-name">Municipal planning data reporting (O. Reg. 73/23)</p>
+            <p class="mm-product-value">Regulatory basis and a fixed reporting cadence.</p>
+          </div>
+          <div class="mm-product">
+            <p class="mm-product-name">One aggregated housing or homelessness dataset</p>
+            <p class="mm-product-value">Tests the governance path for more sensitive data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mm-screen" data-screen="4" data-title="How data flows" hidden>
+      <h2 class="mm-headline">One sample dataset moves Extract, Load, Transform.</h2>
+      <div class="mm-visual">
+        <p class="mm-sample-label">Sample: Municipal planning data</p>
+        <div class="stage-bands mm-flow-bands">
+          <div class="stage-band stage-extract"><p class="mm-step-title">1 Extract</p><p>Municipal planning portal submissions</p></div>
+          <div class="stage-band stage-load"><p class="mm-step-title">2 Load</p><p>Raw, as received (Bronze)</p></div>
+          <div class="stage-band stage-transform"><p class="mm-step-title">3 Transform</p><p>Clean, conform, publish (Silver → Gold)</p></div>
+        </div>
+        <p class="mm-flow-link"><a href="flows.html">Open the full flow page →</a></p>
+      </div>
+    </section>
+
+    <section class="mm-screen" data-screen="5" data-title="90 days and decisions" hidden>
+      <h2 class="mm-headline">Ninety days to a decision pack, and three decisions from you.</h2>
+      <div class="mm-visual">
+        <div class="mm-timeline">
+          <div class="mm-tl-col"><p class="mm-tl-days">Days 1–30</p><p>Learn the estate</p></div>
+          <div class="mm-tl-col"><p class="mm-tl-days">Days 31–60</p><p>Write the platform intent</p></div>
+          <div class="mm-tl-col"><p class="mm-tl-days">Days 61–90</p><p>Prepare the decision pack</p></div>
+        </div>
+        <p class="mm-decisions-cap">Decisions needed</p>
+        <ol class="mm-decisions">
+          <li>Which product goes first?</li>
+          <li>Platform route: vendor-neutral, see <a href="to-confirm.html">To confirm page</a></li>
+          <li>Who owns each data product?</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="mm-pager">
+      <button type="button" id="mm-prev" class="mm-pager-btn">Previous</button>
+      <p id="mm-indicator" class="mm-indicator" aria-live="polite">1 of 5</p>
+      <button type="button" id="mm-next" class="mm-pager-btn">Next</button>
+    </div>
+  </main>
+
+  <footer class="site-footer mm-footer">
+    <p><a href="../index.html">Exit meeting mode</a></p>
+  </footer>
+
+  <script src="../js/meeting.js"></script>
+</body>
+</html>
