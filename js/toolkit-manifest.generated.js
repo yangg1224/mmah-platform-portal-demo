@@ -1797,7 +1797,7 @@ PORTAL.toolkit = {
    "id": "g-contracts",
    "tag": "GOV",
    "title": "Data contracts in Git",
-   "subtitle": "Later · will cite Data standards",
+   "subtitle": "Later",
    "bar": "gov",
    "branchBoxes": [
     "dqp",
@@ -1805,7 +1805,7 @@ PORTAL.toolkit = {
    ],
    "unit": "SDGU-G",
    "owner": "SDGU-G",
-   "phase": "next",
+   "phase": "future",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
    "statusByEnv": [
@@ -1814,7 +1814,7 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag), citing Data standards.",
+   "summary": "Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag).",
    "why": "Submitters and engineers share one definition of a valid file.",
    "iac": "config/contracts/mpd_ingest_v2.yaml@18b64aa",
    "docs": [
