@@ -1015,7 +1015,7 @@ PORTAL.toolkit = {
    "id": "p-spark",
    "tag": "PROC",
    "title": "Spark notebooks",
-   "subtitle": "+ pinned environment",
+   "subtitle": "Bronze → Silver → Gold · pinned env",
    "column": "proc",
    "row": 0,
    "branchBoxes": [
@@ -1033,7 +1033,7 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "PySpark notebooks for cleaning, conforming, aggregation and suppression.",
+   "summary": "PySpark notebooks at every layer: read and profile Bronze, clean and conform into Silver, aggregate and suppress into Gold.",
    "why": "Notebooks call shared libraries; no copy-paste logic.",
    "iac": "tbd",
    "docs": [
@@ -1051,12 +1051,51 @@ PORTAL.toolkit = {
    ],
    "downstream": [
     "st-silver",
+    "st-gold",
     "svc-clean",
     "svc-match",
     "svc-pidrop",
     "svc-suppress"
    ],
    "homeNode": "silver",
+   "deeper": [],
+   "statusNote": ""
+  },
+  {
+   "id": "p-model",
+   "tag": "PROC",
+   "title": "Data modeling and data marts",
+   "subtitle": "dimensional models · subject-area marts",
+   "column": "proc",
+   "row": 2,
+   "branchBoxes": [
+    "integ",
+    "xform",
+    "rpt"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E builds, BIRU co-designs",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Star schemas (facts and conformed dimensions) and subject-area data marts in Gold, one per product.",
+   "why": "Flagged as substantial work in its own right; the marts are what semantic models and reports read.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [
+    "st-silver"
+   ],
+   "downstream": [
+    "st-gold",
+    "sv-model"
+   ],
+   "homeNode": "gold",
    "deeper": [],
    "statusNote": ""
   },
@@ -1332,8 +1371,8 @@ PORTAL.toolkit = {
   {
    "id": "sv-pbi",
    "tag": "SERVE",
-   "title": "Power BI reports and app",
-   "subtitle": "internal reporting",
+   "title": "Power BI reports",
+   "subtitle": "internal reporting · app UI tentative",
    "column": "serve",
    "row": 3,
    "branchBoxes": [
@@ -1352,7 +1391,7 @@ PORTAL.toolkit = {
     "p"
    ],
    "summary": "Internal reports for planning and housing data.",
-   "why": "BIRU's reporting surface, subject to the DIVA VOR question.",
+   "why": "BIRU's reporting surface, subject to the DIVA VOR question. Any application UI is tentative: it needs cluster involvement.",
    "iac": "tbd",
    "docs": [
     {
@@ -2331,17 +2370,17 @@ PORTAL.toolkit = {
   {
    "id": "pl-iac",
    "tag": "PLAT",
-   "title": "Terraform or Bicep",
-   "subtitle": "+ fabric-cicd deploys",
+   "title": "Terraform / Docker",
+   "subtitle": "tentative · infra largely cluster-managed",
    "bar": "plat",
    "branchBoxes": [
     "procimp",
     "policy",
     "change"
    ],
-   "unit": "SDGU-E",
-   "owner": "SDGU-E",
-   "phase": "v1",
+   "unit": "CLUSTER?",
+   "owner": "CLUSTER?",
+   "phase": "next",
    "status": "prov",
    "statusSource": "iac-state adapter (mock): found in at least one environment",
    "statusByEnv": [
@@ -2487,10 +2526,28 @@ PORTAL.toolkit = {
    "label": "pass / flag"
   },
   {
+   "from": "st-bronze",
+   "to": "p-spark",
+   "type": "request",
+   "label": "reads"
+  },
+  {
    "from": "p-spark",
    "to": "st-silver",
    "type": "request",
    "label": "run"
+  },
+  {
+   "from": "p-spark",
+   "to": "st-gold",
+   "type": "request",
+   "label": "run"
+  },
+  {
+   "from": "p-model",
+   "to": "st-gold",
+   "type": "request",
+   "label": "builds marts"
   },
   {
    "from": "p-spark",

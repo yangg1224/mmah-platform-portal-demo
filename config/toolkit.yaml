@@ -573,7 +573,7 @@ tools:
   - id: p-spark
     tag: PROC
     title: Spark notebooks
-    subtitle: + pinned environment
+    subtitle: Bronze → Silver → Gold · pinned env
     column: proc
     row: 0
     branch_boxes: [clean, xform]
@@ -582,7 +582,7 @@ tools:
     status: planned
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
-    summary: PySpark notebooks for cleaning, conforming, aggregation and suppression.
+    summary: 'PySpark notebooks at every layer: read and profile Bronze, clean and conform into Silver, aggregate and suppress into Gold.'
     why: Notebooks call shared libraries; no copy-paste logic.
     iac: tbd
     docs:
@@ -591,8 +591,29 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-bronze]
-    downstream: [st-silver, svc-clean, svc-match, svc-pidrop, svc-suppress]
+    downstream: [st-silver, st-gold, svc-clean, svc-match, svc-pidrop, svc-suppress]
     home_node: silver
+
+  - id: p-model
+    tag: PROC
+    title: Data modeling and data marts
+    subtitle: dimensional models · subject-area marts
+    column: proc
+    row: 2
+    branch_boxes: [integ, xform, rpt]
+    owning_unit: SDGU-E
+    owner: SDGU-E builds, BIRU co-designs
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Star schemas (facts and conformed dimensions) and subject-area data marts in Gold, one per product.'
+    why: Flagged as substantial work in its own right; the marts are what semantic models and reports read.
+    iac: tbd
+    docs: []
+    upstream: [st-silver]
+    downstream: [st-gold, sv-model]
+    home_node: gold
 
   - id: p-dq
     tag: PROC
@@ -737,8 +758,8 @@ tools:
 
   - id: sv-pbi
     tag: SERVE
-    title: Power BI reports and app
-    subtitle: internal reporting
+    title: Power BI reports
+    subtitle: internal reporting · app UI tentative
     column: serve
     row: 3
     branch_boxes: [rpt, adhoc]
@@ -748,7 +769,7 @@ tools:
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Internal reports for planning and housing data.
-    why: BIRU's reporting surface, subject to the DIVA VOR question.
+    why: 'BIRU''s reporting surface, subject to the DIVA VOR question. Any application UI is tentative: it needs cluster involvement.'
     iac: tbd
     docs:
       - label: Ideal-state toolkit §2.9 (internal doc · not in this demo)
@@ -1272,12 +1293,12 @@ tools:
 
   - id: pl-iac
     tag: PLAT
-    title: Terraform or Bicep
-    subtitle: + fabric-cicd deploys
+    title: Terraform / Docker
+    subtitle: tentative · infra largely cluster-managed
     bar: plat
     branch_boxes: [procimp, policy, change]
-    owning_unit: SDGU-E
-    phase: v1
+    owning_unit: CLUSTER?
+    phase: next
     status: prov
     status_source: 'iac-state adapter (mock): found in at least one environment'
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: prov}
@@ -1364,10 +1385,22 @@ edges:
     to: st-silver
     type: request
     label: pass / flag
+  - from: st-bronze
+    to: p-spark
+    type: request
+    label: reads
   - from: p-spark
     to: st-silver
     type: request
     label: run
+  - from: p-spark
+    to: st-gold
+    type: request
+    label: run
+  - from: p-model
+    to: st-gold
+    type: request
+    label: builds marts
   - from: p-spark
     to: container:services
     type: request
