@@ -963,18 +963,36 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
 
+  - id: g-standards
+    tag: GOV
+    title: Data standards
+    subtitle: adopt, don't write our own
+    bar: gov
+    branch_boxes: [std, dict]
+    owning_unit: SDGU-G
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Shared rules for every dataset: definitions, code lists, formats, quality thresholds, bilingual metadata.'
+    why: 'Adopt the municipal data standards work with MPBSDP. Assumption: its scope is not yet confirmed.'
+    iac: na
+    docs:
+      - label: Platform PRD TKT-16 / D14 (internal doc · not in this demo)
+        href: null
+
   - id: g-contracts
     tag: GOV
     title: Data contracts in Git
-    subtitle: Open Data Contract Standard
+    subtitle: Later · will cite Data standards
     bar: gov
     branch_boxes: [dqp, std]
     owning_unit: SDGU-G
-    phase: v1
-    status: prov
-    status_source: 'iac-state adapter (mock): found in at least one environment'
-    status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: planned}
-    summary: 'One contract per dataset: schema, quality, owner, SLA; checked every run.'
+    phase: next
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag), citing Data standards.'
     why: Submitters and engineers share one definition of a valid file.
     iac: config/contracts/mpd_ingest_v2.yaml
     docs:

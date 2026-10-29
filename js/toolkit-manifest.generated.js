@@ -1758,10 +1758,46 @@ PORTAL.toolkit = {
    "statusNote": ""
   },
   {
+   "id": "g-standards",
+   "tag": "GOV",
+   "title": "Data standards",
+   "subtitle": "adopt, don't write our own",
+   "bar": "gov",
+   "branchBoxes": [
+    "std",
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Shared rules for every dataset: definitions, code lists, formats, quality thresholds, bilingual metadata.",
+   "why": "Adopt the municipal data standards work with MPBSDP. Assumption: its scope is not yet confirmed.",
+   "iac": "na",
+   "docs": [
+    {
+     "label": "Platform PRD TKT-16 / D14 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": ""
+  },
+  {
    "id": "g-contracts",
    "tag": "GOV",
    "title": "Data contracts in Git",
-   "subtitle": "Open Data Contract Standard",
+   "subtitle": "Later · will cite Data standards",
    "bar": "gov",
    "branchBoxes": [
     "dqp",
@@ -1769,16 +1805,16 @@ PORTAL.toolkit = {
    ],
    "unit": "SDGU-G",
    "owner": "SDGU-G",
-   "phase": "v1",
-   "status": "prov",
-   "statusSource": "iac-state adapter (mock): found in at least one environment",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
    "statusByEnv": [
-    "v",
-    "v",
-    "v",
+    "p",
+    "p",
+    "p",
     "p"
    ],
-   "summary": "One contract per dataset: schema, quality, owner, SLA; checked every run.",
+   "summary": "Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag), citing Data standards.",
    "why": "Submitters and engineers share one definition of a valid file.",
    "iac": "config/contracts/mpd_ingest_v2.yaml@18b64aa",
    "docs": [
