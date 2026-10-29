@@ -684,7 +684,12 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Cluster-managed infrastructure",
+    "dashed": true
+   }
   },
   {
    "id": "i-adf",
@@ -909,7 +914,7 @@ PORTAL.toolkit = {
     "st-silver"
    ],
    "downstream": [
-    "sv-model",
+    "p-model",
     "sv-odc",
     "st-wh",
     "e-ml"
@@ -1015,7 +1020,7 @@ PORTAL.toolkit = {
    "id": "p-spark",
    "tag": "PROC",
    "title": "Spark notebooks",
-   "subtitle": "+ pinned environment",
+   "subtitle": "Bronze → Silver → Gold · pinned env",
    "column": "proc",
    "row": 0,
    "branchBoxes": [
@@ -1033,7 +1038,7 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "PySpark notebooks for cleaning, conforming, aggregation and suppression.",
+   "summary": "Two hops: Bronze to Silver (clean, conform), then Silver to Gold (aggregate, suppress).",
    "why": "Notebooks call shared libraries; no copy-paste logic.",
    "iac": "tbd",
    "docs": [
@@ -1051,6 +1056,7 @@ PORTAL.toolkit = {
    ],
    "downstream": [
     "st-silver",
+    "st-gold",
     "svc-clean",
     "svc-match",
     "svc-pidrop",
@@ -1059,6 +1065,46 @@ PORTAL.toolkit = {
    "homeNode": "silver",
    "deeper": [],
    "statusNote": ""
+  },
+  {
+   "id": "p-model",
+   "tag": "PROC",
+   "title": "Data modeling and data marts",
+   "subtitle": "dimensional models · one mart per product",
+   "column": "proc",
+   "row": 2,
+   "branchBoxes": [
+    "integ",
+    "rpt"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E with BIRU (assumption)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Dimensional models, conformed dimensions, and one subject-area mart per data product.",
+   "why": "Semantic models and reports read the marts, not raw Gold tables.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [
+    "st-gold"
+   ],
+   "downstream": [
+    "sv-model"
+   ],
+   "homeNode": "gold",
+   "deeper": [],
+   "statusNote": "",
+   "flag": {
+    "label": "Substantial work",
+    "reason": "Flagged by the team as substantial work in its own right."
+   }
   },
   {
    "id": "p-dq",
@@ -1318,7 +1364,7 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-gold"
+    "p-model"
    ],
    "downstream": [
     "sv-pbi",
@@ -1374,7 +1420,12 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Application UI needs cluster involvement",
+    "dashed": true
+   }
   },
   {
    "id": "sv-odc",
@@ -2376,7 +2427,12 @@ PORTAL.toolkit = {
      "href": "platform-setup.html"
     }
    ],
-   "statusNote": "Demo IaC paths (iac/envs/*) exist for all four environments."
+   "statusNote": "Demo IaC paths (iac/envs/*) exist for all four environments.",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Cluster-managed infrastructure",
+    "dashed": true
+   }
   },
   {
    "id": "pl-defender",
@@ -2487,10 +2543,40 @@ PORTAL.toolkit = {
    "label": "pass / flag"
   },
   {
+   "from": "st-bronze",
+   "to": "p-spark",
+   "type": "request",
+   "label": "reads"
+  },
+  {
    "from": "p-spark",
    "to": "st-silver",
    "type": "request",
-   "label": "run"
+   "label": "clean, conform"
+  },
+  {
+   "from": "st-silver",
+   "to": "p-spark",
+   "type": "request",
+   "label": "reads"
+  },
+  {
+   "from": "p-spark",
+   "to": "st-gold",
+   "type": "request",
+   "label": "aggregate, suppress"
+  },
+  {
+   "from": "st-gold",
+   "to": "p-model",
+   "type": "request",
+   "label": "reads"
+  },
+  {
+   "from": "p-model",
+   "to": "sv-model",
+   "type": "request",
+   "label": "marts"
   },
   {
    "from": "p-spark",
@@ -2503,12 +2589,6 @@ PORTAL.toolkit = {
    "to": "sv-alert",
    "type": "return",
    "label": "DQ fail"
-  },
-  {
-   "from": "st-gold",
-   "to": "sv-model",
-   "type": "request",
-   "label": "reads"
   },
   {
    "from": "st-gold",

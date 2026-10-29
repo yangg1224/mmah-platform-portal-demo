@@ -182,13 +182,14 @@
   function nodeHtml(n) {
     var b = boxes[n.id], col = colourOf(n);
     var cls = "map-node bp-node kind-" + n.tag.toLowerCase() + (isDim(n) ? " is-dim" : isSoft(n) ? " is-soft" : "") +
-      (state.box && n.branchBoxes.indexOf(state.box) > -1 ? " is-traced" : "") + (state.node === n.id ? " is-focal is-selected" : "");
+      (state.box && n.branchBoxes.indexOf(state.box) > -1 ? " is-traced" : "") + (state.node === n.id ? " is-focal is-selected" : "") + (n.flag && n.flag.dashed ? " is-tentative" : "");
     return '<button type="button" class="' + cls + '" id="bp-node-' + n.id + '" data-node="' + n.id + '" aria-controls="map-drawer" aria-expanded="' +
       (state.node === n.id) + '" aria-label="' + esc(ariaLabel(n)) + '" style="left:' + b.x + "px;top:" + b.y + "px;width:" + b.w + "px;height:" + b.h + "px" +
       (col ? ";border-left:5px solid " + col : "") + '">' +
       '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span></span>" +
       '<span class="map-title">' + esc(n.title) + '</span><span class="map-sub bp-sub">' + esc(n.subtitle) + "</span>" +
-      '<span class="bp-badges">' + phaseHtml(n) + statusHtml(n.status) + "</span></button>";
+      '<span class="bp-badges">' + phaseHtml(n) + statusHtml(n.status) +
+      (n.flag ? '<span class="bp-flag" title="' + esc(n.flag.reason) + '">' + esc(n.flag.label) + "</span>" : "") + "</span></button>";
   }
 
   function render() {

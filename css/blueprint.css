@@ -56,3 +56,6 @@
 .bp-iac-link a { font-weight: 600; }
 .bp-sample-note { margin-left: .5rem; font-weight: 600; color: #5a3d00; }
 .drawer-note.bp-sample-note { margin-left: 0; }
+
+.bp-flag { display:inline-block; font-size:.65rem; padding:2px 5px; margin:0 3px; color:#7a4b00; background:#fff4dd; border:1px solid #e8c77a; border-radius:3px; }
+.bp-node.is-tentative { outline:2px dashed #c9a24a; outline-offset:-2px; }

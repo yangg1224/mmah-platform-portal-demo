@@ -30,6 +30,7 @@
       '<ul class="drawer-counts">' + K.envs.map(function (e, i) {
         return "<li>" + esc(e) + " " + BP.statusHtml(ENV_KEY[n.statusByEnv[i]] || "planned") + ' <span class="drawer-asof">(sample)</span></li>';
       }).join("") + "</ul>" + (n.statusNote ? '<p class="drawer-note">' + esc(n.statusNote) + "</p>" : "") +
+        (n.flag ? '<p class="drawer-note"><strong>' + esc(n.flag.label) + ":</strong> " + esc(n.flag.reason) + "</p>" : "") +
       '<p class="drawer-note">Status source: ' + esc(n.statusSource || "manifest only") + " · manifest " + esc(K.manifest) + ".</p>");
     h += sec("Owner", "<p>" + esc(n.owner) + '</p><p class="drawer-note">Owning unit: ' + esc(u.label) + " · " + esc(u.name) + "</p>");
     h += sec("Branch box", '<ul class="drawer-rel">' + n.branchBoxes.map(function (id) {

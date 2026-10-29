@@ -378,6 +378,7 @@ tools:
     tag: ING
     title: Logic Apps or Functions
     subtitle: receipt · notify · start run
+    flag: {label: Tentative, reason: Cluster-managed infrastructure, dashed: true}
     column: ing
     row: 1
     branch_boxes: [mpdr, ingest]
@@ -516,7 +517,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-silver]
-    downstream: [sv-model, sv-odc, st-wh, e-ml]
+    downstream: [p-model, sv-odc, st-wh, e-ml]
     home_node: gold
     links_deeper:
       - label: Data products and trust cards
@@ -573,7 +574,7 @@ tools:
   - id: p-spark
     tag: PROC
     title: Spark notebooks
-    subtitle: + pinned environment
+    subtitle: Bronze → Silver → Gold · pinned env
     column: proc
     row: 0
     branch_boxes: [clean, xform]
@@ -582,7 +583,7 @@ tools:
     status: planned
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
-    summary: PySpark notebooks for cleaning, conforming, aggregation and suppression.
+    summary: 'Two hops: Bronze to Silver (clean, conform), then Silver to Gold (aggregate, suppress).'
     why: Notebooks call shared libraries; no copy-paste logic.
     iac: tbd
     docs:
@@ -591,8 +592,30 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-bronze]
-    downstream: [st-silver, svc-clean, svc-match, svc-pidrop, svc-suppress]
+    downstream: [st-silver, st-gold, svc-clean, svc-match, svc-pidrop, svc-suppress]
     home_node: silver
+
+  - id: p-model
+    tag: PROC
+    title: Data modeling and data marts
+    subtitle: dimensional models · one mart per product
+    column: proc
+    row: 2
+    branch_boxes: [integ, rpt]
+    owning_unit: SDGU-E
+    owner: SDGU-E with BIRU (assumption)
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    flag: {label: Substantial work, reason: Flagged by the team as substantial work in its own right.}
+    summary: 'Dimensional models, conformed dimensions, and one subject-area mart per data product.'
+    why: Semantic models and reports read the marts, not raw Gold tables.
+    iac: tbd
+    docs: []
+    upstream: [st-gold]
+    downstream: [sv-model]
+    home_node: gold
 
   - id: p-dq
     tag: PROC
@@ -731,7 +754,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
-    upstream: [st-gold]
+    upstream: [p-model]
     downstream: [sv-pbi, sv-score, e-ml]
     home_node: gold
 
@@ -739,6 +762,7 @@ tools:
     tag: SERVE
     title: Power BI reports and app
     subtitle: internal reporting
+    flag: {label: Tentative, reason: Application UI needs cluster involvement, dashed: true}
     column: serve
     row: 3
     branch_boxes: [rpt, adhoc]
@@ -1274,6 +1298,7 @@ tools:
     tag: PLAT
     title: Terraform or Bicep
     subtitle: + fabric-cicd deploys
+    flag: {label: Tentative, reason: Cluster-managed infrastructure, dashed: true}
     bar: plat
     branch_boxes: [procimp, policy, change]
     owning_unit: SDGU-E
@@ -1364,10 +1389,30 @@ edges:
     to: st-silver
     type: request
     label: pass / flag
+  - from: st-bronze
+    to: p-spark
+    type: request
+    label: reads
   - from: p-spark
     to: st-silver
     type: request
-    label: run
+    label: clean, conform
+  - from: st-silver
+    to: p-spark
+    type: request
+    label: reads
+  - from: p-spark
+    to: st-gold
+    type: request
+    label: aggregate, suppress
+  - from: st-gold
+    to: p-model
+    type: request
+    label: reads
+  - from: p-model
+    to: sv-model
+    type: request
+    label: marts
   - from: p-spark
     to: container:services
     type: request
@@ -1376,10 +1421,6 @@ edges:
     to: sv-alert
     type: return
     label: DQ fail
-  - from: st-gold
-    to: sv-model
-    type: request
-    label: reads
   - from: st-gold
     to: sv-odc
     type: primary
