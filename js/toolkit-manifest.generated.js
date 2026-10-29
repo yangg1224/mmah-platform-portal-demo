@@ -684,7 +684,12 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Application UI needs cluster involvement.",
+    "dashed": true
+   }
   },
   {
    "id": "i-adf",
@@ -1033,7 +1038,7 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "PySpark notebooks at every layer: read and profile Bronze, clean and conform into Silver, aggregate and suppress into Gold.",
+   "summary": "Two hops: Bronze to Silver (clean, conform), then Silver to Gold (aggregate, suppress).",
    "why": "Notebooks call shared libraries; no copy-paste logic.",
    "iac": "tbd",
    "docs": [
@@ -1065,16 +1070,15 @@ PORTAL.toolkit = {
    "id": "p-model",
    "tag": "PROC",
    "title": "Data modeling and data marts",
-   "subtitle": "dimensional models · subject-area marts",
+   "subtitle": "dimensional models · one mart per product",
    "column": "proc",
    "row": 2,
    "branchBoxes": [
     "integ",
-    "xform",
     "rpt"
    ],
    "unit": "SDGU-E",
-   "owner": "SDGU-E builds, BIRU co-designs",
+   "owner": "SDGU-E with BIRU (assumption)",
    "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
@@ -1084,20 +1088,23 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Star schemas (facts and conformed dimensions) and subject-area data marts in Gold, one per product.",
-   "why": "Flagged as substantial work in its own right; the marts are what semantic models and reports read.",
+   "summary": "Dimensional models, conformed dimensions, and one subject-area mart per data product.",
+   "why": "Semantic models and reports read the marts, not raw Gold tables.",
    "iac": "tbd",
    "docs": [],
    "upstream": [
-    "st-silver"
+    "st-gold"
    ],
    "downstream": [
-    "st-gold",
     "sv-model"
    ],
    "homeNode": "gold",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "flag": {
+    "label": "Substantial work",
+    "reason": "Flagged by the team as substantial work in its own right."
+   }
   },
   {
    "id": "p-dq",
@@ -1371,8 +1378,8 @@ PORTAL.toolkit = {
   {
    "id": "sv-pbi",
    "tag": "SERVE",
-   "title": "Power BI reports",
-   "subtitle": "internal reporting · app UI tentative",
+   "title": "Power BI reports and app",
+   "subtitle": "internal reporting",
    "column": "serve",
    "row": 3,
    "branchBoxes": [
@@ -1391,7 +1398,7 @@ PORTAL.toolkit = {
     "p"
    ],
    "summary": "Internal reports for planning and housing data.",
-   "why": "BIRU's reporting surface, subject to the DIVA VOR question. Any application UI is tentative: it needs cluster involvement.",
+   "why": "BIRU's reporting surface, subject to the DIVA VOR question.",
    "iac": "tbd",
    "docs": [
     {
@@ -1413,7 +1420,12 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative (app)",
+    "reason": "Application UI needs cluster involvement.",
+    "dashed": true
+   }
   },
   {
    "id": "sv-odc",
@@ -2370,17 +2382,17 @@ PORTAL.toolkit = {
   {
    "id": "pl-iac",
    "tag": "PLAT",
-   "title": "Terraform / Docker",
-   "subtitle": "tentative · infra largely cluster-managed",
+   "title": "Terraform or Bicep",
+   "subtitle": "+ fabric-cicd deploys",
    "bar": "plat",
    "branchBoxes": [
     "procimp",
     "policy",
     "change"
    ],
-   "unit": "CLUSTER?",
-   "owner": "CLUSTER?",
-   "phase": "next",
+   "unit": "SDGU-E",
+   "owner": "SDGU-E",
+   "phase": "v1",
    "status": "prov",
    "statusSource": "iac-state adapter (mock): found in at least one environment",
    "statusByEnv": [
@@ -2415,7 +2427,12 @@ PORTAL.toolkit = {
      "href": "platform-setup.html"
     }
    ],
-   "statusNote": "Demo IaC paths (iac/envs/*) exist for all four environments."
+   "statusNote": "Demo IaC paths (iac/envs/*) exist for all four environments.",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Cluster-managed infrastructure.",
+    "dashed": true
+   }
   },
   {
    "id": "pl-defender",
@@ -2535,19 +2552,31 @@ PORTAL.toolkit = {
    "from": "p-spark",
    "to": "st-silver",
    "type": "request",
-   "label": "run"
+   "label": "clean, conform"
+  },
+  {
+   "from": "st-silver",
+   "to": "p-spark",
+   "type": "request",
+   "label": "reads"
   },
   {
    "from": "p-spark",
    "to": "st-gold",
    "type": "request",
-   "label": "run"
+   "label": "aggregate, suppress"
+  },
+  {
+   "from": "st-gold",
+   "to": "p-model",
+   "type": "request",
+   "label": "reads"
   },
   {
    "from": "p-model",
-   "to": "st-gold",
+   "to": "sv-model",
    "type": "request",
-   "label": "builds marts"
+   "label": "marts"
   },
   {
    "from": "p-spark",
