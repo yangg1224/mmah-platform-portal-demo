@@ -61,7 +61,8 @@
 .bp-node.is-tentative { outline:2px dashed #c9a24a; outline-offset:-2px; }
 .map-node.bp-node.has-flag { overflow: visible; }
 
-/* TKT-20: one type scale inside blueprint boxes: 12.5px title, 11px subtitle, 10.5px for every label/badge */
-.bp-node .map-tag, .bp-chip, .badge-phase, .bp-badges .status, .bp-node .bp-flag { font-size: 10.5px; }
-.bp-sub { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; font-size: 11px; line-height: 1.25; text-align: center; }
+/* TKT-20: one type scale inside blueprint boxes: 13px title, 11.5px subtitle, 11px for every label/badge */
+.bp-node .map-title { font-size: 13px; }
+.bp-node .map-tag, .bp-chip, .badge-phase, .bp-badges .status, .bp-node .bp-flag { font-size: 11px; }
+.bp-sub { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; font-size: 11.5px; line-height: 1.25; text-align: center; }
 .bp-badges { flex-wrap: wrap; }
