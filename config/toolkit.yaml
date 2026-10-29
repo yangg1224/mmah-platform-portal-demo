@@ -378,7 +378,7 @@ tools:
     tag: ING
     title: Logic Apps or Functions
     subtitle: receipt · notify · start run
-    flag: {label: Tentative, reason: Application UI needs cluster involvement., dashed: true}
+    flag: {label: Tentative, reason: Cluster-managed infrastructure, dashed: true}
     column: ing
     row: 1
     branch_boxes: [mpdr, ingest]
@@ -517,7 +517,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-silver]
-    downstream: [sv-model, sv-odc, st-wh, e-ml]
+    downstream: [p-model, sv-odc, st-wh, e-ml]
     home_node: gold
     links_deeper:
       - label: Data products and trust cards
@@ -754,7 +754,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
-    upstream: [st-gold]
+    upstream: [p-model]
     downstream: [sv-pbi, sv-score, e-ml]
     home_node: gold
 
@@ -762,7 +762,7 @@ tools:
     tag: SERVE
     title: Power BI reports and app
     subtitle: internal reporting
-    flag: {label: Tentative (app), reason: Application UI needs cluster involvement., dashed: true}
+    flag: {label: Tentative, reason: Application UI needs cluster involvement, dashed: true}
     column: serve
     row: 3
     branch_boxes: [rpt, adhoc]
@@ -1298,7 +1298,7 @@ tools:
     tag: PLAT
     title: Terraform or Bicep
     subtitle: + fabric-cicd deploys
-    flag: {label: Tentative, reason: Cluster-managed infrastructure., dashed: true}
+    flag: {label: Tentative, reason: Cluster-managed infrastructure, dashed: true}
     bar: plat
     branch_boxes: [procimp, policy, change]
     owning_unit: SDGU-E
@@ -1421,10 +1421,6 @@ edges:
     to: sv-alert
     type: return
     label: DQ fail
-  - from: st-gold
-    to: sv-model
-    type: request
-    label: reads
   - from: st-gold
     to: sv-odc
     type: primary

@@ -687,7 +687,7 @@ PORTAL.toolkit = {
    "statusNote": "",
    "flag": {
     "label": "Tentative",
-    "reason": "Application UI needs cluster involvement.",
+    "reason": "Cluster-managed infrastructure",
     "dashed": true
    }
   },
@@ -914,7 +914,7 @@ PORTAL.toolkit = {
     "st-silver"
    ],
    "downstream": [
-    "sv-model",
+    "p-model",
     "sv-odc",
     "st-wh",
     "e-ml"
@@ -1364,7 +1364,7 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-gold"
+    "p-model"
    ],
    "downstream": [
     "sv-pbi",
@@ -1422,8 +1422,8 @@ PORTAL.toolkit = {
    "deeper": [],
    "statusNote": "",
    "flag": {
-    "label": "Tentative (app)",
-    "reason": "Application UI needs cluster involvement.",
+    "label": "Tentative",
+    "reason": "Application UI needs cluster involvement",
     "dashed": true
    }
   },
@@ -2430,7 +2430,7 @@ PORTAL.toolkit = {
    "statusNote": "Demo IaC paths (iac/envs/*) exist for all four environments.",
    "flag": {
     "label": "Tentative",
-    "reason": "Cluster-managed infrastructure.",
+    "reason": "Cluster-managed infrastructure",
     "dashed": true
    }
   },
@@ -2589,12 +2589,6 @@ PORTAL.toolkit = {
    "to": "sv-alert",
    "type": "return",
    "label": "DQ fail"
-  },
-  {
-   "from": "st-gold",
-   "to": "sv-model",
-   "type": "request",
-   "label": "reads"
   },
   {
    "from": "st-gold",
