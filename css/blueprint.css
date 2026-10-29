@@ -57,5 +57,6 @@
 .bp-sample-note { margin-left: .5rem; font-weight: 600; color: #5a3d00; }
 .drawer-note.bp-sample-note { margin-left: 0; }
 
-.bp-flag { display:inline-block; font-size:.65rem; padding:2px 5px; margin:0 3px; color:#7a4b00; background:#fff4dd; border:1px solid #e8c77a; border-radius:3px; }
+.bp-node .bp-flag { position:absolute; top:-8px; right:6px; z-index:2; font-family:var(--font-mono); font-size:9.5px; line-height:1.5; padding:0 4px; white-space:nowrap; color:#7a4b00; background:#fff4dd; border:1px solid #e8c77a; border-radius:3px; }
 .bp-node.is-tentative { outline:2px dashed #c9a24a; outline-offset:-2px; }
+.map-node.bp-node.has-flag { overflow: visible; }
