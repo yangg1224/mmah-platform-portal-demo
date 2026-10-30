@@ -1109,8 +1109,8 @@ PORTAL.toolkit = {
   {
    "id": "p-dq",
    "tag": "PROC",
-   "title": "DQ rules as YAML",
-   "subtitle": "run every load · results table",
+   "title": "Data quality checks",
+   "subtitle": "Bronze → Silver · constraints · quarantine",
    "column": "proc",
    "row": 1,
    "branchBoxes": [
@@ -1128,8 +1128,8 @@ PORTAL.toolkit = {
     "v",
     "l"
    ],
-   "summary": "Schema, code-list, completeness and geometry rules with thresholds and approvers.",
-   "why": "Pull-request approval is steward approval; the same counts feed the portal badges.",
+   "summary": "Bronze to Silver checks as Fabric materialized lake view constraints; failed rows go to a quarantine table instead of being dropped. Rules are tagged with the six DAEG dimensions (draft).",
+   "why": "Fabric is a product value only: Yang's stated target, not ministry-confirmed. Pull-request approval is steward approval.",
    "iac": "config/dq/mpd_schema_codelist.yaml@18b64aa",
    "docs": [
     {
@@ -1142,12 +1142,52 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-bronze"
+    "st-bronze",
+    "g-contracts"
    ],
    "downstream": [
     "st-silver",
-    "sv-alert"
+    "sv-alert",
+    "p-dqr"
    ],
+   "homeNode": "silver",
+   "deeper": [],
+   "statusNote": ""
+  },
+  {
+   "id": "p-dqr",
+   "tag": "MON",
+   "title": "Data quality reports",
+   "subtitle": "Great Expectations · per municipality",
+   "bar": "mon",
+   "branchBoxes": [
+    "dqm",
+    "mpdr"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).",
+   "why": "Each municipality gets feedback on its own submission. Sample data only.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Platform PRD TKT-21 / D17 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [
+    "p-dq"
+   ],
+   "downstream": [],
    "homeNode": "silver",
    "deeper": [],
    "statusNote": ""
@@ -1728,7 +1768,7 @@ PORTAL.toolkit = {
    "id": "g-catalog",
    "tag": "GOV",
    "title": "Purview Unified Catalog",
-   "subtitle": "glossary · candidate",
+   "subtitle": "glossary · if already licensed",
    "bar": "gov",
    "branchBoxes": [
     "dict",
@@ -1847,16 +1887,18 @@ PORTAL.toolkit = {
   {
    "id": "g-contracts",
    "tag": "GOV",
-   "title": "Data contracts in Git",
-   "subtitle": "Later",
+   "title": "Data contracts (ODCS)",
+   "subtitle": "one per submission type",
    "bar": "gov",
    "branchBoxes": [
     "dqp",
-    "std"
+    "std",
+    "mpdr",
+    "dict"
    ],
    "unit": "SDGU-G",
    "owner": "SDGU-G",
-   "phase": "future",
+   "phase": "v1",
    "status": "planned",
    "statusSource": "manifest only (no adapter has found it yet)",
    "statusByEnv": [
@@ -1865,12 +1907,16 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag).",
-   "why": "Submitters and engineers share one definition of a valid file.",
+   "summary": "ODCS contracts, one per municipal submission type, built from the MPDR rules and the DAB data dictionary template.",
+   "why": "Submitters and engineers share one definition of a valid file; the checks are generated from it.",
    "iac": "config/contracts/mpd_ingest_v2.yaml@18b64aa",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.11 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "Platform PRD TKT-21 / D17 (internal doc · not in this demo)",
      "href": null
     },
     {
@@ -1879,7 +1925,11 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [],
-   "downstream": [],
+   "downstream": [
+    "p-dq",
+    "g-standards",
+    "g-catalog"
+   ],
    "homeNode": "bronze",
    "deeper": [],
    "statusNote": ""
@@ -1924,7 +1974,7 @@ PORTAL.toolkit = {
    "id": "g-pdq",
    "tag": "GOV",
    "title": "Purview Data Quality",
-   "subtitle": "managed DQ scores",
+   "subtitle": "managed DQ · if already licensed",
    "bar": "gov",
    "branchBoxes": [
     "dqp"
@@ -1941,7 +1991,7 @@ PORTAL.toolkit = {
     "p"
    ],
    "summary": "Managed DQ rules and scores on Gold data products.",
-   "why": "Only if Purview is adopted; YAML rules cover v1.",
+   "why": "Only if Purview is already licensed; Fabric constraints and Great Expectations cover v1.",
    "iac": "tbd",
    "docs": [
     {
@@ -1955,6 +2005,41 @@ PORTAL.toolkit = {
     {
      "label": "Open question 3",
      "href": "#open-questions"
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": ""
+  },
+  {
+   "id": "g-soda",
+   "tag": "GOV",
+   "title": "Soda",
+   "subtitle": "Later",
+   "bar": "gov",
+   "branchBoxes": [
+    "dqm"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G",
+   "phase": "future",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Later: contract-driven DQ monitoring.",
+   "why": "Not needed while Fabric constraints and Great Expectations cover v1.",
+   "iac": "na",
+   "docs": [
+    {
+     "label": "Platform PRD TKT-21 / D17 (internal doc · not in this demo)",
+     "href": null
     }
    ],
    "upstream": [],
@@ -2540,7 +2625,7 @@ PORTAL.toolkit = {
    "from": "p-dq",
    "to": "st-silver",
    "type": "request",
-   "label": "pass / flag"
+   "label": "pass · quarantine"
   },
   {
    "from": "st-bronze",
@@ -2583,6 +2668,30 @@ PORTAL.toolkit = {
    "to": "container:services",
    "type": "request",
    "label": "calls"
+  },
+  {
+   "from": "g-contracts",
+   "to": "p-dq",
+   "type": "gate",
+   "label": "contract"
+  },
+  {
+   "from": "g-contracts",
+   "to": "g-standards",
+   "type": "request",
+   "label": "governed by"
+  },
+  {
+   "from": "g-contracts",
+   "to": "g-catalog",
+   "type": "request",
+   "label": "registered"
+  },
+  {
+   "from": "p-dq",
+   "to": "p-dqr",
+   "type": "request",
+   "label": "results"
   },
   {
    "from": "p-dq",
