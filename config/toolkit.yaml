@@ -619,8 +619,8 @@ tools:
 
   - id: p-dq
     tag: PROC
-    title: DQ rules as YAML
-    subtitle: run every load · results table
+    title: Data quality checks
+    subtitle: Bronze → Silver · constraints · quarantine
     column: proc
     row: 1
     branch_boxes: [dqp, dqm]
@@ -630,16 +630,36 @@ tools:
     status: live
     status_source: 'iac-state + run adapter (mock): in Prod and used by a v1 run within the freshness window'
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
-    summary: Schema, code-list, completeness and geometry rules with thresholds and approvers.
-    why: Pull-request approval is steward approval; the same counts feed the portal badges.
+    summary: 'Bronze to Silver checks as Fabric materialized lake view constraints; failed rows go to a quarantine table instead of being dropped. Rules are tagged with the six DAEG dimensions (draft).'
+    why: 'Fabric is a product value only: Yang''s stated target, not ministry-confirmed. Pull-request approval is steward approval.'
     iac: config/dq/mpd_schema_codelist.yaml
     docs:
       - label: Ideal-state toolkit §2.11 (internal doc · not in this demo)
         href: null
       - label: Rule / config entry
         href: rules.html#rule-schema-mpd
-    upstream: [st-bronze]
-    downstream: [st-silver, sv-alert]
+    upstream: [st-bronze, g-contracts]
+    downstream: [st-silver, sv-alert, p-dqr]
+    home_node: silver
+
+  - id: p-dqr
+    tag: MON
+    title: Data quality reports
+    subtitle: Great Expectations · per municipality
+    bar: mon
+    branch_boxes: [dqm, mpdr]
+    owning_unit: SDGU-E
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).'
+    why: Each municipality gets feedback on its own submission. Sample data only.
+    iac: tbd
+    docs:
+      - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
+        href: null
+    upstream: [p-dq]
     home_node: silver
 
   - id: p-geo
@@ -947,7 +967,7 @@ tools:
   - id: g-catalog
     tag: GOV
     title: Purview Unified Catalog
-    subtitle: glossary · candidate
+    subtitle: glossary · if already licensed
     bar: gov
     branch_boxes: [dict, council]
     owning_unit: SDGU-G
@@ -1007,23 +1027,26 @@ tools:
 
   - id: g-contracts
     tag: GOV
-    title: Data contracts in Git
-    subtitle: Later
+    title: Data contracts (ODCS)
+    subtitle: one per submission type
     bar: gov
-    branch_boxes: [dqp, std]
+    branch_boxes: [dqp, std, mpdr, dict]
     owning_unit: SDGU-G
-    phase: future
+    phase: v1
     status: planned
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
-    summary: 'Later: one contract per source feed (schema, owner, cadence, quality checks, sensitivity tag).'
-    why: Submitters and engineers share one definition of a valid file.
+    summary: 'ODCS contracts, one per municipal submission type, built from the MPDR rules and the DAB data dictionary template.'
+    why: Submitters and engineers share one definition of a valid file; the checks are generated from it.
     iac: config/contracts/mpd_ingest_v2.yaml
     docs:
       - label: Ideal-state toolkit §2.11 (internal doc · not in this demo)
         href: null
+      - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
+        href: null
       - label: Rule / config entry
         href: rules.html#rule-contract-mpd
+    downstream: [p-dq, g-standards, g-catalog]
     home_node: bronze
 
   - id: g-dsa
@@ -1048,7 +1071,7 @@ tools:
   - id: g-pdq
     tag: GOV
     title: Purview Data Quality
-    subtitle: managed DQ scores
+    subtitle: managed DQ · if already licensed
     bar: gov
     branch_boxes: [dqp]
     owning_unit: SDGU-G
@@ -1057,7 +1080,7 @@ tools:
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     summary: Managed DQ rules and scores on Gold data products.
-    why: Only if Purview is adopted; YAML rules cover v1.
+    why: Only if Purview is already licensed; Fabric constraints and Great Expectations cover v1.
     iac: tbd
     docs:
       - label: Ideal-state toolkit §2.10 (internal doc · not in this demo)
@@ -1066,6 +1089,24 @@ tools:
         href: null
       - label: Open question 3
         href: '#open-questions'
+
+  - id: g-soda
+    tag: GOV
+    title: Soda
+    subtitle: Later
+    bar: gov
+    branch_boxes: [dqm]
+    owning_unit: SDGU-G
+    phase: future
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Later: contract-driven DQ monitoring.'
+    why: Not needed while Fabric constraints and Great Expectations cover v1.
+    iac: na
+    docs:
+      - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
+        href: null
 
   - id: m-hub
     tag: MON
@@ -1388,7 +1429,7 @@ edges:
   - from: p-dq
     to: st-silver
     type: request
-    label: pass / flag
+    label: pass · quarantine
   - from: st-bronze
     to: p-spark
     type: request
@@ -1417,6 +1458,22 @@ edges:
     to: container:services
     type: request
     label: calls
+  - from: g-contracts
+    to: p-dq
+    type: gate
+    label: contract
+  - from: g-contracts
+    to: g-standards
+    type: request
+    label: governed by
+  - from: g-contracts
+    to: g-catalog
+    type: request
+    label: registered
+  - from: p-dq
+    to: p-dqr
+    type: request
+    label: results
   - from: p-dq
     to: sv-alert
     type: return
