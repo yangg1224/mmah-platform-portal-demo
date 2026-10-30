@@ -7,7 +7,7 @@
   var K = window.PORTAL && PORTAL.toolkit;
   if (!K) return;
 
-  var GAPS = [60, 60, 80, 60, 60], NODE_W = 140, NODE_H = 104, PITCH = 130;
+  var GAPS = [60, 60, 80, 60, 60], NODE_W = 140, NODE_H = 124, PITCH = 150;
   var TOP_Y = 34, COL_TOP = 192, BAR_START = 860, BAR_H = 140, BAR_GAP = 10, W = 1190;
   var TYPE = { EXT: "Source", ING: "Ingest tool", STORE: "Store", PROC: "Process tool", SERVE: "Serve tool", ENR: "Enrich tool",
     SVC: "Reusable service", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
