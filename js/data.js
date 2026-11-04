@@ -2,7 +2,7 @@
 window.PORTAL = window.PORTAL || {};
 
 PORTAL.asOf = "2026-10-06T21:30:00-04:00";
-PORTAL.asOfLabel = "6 Oct 2026, 9:30 PM ET";
+PORTAL.asOfLabel = "4 Nov 2026, 9:30 PM ET";
 
 PORTAL.catalog = [
   /* Datasets */

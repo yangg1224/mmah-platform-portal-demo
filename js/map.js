@@ -7,8 +7,8 @@
   var M = window.PORTAL && PORTAL.map;
   if (!M) return;
 
-  var CANVAS_W = 1200;
-  var TYPE_NAMES = { EXT: "External source", ZONE: "Storage zone", PIPE: "Pipeline", SVC: "Shared service", PUB: "Publish", ENV: "Environment", IAM: "Identity", OPS: "Operations", GATE: "Release gate" };
+  var CANVAS_W = 1740;
+  var TYPE_NAMES = { EXT: "External source", ING: "Intake", GOV: "Governance", MON: "Monitoring", ZONE: "Storage zone", PIPE: "Pipeline", SVC: "Shared service", PUB: "Publish", ENV: "Environment", IAM: "Identity", OPS: "Operations", GATE: "Release gate" };
   var ICONS = { ok: "✓", warn: "⚠", fail: "✕", info: "◎", tbd: "○" };
   var byId = {};
   M.nodes.forEach(function (n) { byId[n.id] = n; });

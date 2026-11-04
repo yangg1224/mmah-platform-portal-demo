@@ -7,10 +7,14 @@
   var K = window.PORTAL && PORTAL.toolkit;
   if (!K) return;
 
-  var GAPS = [60, 60, 80, 60, 60], NODE_W = 140, NODE_H = 104, PITCH = 130;
-  var TOP_Y = 34, COL_TOP = 192, BAR_START = 860, BAR_H = 140, BAR_GAP = 10, W = 1190;
+  var GAPS = [80, 80, 90, 80, 80], NODE_W = 200, NODE_H = 144, PITCH = 170;
+  var TOP_Y = 34, COL_TOP = 232, BAR_H = NODE_H + 70, BAR_GAP = 12, W = 1650;
+  // Column frames and the bars below them follow the deepest column, so bars always start under the last box.
+  var MAX_ROW = Math.max.apply(null, K.nodes.filter(function (n) { return n.column; }).map(function (n) { return n.row; }));
+  var COL_H = MAX_ROW * PITCH + NODE_H + 38, BAR_START = COL_TOP - 12 + COL_H + 24;
   var TYPE = { EXT: "Source", ING: "Ingest tool", STORE: "Store", PROC: "Process tool", SERVE: "Serve tool", ENR: "Enrich tool",
     SVC: "Reusable service", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
+  var BP_LANES = {};
   var byId = {}, colX = {}, boxFn = {}, fnById = {}, unitById = {}, phaseById = {};
   K.nodes.forEach(function (n) { byId[n.id] = n; });
   K.boxes.forEach(function (b) { boxFn[b.id] = b.fn; });
@@ -48,7 +52,7 @@
       b = { x: c.slots[idx], y: TOP_Y, w: c.nodeW, h: NODE_H };
     } else {
       var mem = K.nodes.filter(function (m) { return m.bar === n.bar; }), slot = (BAR_R - BAR_L - 24) / mem.length;
-      var w = Math.min(Math.round(slot - 12), 210), i = mem.indexOf(n);
+      var w = Math.min(Math.round(slot - 12), 230), i = mem.indexOf(n);
       b = { x: Math.round(BAR_L + 12 + i * slot + (slot - w) / 2), y: barTop(n.bar) + 26, w: w, h: NODE_H };
     }
     b.r = b.x + b.w; b.b = b.y + b.h; b.cx = b.x + b.w / 2; b.cy = b.y + b.h / 2;
@@ -108,6 +112,18 @@
       return { pts: [[a.cx, a.y], [a.cx, f.b]], lx: a.cx + 6, ly: (a.y + f.b) / 2, side: true };
     }
     var b = boxes[e.to], na = byId[e.from], nb = byId[e.to];
+    if (na.bar && na.bar === nb.bar) {
+      // Inside one bar: run along the strip under the boxes, one lane per edge so lines never stack.
+      var k = (BP_LANES[na.bar] = (BP_LANES[na.bar] || 0) + 1), ly0 = a.b + 12 * k;
+      return { pts: [[a.cx, a.b], [a.cx, ly0], [b.cx, ly0], [b.cx, b.b]], lx: (a.cx + b.cx) / 2, ly: ly0 };
+    }
+    if ((na.bar && nb.column) || (na.column && nb.bar)) {
+      // Column <-> bar: column gap lane on the left of the column box, then the strip above the bar boxes.
+      var cb = na.column ? a : b, bb = na.column ? b : a, cl = cb.x - 14, sy = barTop((na.bar || nb.bar)) + 14;
+      var pp = [[cb.x, cb.cy], [cl, cb.cy], [cl, sy], [bb.cx, sy], [bb.cx, bb.y]];
+      if (na.bar) pp.reverse();
+      return { pts: pp, lx: (cl + bb.cx) / 2, ly: sy };
+    }
     if (na.column && na.column === nb.column) {
       var down = b.y > a.y, p = down ? [[a.cx, a.b], [a.cx, b.y]] : [[a.cx, a.y], [a.cx, b.b]];
       return { pts: p, lx: a.cx + 6, ly: (p[0][1] + p[1][1]) / 2, side: true };
@@ -118,13 +134,16 @@
     }
     var dir = b.cy > a.cy ? 1 : -1, ya = a.cy + 18 * dir, yb = b.cy - 18 * dir, lane;
     if (b.x > a.r) {
-      var adjacent = b.x - a.r < 100;
-      lane = adjacent ? a.r + 22 : b.x - 22;
-      return { pts: [[a.r, ya], [lane, ya], [lane, yb], [b.x, yb]],
-        lx: adjacent ? (lane + b.x) / 2 : (a.r + lane) / 2, ly: adjacent ? yb : ya };
+      if (b.x - a.r < 120) {
+        lane = (a.r + b.x) / 2; // labels sit on the vertical, centred in the gap between columns
+        return { pts: [[a.r, ya], [lane, ya], [lane, yb], [b.x, yb]], lx: lane, ly: dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2 };
+      }
+      // Skips a column: drop into the gap between rows next to the target so the line never runs under a box.
+      var gy = dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2, l1 = a.r + 22, l2 = b.x - 22;
+      return { pts: [[a.r, ya], [l1, ya], [l1, gy], [l2, gy], [l2, yb], [b.x, yb]], lx: (l1 + l2) / 2, ly: gy };
     }
-    lane = a.x - 22;
-    return { pts: [[a.x, ya], [lane, ya], [lane, yb], [b.r, yb]], lx: (lane + b.r) / 2, ly: yb };
+    lane = (a.x + b.r) / 2;
+    return { pts: [[a.x, ya], [lane, ya], [lane, yb], [b.r, yb]], lx: lane, ly: dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2 };
   }
   function pathD(pts) {
     var d = "M" + pts[0][0] + " " + pts[0][1], r = 6;
@@ -138,6 +157,7 @@
   }
   function edgesSvg() {
     var seen = {};
+    BP_LANES = {};
     return K.edges.map(function (e) {
       var g = route(e), na = byId[e.from], nb = byId[e.to];
       var dim = isDim(na) || (nb && isDim(nb));
@@ -162,7 +182,7 @@
   /* ---- Frames: columns, side containers, full-width bars ---- */
   function framesHtml() {
     // Column captions sit on the bottom edge so connectors entering from above never cross them.
-    var h = "", colH = 4 * PITCH + NODE_H + 38;
+    var h = "", colH = COL_H;
     K.columns.forEach(function (c) {
       h += '<div class="map-container bp-col cap-bottom" aria-hidden="true" style="left:' + (colX[c.id] - 10) + "px;top:" + (COL_TOP - 12) + "px;width:" + (NODE_W + 20) + "px;height:" + colH +
         'px"><span class="map-container-cap">' + c.step + " · " + esc(c.label) + "</span></div>";

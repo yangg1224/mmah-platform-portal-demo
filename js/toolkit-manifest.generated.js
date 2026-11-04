@@ -55,21 +55,21 @@ PORTAL.toolkit = {
    "label": "Reusable services",
    "tag": "SVC",
    "slots": [
-    410,
-    556,
-    716,
-    862
+    572,
+    772,
+    972,
+    1172
    ],
-   "nodeW": 134
+   "nodeW": 180
   },
   {
    "id": "portal",
    "label": "Platform Portal",
    "tag": "PORTAL",
    "slots": [
-    1032
+    1422
    ],
-   "nodeW": 140
+   "nodeW": 200
   }
  ],
  "bars": [
@@ -440,8 +440,8 @@ PORTAL.toolkit = {
   {
    "id": "s-muni",
    "tag": "EXT",
-   "title": "Municipalities",
-   "subtitle": "O. Reg. 73/23 Sch 2, 3, 4",
+   "title": "MPDR submissions",
+   "subtitle": "municipal planning data",
    "column": "src",
    "row": 0,
    "branchBoxes": [
@@ -458,7 +458,7 @@ PORTAL.toolkit = {
     "v",
     "p"
    ],
-   "summary": "Municipal submissions under O. Reg. 73/23 Schedules 2, 3 and 4.",
+   "summary": "Municipal Planning Data Reporting (MPDR): 50 municipalities named in O. Reg. 73/23 Schedule 1 file quarterly on locked Excel templates (v1.0 to v2.1). Today they arrive as files.",
    "why": "Source for Municipal Planning Data; Release 0.4 is at Pre-Prod.",
    "iac": "na",
    "docs": [
@@ -636,6 +636,44 @@ PORTAL.toolkit = {
    "statusNote": "",
    "fixes": [
     "P2"
+   ]
+  },
+  {
+   "id": "s-mih",
+   "tag": "EXT",
+   "title": "MIH source data",
+   "subtitle": "census · financial · profiles",
+   "column": "src",
+   "row": 5,
+   "branchBoxes": [
+    "dsa",
+    "ingest"
+   ],
+   "unit": "BIRU",
+   "owner": "BIRU with SDGU-G (assumption)",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Municipal Intelligence Hub (MIH) sources: Statistics Canada Census, FIR financial indicators and municipal profile fields. Entered by hand in Excel today.",
+   "why": "Phase 1 needs one governed copy instead of spreadsheets on shared drives.",
+   "iac": "na",
+   "docs": [],
+   "upstream": [],
+   "downstream": [
+    "i-portal"
+   ],
+   "homeNode": "sources",
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P1",
+    "P4"
    ]
   },
   {
@@ -980,6 +1018,7 @@ PORTAL.toolkit = {
     "st-silver"
    ],
    "downstream": [
+    "p-dimmodel",
     "p-model",
     "sv-odc",
     "st-wh",
@@ -1051,7 +1090,7 @@ PORTAL.toolkit = {
    "title": "Warehouse",
    "subtitle": "T-SQL serving if needed",
    "column": "store",
-   "row": 3,
+   "row": 5,
    "branchBoxes": [
     "integ",
     "rpt"
@@ -1146,11 +1185,11 @@ PORTAL.toolkit = {
   },
   {
    "id": "p-model",
-   "tag": "PROC",
-   "title": "Data marts",
-   "subtitle": "models · one per product",
-   "column": "proc",
-   "row": 2,
+   "tag": "STORE",
+   "title": "Gold · data marts",
+   "subtitle": "one dimensional mart per product",
+   "column": "store",
+   "row": 3,
    "branchBoxes": [
     "integ",
     "rpt"
@@ -1166,15 +1205,17 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Dimensional models, conformed dimensions, and one subject-area mart per data product.",
+   "summary": "Gold data marts: one dimensional (star-schema) mart per data product, fed from Gold.",
    "why": "Semantic models and reports read the marts, not raw Gold tables.",
    "iac": "tbd",
    "docs": [],
    "upstream": [
-    "st-gold"
+    "st-gold",
+    "p-dimmodel"
    ],
    "downstream": [
-    "sv-model"
+    "sv-model",
+    "e-ds"
    ],
    "homeNode": "gold",
    "deeper": [],
@@ -1184,7 +1225,52 @@ PORTAL.toolkit = {
     "reason": "Flagged by the team as substantial work in its own right."
    },
    "fixes": [
-    "P3"
+    "P3",
+    "P5"
+   ]
+  },
+  {
+   "id": "p-dimmodel",
+   "tag": "PROC",
+   "title": "Data modeling",
+   "subtitle": "dimensional · star schema",
+   "column": "proc",
+   "row": 2,
+   "branchBoxes": [
+    "integ",
+    "xform"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E with BIRU (assumption)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Dimensional and semantic modeling over Gold; conformed dimensions shared across products.",
+   "why": "One agreed model per subject stops each team re-deriving the same measures.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [
+    "st-gold"
+   ],
+   "downstream": [
+    "p-model"
+   ],
+   "homeNode": "gold",
+   "deeper": [],
+   "statusNote": "",
+   "flag": {
+    "label": "Substantial work",
+    "reason": "Flagged by the team as substantial work in its own right."
+   },
+   "fixes": [
+    "P3",
+    "P4"
    ]
   },
   {
@@ -1239,53 +1325,12 @@ PORTAL.toolkit = {
    ]
   },
   {
-   "id": "p-dqr",
-   "tag": "MON",
-   "title": "Data quality reports",
-   "subtitle": "Great Expectations · per municipality",
-   "bar": "mon",
-   "branchBoxes": [
-    "dqm",
-    "mpdr"
-   ],
-   "unit": "SDGU-E",
-   "owner": "SDGU-E",
-   "phase": "v1",
-   "status": "planned",
-   "statusSource": "manifest only (no adapter has found it yet)",
-   "statusByEnv": [
-    "p",
-    "p",
-    "p",
-    "p"
-   ],
-   "summary": "Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).",
-   "why": "Each municipality gets feedback on its own submission. Sample data only.",
-   "iac": "tbd",
-   "docs": [
-    {
-     "label": "Platform PRD TKT-21 / D17 (internal doc · not in this demo)",
-     "href": null
-    }
-   ],
-   "upstream": [
-    "p-dq"
-   ],
-   "downstream": [],
-   "homeNode": "silver",
-   "deeper": [],
-   "statusNote": "",
-   "fixes": [
-    "P2"
-   ]
-  },
-  {
    "id": "p-geo",
    "tag": "PROC",
    "title": "Geospatial notebooks",
    "subtitle": "Sedona or GeoPandas",
    "column": "proc",
-   "row": 3,
+   "row": 4,
    "branchBoxes": [
     "mpdr",
     "xform",
@@ -1335,7 +1380,7 @@ PORTAL.toolkit = {
    "title": "Dataflow Gen2",
    "subtitle": "low-code for analysts",
    "column": "proc",
-   "row": 4,
+   "row": 5,
    "branchBoxes": [
     "xform",
     "adhoc"
@@ -1611,6 +1656,44 @@ PORTAL.toolkit = {
    "deeper": [],
    "statusNote": "",
    "fixes": [
+    "P5"
+   ]
+  },
+  {
+   "id": "e-ds",
+   "tag": "ENR",
+   "title": "Data science & ML notebooks",
+   "subtitle": "notebooks for analysts",
+   "column": "enr",
+   "row": 1,
+   "branchBoxes": [
+    "ml",
+    "adhoc"
+   ],
+   "unit": "BIRU",
+   "owner": "BIRU (with SDGU-E)",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Shared notebook workspace for analysts to explore the marts and train simple models on aggregates.",
+   "why": "Analysts stop keeping private copies on laptops; work is shared and repeatable.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [
+    "p-model"
+   ],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P3",
     "P5"
    ]
   },
@@ -2351,6 +2434,47 @@ PORTAL.toolkit = {
    ]
   },
   {
+   "id": "p-dqr",
+   "tag": "MON",
+   "title": "Data quality reports",
+   "subtitle": "Great Expectations · per municipality",
+   "bar": "mon",
+   "branchBoxes": [
+    "dqm",
+    "mpdr"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).",
+   "why": "Each municipality gets feedback on its own submission. Sample data only.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Platform PRD TKT-21 / D17 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [
+    "p-dq"
+   ],
+   "downstream": [],
+   "homeNode": "silver",
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
+  },
+  {
    "id": "m-capacity",
    "tag": "MON",
    "title": "Capacity Metrics app",
@@ -2832,6 +2956,12 @@ PORTAL.toolkit = {
    "label": "upload"
   },
   {
+   "from": "s-mih",
+   "to": "i-portal",
+   "type": "request",
+   "label": "upload"
+  },
+  {
    "from": "i-portal",
    "to": "i-notify",
    "type": "request",
@@ -2883,7 +3013,7 @@ PORTAL.toolkit = {
    "from": "p-dq",
    "to": "st-silver",
    "type": "request",
-   "label": "pass · quarantine"
+   "label": "quarantine"
   },
   {
    "from": "st-bronze",
@@ -2895,25 +3025,25 @@ PORTAL.toolkit = {
    "from": "p-spark",
    "to": "st-silver",
    "type": "request",
-   "label": "clean, conform"
-  },
-  {
-   "from": "st-silver",
-   "to": "p-spark",
-   "type": "request",
-   "label": "reads"
+   "label": "writes"
   },
   {
    "from": "p-spark",
    "to": "st-gold",
    "type": "request",
-   "label": "aggregate, suppress"
+   "label": "writes"
   },
   {
    "from": "st-gold",
-   "to": "p-model",
+   "to": "p-dimmodel",
    "type": "request",
    "label": "reads"
+  },
+  {
+   "from": "p-dimmodel",
+   "to": "p-model",
+   "type": "request",
+   "label": "builds"
   },
   {
    "from": "p-model",
@@ -2962,6 +3092,12 @@ PORTAL.toolkit = {
    "to": "sv-odc",
    "type": "primary",
    "label": "publish"
+  },
+  {
+   "from": "p-model",
+   "to": "e-ds",
+   "type": "request",
+   "label": "explore"
   },
   {
    "from": "sv-model",

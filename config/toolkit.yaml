@@ -82,13 +82,13 @@ containers:
   - id: services
     label: Reusable services
     tag: SVC
-    slots: [410, 556, 716, 862]
-    node_w: 134
+    slots: [572, 772, 972, 1172]
+    node_w: 180
   - id: portal
     label: Platform Portal
     tag: PORTAL
-    slots: [1032]
-    node_w: 140
+    slots: [1422]
+    node_w: 200
 
 bars:
   - id: gov
@@ -279,8 +279,8 @@ edge_types:
 tools:
   - id: s-muni
     tag: EXT
-    title: Municipalities
-    subtitle: O. Reg. 73/23 Sch 2, 3, 4
+    title: MPDR submissions
+    subtitle: municipal planning data
     column: src
     row: 0
     branch_boxes: [mpdr]
@@ -290,7 +290,7 @@ tools:
     status: prov
     status_source: 'intake-log adapter (mock): submissions received per environment'
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: planned}
-    summary: Municipal submissions under O. Reg. 73/23 Schedules 2, 3 and 4.
+    summary: 'Municipal Planning Data Reporting (MPDR): 50 municipalities named in O. Reg. 73/23 Schedule 1 file quarterly on locked Excel templates (v1.0 to v2.1). Today they arrive as files.'
     why: Source for Municipal Planning Data; Release 0.4 is at Pre-Prod.
     iac: na
     docs:
@@ -386,6 +386,27 @@ tools:
         href: null
     downstream: [i-gw]
     fixes: [P2]
+
+  - id: s-mih
+    tag: EXT
+    title: MIH source data
+    subtitle: census · financial · profiles
+    column: src
+    row: 5
+    branch_boxes: [dsa, ingest]
+    owning_unit: BIRU
+    owner: BIRU with SDGU-G (assumption)
+    phase: next
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Municipal Intelligence Hub (MIH) sources: Statistics Canada Census, FIR financial indicators and municipal profile fields. Entered by hand in Excel today.'
+    why: Phase 1 needs one governed copy instead of spreadsheets on shared drives.
+    iac: na
+    docs: []
+    downstream: [i-portal]
+    fixes: [P1, P4]
+    home_node: sources
 
   - id: i-portal
     tag: ING
@@ -563,7 +584,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-silver]
-    downstream: [p-model, sv-odc, st-wh, e-ml]
+    downstream: [p-dimmodel, p-model, sv-odc, st-wh, e-ml]
     fixes: [P4]
     home_node: gold
     links_deeper:
@@ -601,7 +622,7 @@ tools:
     title: Warehouse
     subtitle: T-SQL serving if needed
     column: store
-    row: 3
+    row: 5
     branch_boxes: [integ, rpt]
     owning_unit: BIRU
     owner: BIRU / SDGU-E
@@ -646,11 +667,11 @@ tools:
     home_node: silver
 
   - id: p-model
-    tag: PROC
-    title: Data marts
-    subtitle: models · one per product
-    column: proc
-    row: 2
+    tag: STORE
+    title: Gold · data marts
+    subtitle: one dimensional mart per product
+    column: store
+    row: 3
     branch_boxes: [integ, rpt]
     owning_unit: SDGU-E
     owner: SDGU-E with BIRU (assumption)
@@ -659,13 +680,36 @@ tools:
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
     flag: {label: Substantial work, reason: Flagged by the team as substantial work in its own right.}
-    summary: 'Dimensional models, conformed dimensions, and one subject-area mart per data product.'
+    summary: 'Gold data marts: one dimensional (star-schema) mart per data product, fed from Gold.'
     why: Semantic models and reports read the marts, not raw Gold tables.
     iac: tbd
     docs: []
+    upstream: [st-gold, p-dimmodel]
+    downstream: [sv-model, e-ds]
+    fixes: [P3, P5]
+    home_node: gold
+
+  - id: p-dimmodel
+    tag: PROC
+    title: Data modeling
+    subtitle: dimensional · star schema
+    column: proc
+    row: 2
+    branch_boxes: [integ, xform]
+    owning_unit: SDGU-E
+    owner: SDGU-E with BIRU (assumption)
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    flag: {label: Substantial work, reason: Flagged by the team as substantial work in its own right.}
+    summary: Dimensional and semantic modeling over Gold; conformed dimensions shared across products.
+    why: One agreed model per subject stops each team re-deriving the same measures.
+    iac: tbd
+    docs: []
     upstream: [st-gold]
-    downstream: [sv-model]
-    fixes: [P3]
+    downstream: [p-model]
+    fixes: [P3, P4]
     home_node: gold
 
   - id: p-dq
@@ -694,33 +738,12 @@ tools:
     fixes: [P2]
     home_node: silver
 
-  - id: p-dqr
-    tag: MON
-    title: Data quality reports
-    subtitle: Great Expectations · per municipality
-    bar: mon
-    branch_boxes: [dqm, mpdr]
-    owning_unit: SDGU-E
-    phase: v1
-    status: planned
-    status_source: manifest only (no adapter has found it yet)
-    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
-    summary: 'Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).'
-    why: Each municipality gets feedback on its own submission. Sample data only.
-    iac: tbd
-    docs:
-      - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
-        href: null
-    upstream: [p-dq]
-    fixes: [P2]
-    home_node: silver
-
   - id: p-geo
     tag: PROC
     title: Geospatial notebooks
     subtitle: Sedona or GeoPandas
     column: proc
-    row: 3
+    row: 4
     branch_boxes: [mpdr, xform, std]
     owning_unit: SDGU-E
     phase: v1
@@ -745,7 +768,7 @@ tools:
     title: Dataflow Gen2
     subtitle: low-code for analysts
     column: proc
-    row: 4
+    row: 5
     branch_boxes: [xform, adhoc]
     owning_unit: BIRU
     phase: next
@@ -884,6 +907,26 @@ tools:
     upstream: [st-gold]
     fixes: [P5]
     home_node: catalogue
+
+  - id: e-ds
+    tag: ENR
+    title: Data science & ML notebooks
+    subtitle: notebooks for analysts
+    column: enr
+    row: 1
+    branch_boxes: [ml, adhoc]
+    owning_unit: BIRU
+    owner: BIRU (with SDGU-E)
+    phase: next
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: Shared notebook workspace for analysts to explore the marts and train simple models on aggregates.
+    why: Analysts stop keeping private copies on laptops; work is shared and repeatable.
+    iac: tbd
+    docs: []
+    upstream: [p-model]
+    fixes: [P3, P5]
 
   - id: e-ml
     tag: ENR
@@ -1262,6 +1305,27 @@ tools:
     fixes: [P2]
     home_node: ops
 
+  - id: p-dqr
+    tag: MON
+    title: Data quality reports
+    subtitle: Great Expectations · per municipality
+    bar: mon
+    branch_boxes: [dqm, mpdr]
+    owning_unit: SDGU-E
+    phase: v1
+    status: planned
+    status_source: manifest only (no adapter has found it yet)
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Great Expectations reports, one per municipal submission, showing which rules passed or failed by DAEG dimension (draft).'
+    why: Each municipality gets feedback on its own submission. Sample data only.
+    iac: tbd
+    docs:
+      - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
+        href: null
+    upstream: [p-dq]
+    fixes: [P2]
+    home_node: silver
+
   - id: m-capacity
     tag: MON
     title: Capacity Metrics app
@@ -1519,6 +1583,10 @@ edges:
     to: i-portal
     type: request
     label: upload
+  - from: s-mih
+    to: i-portal
+    type: request
+    label: upload
   - from: i-portal
     to: i-notify
     type: request
@@ -1554,7 +1622,7 @@ edges:
   - from: p-dq
     to: st-silver
     type: request
-    label: pass · quarantine
+    label: quarantine
   - from: st-bronze
     to: p-spark
     type: request
@@ -1562,19 +1630,19 @@ edges:
   - from: p-spark
     to: st-silver
     type: request
-    label: clean, conform
-  - from: st-silver
-    to: p-spark
-    type: request
-    label: reads
+    label: writes
   - from: p-spark
     to: st-gold
     type: request
-    label: aggregate, suppress
+    label: writes
   - from: st-gold
-    to: p-model
+    to: p-dimmodel
     type: request
     label: reads
+  - from: p-dimmodel
+    to: p-model
+    type: request
+    label: builds
   - from: p-model
     to: sv-model
     type: request
@@ -1607,6 +1675,10 @@ edges:
     to: sv-odc
     type: primary
     label: publish
+  - from: p-model
+    to: e-ds
+    type: request
+    label: explore
   - from: sv-model
     to: sv-pbi
     type: request

@@ -17,6 +17,19 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = re.compile(r"\b(azure|fabric|entra|purview|databricks|onelake|power ?bi|key vault|log analytics|"
                       r"ontario data catalogue|private endpoints?|synapse)\b", re.I)
+LAYOUT_JS = r"""(sel)=>{const out=[];const ns=[...document.querySelectorAll(sel)];const R=e=>e.getBoundingClientRect();
+for(const n of ns){const r=R(n);
+ if(n.scrollHeight>n.clientHeight+1||n.scrollWidth>n.clientWidth+1)out.push('overflow '+n.id);
+ for(const c of n.querySelectorAll('*')){const q=R(c);if(q.width===0)continue;const cs=getComputedStyle(c);
+  if(cs.textOverflow==='ellipsis'&&c.scrollWidth>c.clientWidth)out.push('ellipsis '+n.id);
+  if(q.left<r.left-0.5||q.right>r.right+0.5||q.top<r.top-0.5||q.bottom>r.bottom+0.5)out.push('child-out '+n.id+' '+c.className);}
+ if(n.innerText.includes('\u2026'))out.push('ellipsis-char '+n.id);}
+for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){const a=R(ns[i]),b=R(ns[j]);
+ if(a.left<b.right-0.5&&b.left<a.right-0.5&&a.top<b.bottom-0.5&&b.top<a.bottom-0.5)out.push('overlap '+ns[i].id+' '+ns[j].id);}
+const labs=[...document.querySelectorAll('.edge-label-bg')].map(R).filter(q=>q.width>0);
+for(const l of labs)for(const n of ns){const a=R(n);if(l.left<a.right-1&&a.left<l.right-1&&l.top<a.bottom-1&&a.top<l.bottom-1)out.push('label-on-node '+n.id);}
+for(let i=0;i<labs.length;i++)for(let j=i+1;j<labs.length;j++){const a=labs[i],b=labs[j];if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)out.push('label-overlap '+i+' '+j);}
+return [ns.length,[...new Set(out)]];}"""
 IPISH = re.compile(r"\b\d{1,3}(\.\d{1,3}){3}\b|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 
 
@@ -78,6 +91,16 @@ def smoke(base, shots):
         ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
         store = page.inner_text("#bp-canvas")
         ok(all(w in store for w in ("Bronze", "Silver", "Gold")) and page.locator("#bp-node-st-ref").count() == 1, "TKT-1 Store lakehouses + reference table")
+
+        # TKT-22: no truncation, no box/label overlaps at desktop, laptop and phone widths.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900})
+            for url, sel in (("/pages/blueprint.html", "#bp-canvas .bp-node"), ("/index.html", ".map-node")):
+                page.goto(base + url, wait_until="networkidle")
+                cnt, probs = page.evaluate(LAYOUT_JS, sel)
+                ok(cnt > 0 and not probs, f"TKT-22 {url} @{w}px: {cnt} boxes, no ellipsis or overlaps {probs[:5]}")
+        page.set_viewport_size({"width": 1280, "height": 900})
+        page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
 
         nodes = page.locator("#bp-canvas .bp-node")
         n = nodes.count()
