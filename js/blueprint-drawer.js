@@ -25,6 +25,10 @@
     var h = D.head(n.tag, esc(BP.typeName(n.tag)), n.title, n.subtitle);
     h += sec("Summary", "<p>" + esc(n.summary) + "</p>");
     h += sec("Why we use it", "<p>" + esc(n.why) + "</p>");
+    if (n.fixes && n.fixes.length) h += sec("Pain point it fixes", "<ul>" + n.fixes.map(function (id) {
+      var pp = (K.painPoints || []).filter(function (x) { return x.id === id; })[0];
+      return "<li>" + esc(id) + (pp ? " · " + esc(pp.label) : "") + "</li>";
+    }).join("") + "</ul>");
     h += sec("Status", "<p>" + BP.statusHtml(n.status) + ' <span class="drawer-asof">(sample) as of ' + esc(K.asOf) + "</span></p>" +
       '<p class="drawer-note bp-sample-note">Sample statuses, not real infrastructure.</p>' +
       '<ul class="drawer-counts">' + K.envs.map(function (e, i) {
@@ -43,7 +47,7 @@
     h += sec("Linked docs", '<ul class="drawer-links">' + n.docs.map(function (d) { return "<li>" + link(d) + "</li>"; }).join("") + "</ul>");
     h += sec("Upstream / downstream", n.upstream.length || n.downstream.length
       ? '<ul class="drawer-rel">' + rel(n.upstream, "←") + rel(n.downstream, "→") + "</ul>" : NOT_APPLICABLE);
-    var deeper = (n.homeNode ? [{ label: "Process map: " + homeTitle(n.homeNode), href: "../index.html#node=" + n.homeNode }] : []).concat(n.deeper);
+    var deeper = (n.homeNode ? [{ label: "Process map: " + homeTitle(n.homeNode), href: "../map.html#node=" + n.homeNode }] : []).concat(n.deeper);
     h += sec("Links deeper", D.links(deeper));
     return h;
   }
