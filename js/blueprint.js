@@ -258,3 +258,44 @@
     order: order, render: render, writeHash: writeHash, readState: readState, chipText: chipText
   };
 })();
+
+/* Full screen: canvas zoomed to fit the viewport (width and height); Esc or the button exits to native scale. */
+(function () {
+  var wrap = document.getElementById("bp-scroll"), fsBtn = document.getElementById("bp-fullscreen");
+  if (!wrap || !fsBtn) return;
+  var exitBtn = null;
+  function canvas() { return document.getElementById("bp-canvas"); }
+  function isFs() { return document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap || wrap.classList.contains("is-fs-fallback"); }
+  function applyFit() {
+    var c = canvas(); if (!c) return;
+    if (!isFs()) { c.style.zoom = ""; c.style.marginLeft = ""; return; }
+    var cw = parseFloat(c.style.width) || c.offsetWidth, ch = parseFloat(c.style.height) || c.offsetHeight;
+    var vw = wrap.clientWidth, vh = wrap.clientHeight, s = Math.floor(Math.min(vw / cw, vh / ch) * 1000) / 1000;
+    c.style.zoom = String(s); /* zoom (not transform) so the scaled canvas also shrinks its layout box: no scrollbars */
+    c.style.marginLeft = Math.max(0, (vw - cw * s) / 2 / s) + "px";
+  }
+  function syncFs() {
+    var on = isFs(); wrap.classList.toggle("is-fs", on);
+    fsBtn.setAttribute("aria-pressed", String(on)); fsBtn.textContent = on ? "Exit full screen" : "Full screen";
+    if (on && !exitBtn) {
+      exitBtn = document.createElement("button"); exitBtn.type = "button"; exitBtn.id = "bp-fs-exit"; exitBtn.className = "chip-btn solo bp-fs-exit"; exitBtn.textContent = "Exit full screen (Esc)";
+      exitBtn.addEventListener("click", exitFs); wrap.appendChild(exitBtn);
+    } else if (!on && exitBtn) { exitBtn.remove(); exitBtn = null; }
+    applyFit();
+  }
+  function fallback() { wrap.classList.add("is-fs-fallback"); syncFs(); }
+  function exitFs() {
+    if (wrap.classList.contains("is-fs-fallback")) { wrap.classList.remove("is-fs-fallback"); syncFs(); return; }
+    var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document);
+  }
+  fsBtn.addEventListener("click", function () {
+    if (isFs()) return exitFs();
+    var req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (!req) return fallback();
+    try { var r = req.call(wrap); if (r && r.catch) r.catch(fallback); } catch (e) { fallback(); }
+  });
+  document.addEventListener("fullscreenchange", syncFs);
+  document.addEventListener("webkitfullscreenchange", syncFs);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && wrap.classList.contains("is-fs-fallback")) exitFs(); });
+  window.addEventListener("resize", applyFit);
+})();

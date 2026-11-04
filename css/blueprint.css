@@ -68,3 +68,9 @@
 #bp-canvas .bp-chip, #bp-canvas .badge-phase, #bp-canvas .bp-badges .status, #bp-canvas .bp-flag,
 #bp-canvas .map-tag, #bp-canvas .bp-node .icon { font-size: 11px; }
 #bp-canvas .map-container-cap, #bp-canvas .edge-label { font-size: 11px; }
+
+/* Full screen (blueprint page): the only view where the canvas is scaled to fit (D16 exemption). */
+.bp-view-ctl { display: flex; justify-content: flex-end; margin: 0 0 8px; }
+#bp-scroll:fullscreen, #bp-scroll.is-fs-fallback { background: #fff; overflow: hidden; padding: 0; }
+#bp-scroll.is-fs-fallback { position: fixed; inset: 0; z-index: 1000; }
+.bp-fs-exit { position: fixed; top: 10px; right: 10px; z-index: 1001; }

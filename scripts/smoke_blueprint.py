@@ -120,6 +120,26 @@ def smoke(base, shots):
             ok(not f["bad"] and abs(f["boxScale"] - 1) < 0.01, f"D16 @{w}px: titles 13, subtitles 11.5, badges 11 (+/-0.5), none under 11, canvas scale {f['boxScale']:.3f} {f['bad'][:5]}")
             if w == 390:
                 ok(f["scrolls"], "D16 @390px: canvas scrolls horizontally at native size instead of scaling")
+        # Full screen: the only view allowed to scale (D16 exemption); the default view is checked above.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900 if w > 390 else 844})
+            page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
+            ok(page.locator("#bp-fullscreen").count() == 1, f"FS @{w}px: Full screen button exists")
+            page.click("#bp-fullscreen")
+            page.wait_for_timeout(400)
+            fs = page.evaluate("""()=>{const w=document.getElementById('bp-scroll'),c=document.getElementById('bp-canvas').getBoundingClientRect();
+              return {fs:document.fullscreenElement===w||w.classList.contains('is-fs-fallback'),overX:w.scrollWidth>w.clientWidth+1,overY:w.scrollHeight>w.clientHeight+1,
+                fits:c.left>=-1&&c.top>=-1&&c.right<=innerWidth+1&&c.bottom<=innerHeight+1,cw:Math.round(c.width),ch:Math.round(c.height),vw:innerWidth,vh:innerHeight}}""")
+            ok(fs["fs"] and fs["fits"] and not fs["overX"] and not fs["overY"], f"FS @{w}px: whole canvas fits the viewport, no overflow {fs}")
+            if shots and w in (1440, 390):
+                page.screenshot(path=str(shots / f"fullscreen-{w}.png"))
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(400)
+            if page.evaluate("document.fullscreenElement!==null"):
+                page.click("#bp-fs-exit"); page.wait_for_timeout(400)
+            f = page.evaluate(FONT_JS)
+            ok(page.evaluate("document.fullscreenElement===null&&!document.getElementById('bp-scroll').classList.contains('is-fs')") and abs(f["boxScale"] - 1) < 0.01 and not f["bad"],
+               f"FS @{w}px: exit restores native scale (D16 ok, scale {f['boxScale']:.3f})")
         page.set_viewport_size({"width": 1280, "height": 900})
         page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
 
