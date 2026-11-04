@@ -47,7 +47,7 @@
     h += sec("Linked docs", '<ul class="drawer-links">' + n.docs.map(function (d) { return "<li>" + link(d) + "</li>"; }).join("") + "</ul>");
     h += sec("Upstream / downstream", n.upstream.length || n.downstream.length
       ? '<ul class="drawer-rel">' + rel(n.upstream, "←") + rel(n.downstream, "→") + "</ul>" : NOT_APPLICABLE);
-    var deeper = (n.homeNode ? [{ label: "Process map: " + homeTitle(n.homeNode), href: "../map.html#node=" + n.homeNode }] : []).concat(n.deeper);
+    var deeper = (n.homeNode ? [{ label: "Process map: " + homeTitle(n.homeNode), href: "../index.html#node=" + n.homeNode }] : []).concat(n.deeper);
     h += sec("Links deeper", D.links(deeper));
     return h;
   }

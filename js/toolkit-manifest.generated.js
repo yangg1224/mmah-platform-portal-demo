@@ -1882,7 +1882,7 @@ PORTAL.toolkit = {
    "deeper": [
     {
      "label": "Process map (home)",
-     "href": "../map.html"
+     "href": "../index.html"
     }
    ],
    "statusNote": "",

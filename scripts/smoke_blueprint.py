@@ -41,25 +41,25 @@ def smoke(base, shots):
         page.on("response", lambda r: errors.append(f"HTTP {r.status}: {r.url}") if r.status >= 400 else None)
 
         # Home map: MAP-11 and the sample-status rule.
-        page.goto(base + "/map.html#overlays=setup,releases", wait_until="networkidle")
+        page.goto(base + "/index.html#overlays=setup,releases", wait_until="networkidle")
         ok(not PRODUCTS.search(page.inner_text("body")), "MAP-11 home map + overlays show no product names")
-        for pth in ("/map.html", "/pages/blueprint.html", "/pages/iac-guide.html"):
+        for pth in ("/index.html", "/pages/blueprint.html", "/pages/iac-guide.html"):
             page.goto(base + pth, wait_until="networkidle")
             st = page.evaluate("() => { const d = document.getElementById('map-drawer'); return [d.hidden, d.inert, getComputedStyle(d).display]; }")
             ok(st == [True, True, "none"], "WCAG closed drawer at load is hidden + inert + display:none on " + pth + " " + str(st))
-        page.goto(base + "/map.html#overlays=setup,releases", wait_until="networkidle")
+        page.goto(base + "/index.html#overlays=setup,releases", wait_until="networkidle")
         sts = page.eval_on_selector_all('[data-node^="lane-"] .map-status', "els=>els.map(e=>e.innerText.replace(/\\s+/g,' '))")
         ok(sts and all("Sample:" in s for s in sts), "Releases lane statuses all carry 'Sample:' " + str(sts))
         ok("SAMPLE STATUSES, NOT REAL INFRASTRUCTURE" in page.inner_text("#map-canvas").upper(), "Releases overlay label says sample statuses")
         for nid in page.eval_on_selector_all(".map-node", "els=>els.map(e=>e.dataset.node)"):
-            page.goto(base + "/map.html#overlays=setup,releases&node=" + nid, wait_until="networkidle")
+            page.goto(base + "/index.html#overlays=setup,releases&node=" + nid, wait_until="networkidle")
             page.reload(wait_until="networkidle")
             t = page.inner_text("#map-drawer")
             if PRODUCTS.search(t):
                 ok(False, f"MAP-11 drawer {nid} names a product: {PRODUCTS.search(t).group(0)}")
         ok(True, "Home drawers opened")
         if shots:
-            page.goto(base + "/map.html#overlays=releases", wait_until="networkidle")
+            page.goto(base + "/index.html#overlays=releases", wait_until="networkidle")
             page.screenshot(path=str(shots / "home-releases.png"))
 
         # Blueprint layout (TKT-1).
@@ -103,7 +103,7 @@ def smoke(base, shots):
         ok([h for h in heads if h in want] == want, "TKT-4 drawer order " + str(heads))
         dt = page.inner_text("#map-drawer")
         ok("as of" in dt and dt.count("(sample)") >= 5 and "Sample statuses, not real infrastructure" in dt, "TKT-7 per-environment sample status with as-of")
-        ok(page.locator("#map-drawer a[href*='map.html#node=']").count() >= 1, "TKT-14 blueprint node links back to the home map")
+        ok(page.locator("#map-drawer a[href*='index.html#node=']").count() >= 1, "TKT-14 blueprint node links back to the home map")
         if shots:
             page.screenshot(path=str(shots / "blueprint-panel.png"))
         page.keyboard.press("Escape")
@@ -123,7 +123,7 @@ def smoke(base, shots):
 
         # TKT-14: home SVC / ENV / IAM / OPS drawers link to blueprint nodes.
         for nid in ("svc-clean", "env", "iam", "ops"):
-            page.goto(base + "/map.html#overlays=setup&node=" + nid, wait_until="networkidle")
+            page.goto(base + "/index.html#overlays=setup&node=" + nid, wait_until="networkidle")
             page.reload(wait_until="networkidle")
             ok(page.locator("#map-drawer a[href*='blueprint.html#node=']").count() >= 1, f"TKT-14 home {nid} links to a blueprint node")
 

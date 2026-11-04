@@ -1027,7 +1027,7 @@ tools:
         href: null
     links_deeper:
       - label: Process map (home)
-        href: ../map.html
+        href: ../index.html
     fixes: [P3]
 
   - id: g-catalog

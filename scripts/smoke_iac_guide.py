@@ -237,7 +237,7 @@ def smoke(base, screenshot_dir):
         passed("Reduced-motion preference, mobile canvas scrolling and mobile permissions inspector")
 
         page.set_viewport_size({"width": 1440, "height": 1000})
-        page.goto(base + "/map.html", wait_until="networkidle")
+        page.goto(base + "/", wait_until="networkidle")
         page.locator("#map-node-silver").click()
         expect(page.locator("#drawer-title")).to_contain_text("Standardize")
         page.keyboard.press("Escape")

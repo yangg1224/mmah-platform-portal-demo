@@ -1,7 +1,7 @@
 /* Home process map renderer (MAP-1..MAP-14). Draws node buttons + SVG edges from PORTAL.map.
    Permalink (MAP-10 / NAV-2), restored on load and kept current with history.replaceState:
-     map.html#node=<id>&product=<all|mpd|hh>&overlays=<setup,releases>&view=list
-   Screenshot alias: map.html?panel=<id>&infra=1&release=1  (node ids are listed in js/map-data.js) */
+     index.html#node=<id>&product=<all|mpd|hh>&overlays=<setup,releases>&view=list
+   Screenshot alias: index.html?panel=<id>&infra=1&release=1  (node ids are listed in js/map-data.js) */
 (function () {
   "use strict";
   var M = window.PORTAL && PORTAL.map;
