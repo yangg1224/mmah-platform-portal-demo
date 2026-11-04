@@ -285,7 +285,7 @@ tools:
     row: 0
     branch_boxes: [mpdr]
     owning_unit: DPU
-    owner: Submitting municipalities · DPU owns who submits what
+    owner: DPU
     phase: v1
     status: prov
     status_source: 'intake-log adapter (mock): submissions received per environment'
@@ -395,6 +395,7 @@ tools:
     row: 5
     branch_boxes: [dsa, ingest]
     owning_unit: BIRU
+    owner_tentative: true
     owner: BIRU with SDGU-G (assumption)
     phase: next
     status: planned
@@ -697,6 +698,7 @@ tools:
     row: 2
     branch_boxes: [integ, xform]
     owning_unit: SDGU-E
+    owner_tentative: true
     owner: SDGU-E with BIRU (assumption)
     phase: v1
     status: planned

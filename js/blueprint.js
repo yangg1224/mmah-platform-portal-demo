@@ -96,7 +96,7 @@
   function titlesOf(ids) { return ids.filter(function (id) { return byId[id]; }).map(function (id) { return byId[id].title; }); }
   function ariaLabel(n) {
     var parts = [(TYPE[n.tag] || n.tag) + ": " + n.title + " (" + n.subtitle + ").", "Phase " + phaseById[n.phase].label + ".",
-      K.statuses[n.status].word + ".", "Owner " + n.unit + "."];
+      K.statuses[n.status].word + ".", "Owner " + n.unit + (n.ownerTentative ? " (tentative, not confirmed)" : "") + "."];
     var up = titlesOf(n.upstream), down = titlesOf(n.downstream);
     if (up.length) parts.push("From " + up.join(", ") + ".");
     if (down.length) parts.push("To " + down.join(", ") + ".");
@@ -206,7 +206,7 @@
     return '<button type="button" class="' + cls + '" id="bp-node-' + n.id + '" data-node="' + n.id + '" aria-controls="map-drawer" aria-expanded="' +
       (state.node === n.id) + '" aria-label="' + esc(ariaLabel(n)) + '" style="left:' + b.x + "px;top:" + b.y + "px;width:" + b.w + "px;height:" + b.h + "px" +
       (col ? ";border-left:5px solid " + col : "") + '">' +
-      '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span></span>" +
+      '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span>" + (n.ownerTentative ? '<span class="bp-chip bp-owner-tbc" title="Owner not confirmed">Tentative</span>' : "") + "</span>" +
       '<span class="map-title">' + esc(n.title) + '</span><span class="map-sub bp-sub">' + esc(n.subtitle) + "</span>" +
       '<span class="bp-badges">' + phaseHtml(n) + statusHtml(n.status) +
       (n.flag ? '<span class="bp-flag" title="' + esc(n.flag.reason) + '">' + esc(n.flag.label) + "</span>" : "") + "</span></button>";

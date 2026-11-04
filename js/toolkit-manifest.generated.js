@@ -448,7 +448,7 @@ PORTAL.toolkit = {
     "mpdr"
    ],
    "unit": "DPU",
-   "owner": "Submitting municipalities · DPU owns who submits what",
+   "owner": "DPU",
    "phase": "v1",
    "status": "prov",
    "statusSource": "intake-log adapter (mock): submissions received per environment",
@@ -671,6 +671,7 @@ PORTAL.toolkit = {
    "homeNode": "sources",
    "deeper": [],
    "statusNote": "",
+   "ownerTentative": true,
    "fixes": [
     "P1",
     "P4"
@@ -1268,6 +1269,7 @@ PORTAL.toolkit = {
     "label": "Substantial work",
     "reason": "Flagged by the team as substantial work in its own right."
    },
+   "ownerTentative": true,
    "fixes": [
     "P3",
     "P4"

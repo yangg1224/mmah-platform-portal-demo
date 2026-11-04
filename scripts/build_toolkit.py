@@ -79,10 +79,11 @@ def tool_to_node(t, envs):
         "deeper": t.get("links_deeper") or [],
         "statusNote": t.get("status_note", ""),
         "flag": t.get("flag"),
+        "ownerTentative": t.get("owner_tentative") or None,
         "fixes": t.get("fixes") or [],
     }
     # Keep the object lean: drop layout keys that don't apply (undefined in JS either way).
-    return {k: v for k, v in node.items() if not (k in ("column", "bar", "container", "row", "flag") and v is None)}
+    return {k: v for k, v in node.items() if not (k in ("column", "bar", "container", "row", "flag", "ownerTentative") and v is None)}
 
 
 def build(manifest):

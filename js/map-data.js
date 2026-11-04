@@ -17,12 +17,12 @@ window.PORTAL = window.PORTAL || {};
   var NA = "na", TBD = "tbd"; // "Not applicable" / "Not yet defined"
   function st(kind, word) { return { kind: kind, word: word }; }
 
-  var MPD_RUN_LOAD = { flow: "MPD load", start: "4 Nov 2026, 8:05 PM ET", end: "4 Nov 2026, 8:12 PM ET", result: st("ok", "Passing"), rows: "47 orgs in → 47 orgs out" };
-  var MPD_RUN_CONFORM = { flow: "MPD validate → conform", start: "4 Nov 2026, 8:12 PM ET", end: "4 Nov 2026, 8:34 PM ET", result: st("warn", "Completed, 12 DQ warnings"), rows: "47 orgs in → 47 orgs out" };
-  var MPD_RUN_PUBLISH = { flow: "MPD publish", start: "4 Nov 2026, 8:34 PM ET", end: "4 Nov 2026, 8:41 PM ET", result: st("ok", "Passing"), rows: "47 orgs in → 47 orgs out" };
-  var HH_RUN_LOAD = { flow: "HH load", start: "4 Nov 2026, 7:30 PM ET", end: "4 Nov 2026, 7:36 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
-  var HH_RUN_CONFORM = { flow: "HH standardize", start: "4 Nov 2026, 7:36 PM ET", end: "4 Nov 2026, 7:49 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
-  var HH_RUN_PUBLISH = { flow: "HH publish", start: "4 Nov 2026, 7:49 PM ET", end: "4 Nov 2026, 7:55 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
+  var MPD_RUN_LOAD = { flow: "MPD load", start: "6 Oct 2026, 8:05 PM ET", end: "6 Oct 2026, 8:12 PM ET", result: st("ok", "Passing"), rows: "47 orgs in → 47 orgs out" };
+  var MPD_RUN_CONFORM = { flow: "MPD validate → conform", start: "6 Oct 2026, 8:12 PM ET", end: "6 Oct 2026, 8:34 PM ET", result: st("warn", "Completed, 12 DQ warnings"), rows: "47 orgs in → 47 orgs out" };
+  var MPD_RUN_PUBLISH = { flow: "MPD publish", start: "6 Oct 2026, 8:34 PM ET", end: "6 Oct 2026, 8:41 PM ET", result: st("ok", "Passing"), rows: "47 orgs in → 47 orgs out" };
+  var HH_RUN_LOAD = { flow: "HH load", start: "6 Oct 2026, 7:30 PM ET", end: "6 Oct 2026, 7:36 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
+  var HH_RUN_CONFORM = { flow: "HH standardize", start: "6 Oct 2026, 7:36 PM ET", end: "6 Oct 2026, 7:49 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
+  var HH_RUN_PUBLISH = { flow: "HH publish", start: "6 Oct 2026, 7:49 PM ET", end: "6 Oct 2026, 7:55 PM ET", result: st("ok", "Passing"), rows: "12 regions in → 12 regions out" };
 
   var R = {
     contract: { label: "Municipal planning data contract", path: "config/contracts/mpd_ingest_v2.yaml@18b64aa", version: "ingest_v2", approver: "Platform engineer (mock) · 1 Aug 2026", href: "pages/rules.html#rule-contract-mpd" },
