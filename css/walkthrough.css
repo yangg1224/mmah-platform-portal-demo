@@ -33,4 +33,3 @@
 .wt-btn:disabled { opacity: .35; cursor: default; }
 .wt-count { color: #666; }
 .wt-note { color: #666; font-size: .88rem; margin-top: 1rem; }
-.wt-decks button { font-weight: 600; } .wt-decks { padding-bottom: .6rem; border-bottom: 1px solid #e5e9ed; }

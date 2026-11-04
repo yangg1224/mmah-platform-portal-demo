@@ -24,7 +24,7 @@ def git(*args):
 
 
 def served_files():
-    out = git("ls-files", "index.html", "map.html", "slides.html", "pages", "js").stdout.split()
+    out = git("ls-files", "index.html", "map.html", "pages", "js").stdout.split()
     return [ROOT / f for f in out if f.endswith((".html", ".js"))]
 
 
