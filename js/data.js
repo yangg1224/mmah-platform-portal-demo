@@ -211,7 +211,7 @@ PORTAL.catalog = [
   }
 ];
 
-/* NAV-1: catalog item → home map node (opens map.html#node=<id> with its drawer). */
+/* NAV-1: catalog item → home map node (opens index.html#node=<id> with its drawer). */
 PORTAL.mapNodeFor = {
   "ds-mpd-bronze": "bronze", "ds-hh-bronze": "bronze",
   "ds-mpd-silver": "silver", "ds-hh-silver": "silver",
