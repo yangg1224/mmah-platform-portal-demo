@@ -52,7 +52,7 @@ class BlueprintManifestTests(unittest.TestCase):
         self.assertEqual([c["label"] for c in self.manifest["containers"]], ["Reusable services", "Platform Portal"])
 
     def test_banner_and_considered(self):
-        self.assertIn("Intended platform: Microsoft Fabric", self.manifest["banner"]["text"])
+        self.assertIn("Platform not confirmed: Microsoft Fabric or Databricks", self.manifest["banner"]["text"])
         names = " ".join(c["name"] for c in self.manifest["considered_not_on_blueprint"])
         for item in ("Eventstream", "Eventhouse", "Real-Time Intelligence", "Mirrored databases", "API for GraphQL", "Copilot", "data agents"):
             self.assertIn(item, names)

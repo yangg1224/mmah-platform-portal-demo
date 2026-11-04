@@ -29,12 +29,28 @@ schema_version: 1
 
 manifest_ref: config/toolkit.yaml (sample manifest)
 
-as_of: 6 Oct 2026, 9:30 PM ET
+as_of: 4 Nov 2026
 
 banner:
-  text: 'Intended platform: Microsoft Fabric. Per Team lead 2026-10-07, not yet ministry-confirmed.'
+  text: 'Platform not confirmed: Microsoft Fabric or Databricks. Both are options; the ministry has not decided.'
   link_label: Open questions
   href: '#open-questions'
+
+pain_points:
+  - id: P1
+    label: Data arrives by email and Excel
+  - id: P2
+    label: Source systems change data without notice
+  - id: P3
+    label: Knowledge sits with individuals; work is duplicated
+  - id: P4
+    label: Sources disagree; no glossary
+  - id: P5
+    label: Silos, uneven maturity, repeated requests
+  - id: P6
+    label: Paid data (MPAC) locked in one unit
+  - id: P7
+    label: Platform uncertain; rights and costs unclear
 
 columns:
   - id: src
@@ -280,7 +296,8 @@ tools:
     docs:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
         href: null
-    downstream: [i-sftp]
+    downstream: [i-portal]
+    fixes: [P1]
     home_node: sources
 
   - id: s-sm
@@ -302,7 +319,8 @@ tools:
     docs:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
         href: null
-    downstream: [i-sftp]
+    downstream: [i-portal]
+    fixes: [P1]
     home_node: sources
 
   - id: s-list
@@ -324,7 +342,28 @@ tools:
       - label: Ideal-state toolkit §2.5 (internal doc · not in this demo)
         href: null
     downstream: [st-ref]
+    fixes: [P4]
     home_node: svc-match
+
+  - id: s-mpac
+    tag: EXT
+    title: MPAC property data
+    subtitle: paid · shared across units
+    column: src
+    row: 2
+    branch_boxes: [dsa]
+    owning_unit: DPU
+    phase: next
+    status: planned
+    status_source: manifest only
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: 'Paid property assessment data (sample: about $250K+ a year), today in one unit''s SharePoint.'
+    why: Load it once into the shared store so every unit can use it under the licence.
+    iac: na
+    docs: []
+    downstream: [i-adf]
+    fixes: [P6]
+    home_node: sources
 
   - id: s-onprem
     tag: EXT
@@ -346,11 +385,12 @@ tools:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
         href: null
     downstream: [i-gw]
+    fixes: [P2]
 
-  - id: i-sftp
+  - id: i-portal
     tag: ING
-    title: SFTP intake
-    subtitle: ADLS Gen2 · per-submitter ACLs
+    title: Web intake portal
+    subtitle: locked templates · reminders
     column: ing
     row: 0
     branch_boxes: [mpdr, ingest]
@@ -360,8 +400,8 @@ tools:
     status: planned
     status_source: manifest only (no adapter has found it yet)
     status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
-    summary: Secure batch submission channel, one local user per submitter.
-    why: Lands municipal and service-manager files without B2B identities in v1.
+    summary: 'One web portal for submissions: locked templates, dropdowns, automatic reminders and a live tracker.'
+    why: Replaces email, Excel and SFTP; staff no longer chase 50 municipalities by hand.
     iac: tbd
     docs:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
@@ -372,6 +412,7 @@ tools:
         href: '#open-questions'
     upstream: [s-muni, s-sm]
     downstream: [i-notify, st-bronze]
+    fixes: [P1]
     home_node: bronze
 
   - id: i-notify
@@ -395,8 +436,9 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
-    upstream: [i-sftp]
+    upstream: [i-portal]
     downstream: [i-adf]
+    fixes: [P1]
     home_node: bronze
 
   - id: i-adf
@@ -421,6 +463,7 @@ tools:
         href: null
     upstream: [i-notify, i-gw]
     downstream: [st-bronze]
+    fixes: [P1]
     home_node: bronze
 
   - id: i-gw
@@ -446,6 +489,7 @@ tools:
         href: null
     upstream: [s-onprem]
     downstream: [i-adf]
+    fixes: [P2]
 
   - id: st-bronze
     tag: STORE
@@ -467,8 +511,9 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
-    upstream: [i-sftp, i-adf]
+    upstream: [i-portal, i-adf]
     downstream: [st-silver, p-dq]
+    fixes: [P2]
     home_node: bronze
 
   - id: st-silver
@@ -493,6 +538,7 @@ tools:
         href: null
     upstream: [st-bronze, p-dq, p-spark]
     downstream: [st-gold]
+    fixes: [P3]
     home_node: silver
 
   - id: st-gold
@@ -518,6 +564,7 @@ tools:
         href: null
     upstream: [st-silver]
     downstream: [p-model, sv-odc, st-wh, e-ml]
+    fixes: [P4]
     home_node: gold
     links_deeper:
       - label: Data products and trust cards
@@ -546,6 +593,7 @@ tools:
         href: rules.html#rule-match-muni
     upstream: [s-list]
     downstream: [svc-match]
+    fixes: [P4]
     home_node: svc-match
 
   - id: st-wh
@@ -570,6 +618,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [st-gold]
+    fixes: [P5]
 
   - id: p-spark
     tag: PROC
@@ -593,12 +642,13 @@ tools:
         href: null
     upstream: [st-bronze]
     downstream: [st-silver, st-gold, svc-clean, svc-match, svc-pidrop, svc-suppress]
+    fixes: [P3]
     home_node: silver
 
   - id: p-model
     tag: PROC
-    title: Data modeling and data marts
-    subtitle: dimensional models · one mart per product
+    title: Data marts
+    subtitle: models · one per product
     column: proc
     row: 2
     branch_boxes: [integ, rpt]
@@ -615,6 +665,7 @@ tools:
     docs: []
     upstream: [st-gold]
     downstream: [sv-model]
+    fixes: [P3]
     home_node: gold
 
   - id: p-dq
@@ -631,7 +682,7 @@ tools:
     status_source: 'iac-state + run adapter (mock): in Prod and used by a v1 run within the freshness window'
     status_by_env: {Dev: prov, Test: prov, Pre-Prod: prov, Prod: live}
     summary: 'Bronze to Silver checks as Fabric materialized lake view constraints; failed rows go to a quarantine table instead of being dropped. Rules are tagged with the six DAEG dimensions (draft).'
-    why: 'Fabric is a product value only: Yang''s stated target, not ministry-confirmed. Pull-request approval is steward approval.'
+    why: 'Fabric or Databricks is a product value only; the platform is not confirmed. Pull-request approval is steward approval.'
     iac: config/dq/mpd_schema_codelist.yaml
     docs:
       - label: Ideal-state toolkit §2.11 (internal doc · not in this demo)
@@ -640,6 +691,7 @@ tools:
         href: rules.html#rule-schema-mpd
     upstream: [st-bronze, g-contracts]
     downstream: [st-silver, sv-alert, p-dqr]
+    fixes: [P2]
     home_node: silver
 
   - id: p-dqr
@@ -660,6 +712,7 @@ tools:
       - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
         href: null
     upstream: [p-dq]
+    fixes: [P2]
     home_node: silver
 
   - id: p-geo
@@ -684,6 +737,7 @@ tools:
         href: null
     upstream: [st-bronze, st-ref]
     downstream: [st-silver]
+    fixes: [P5]
     home_node: silver
 
   - id: p-df2
@@ -707,6 +761,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     downstream: [st-gold]
+    fixes: [P5]
 
   - id: sv-score
     tag: SERVE
@@ -729,6 +784,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [sv-model]
+    fixes: [P5]
 
   - id: sv-alert
     tag: SERVE
@@ -752,6 +808,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [p-dq]
+    fixes: [P5]
 
   - id: sv-model
     tag: SERVE
@@ -776,6 +833,7 @@ tools:
         href: null
     upstream: [p-model]
     downstream: [sv-pbi, sv-score, e-ml]
+    fixes: [P5]
     home_node: gold
 
   - id: sv-pbi
@@ -802,6 +860,7 @@ tools:
       - label: Open question 5
         href: '#open-questions'
     upstream: [sv-model]
+    fixes: [P5]
 
   - id: sv-odc
     tag: SERVE
@@ -823,6 +882,7 @@ tools:
       - label: Ideal-state toolkit §2.9 (internal doc · not in this demo)
         href: null
     upstream: [st-gold]
+    fixes: [P5]
     home_node: catalogue
 
   - id: e-ml
@@ -847,6 +907,7 @@ tools:
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
     upstream: [sv-model, st-gold]
+    fixes: [P5]
 
   - id: svc-clean
     tag: SVC
@@ -866,6 +927,7 @@ tools:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
     upstream: [p-spark]
+    fixes: [P3]
     home_node: svc-clean
     links_deeper:
       - label: 'Shared services: Cleaning library'
@@ -890,6 +952,7 @@ tools:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
     upstream: [p-spark, st-ref]
+    fixes: [P3]
     home_node: svc-match
     links_deeper:
       - label: 'Shared services: Municipality-name matching'
@@ -914,6 +977,7 @@ tools:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
     upstream: [p-spark]
+    fixes: [P3]
     home_node: svc-pidrop
     links_deeper:
       - label: 'Shared services: Personal-field drop'
@@ -938,6 +1002,7 @@ tools:
       - label: Ideal-state toolkit §2.7 (internal doc · not in this demo)
         href: null
     upstream: [p-spark]
+    fixes: [P3]
     home_node: svc-suppress
     links_deeper:
       - label: 'Shared services: Small-cell suppression'
@@ -962,12 +1027,13 @@ tools:
         href: null
     links_deeper:
       - label: Process map (home)
-        href: ../index.html
+        href: ../map.html
+    fixes: [P3]
 
   - id: g-catalog
     tag: GOV
-    title: Purview Unified Catalog
-    subtitle: glossary · if already licensed
+    title: Glossary & catalogue
+    subtitle: one meaning per term
     bar: gov
     branch_boxes: [dict, council]
     owning_unit: SDGU-G
@@ -985,6 +1051,7 @@ tools:
         href: null
       - label: Open question 3
         href: '#open-questions'
+    fixes: [P4]
     home_node: catalogue
 
   - id: g-labels
@@ -1006,6 +1073,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P5]
 
   - id: g-standards
     tag: GOV
@@ -1024,6 +1092,7 @@ tools:
     docs:
       - label: Platform PRD TKT-16 / D14 (internal doc · not in this demo)
         href: null
+    fixes: [P4]
 
   - id: g-contracts
     tag: GOV
@@ -1047,6 +1116,7 @@ tools:
       - label: Rule / config entry
         href: rules.html#rule-contract-mpd
     downstream: [p-dq, g-standards, g-catalog]
+    fixes: [P2]
     home_node: bronze
 
   - id: g-dsa
@@ -1066,7 +1136,26 @@ tools:
     docs:
       - label: Ideal-state toolkit §2.3 (internal doc · not in this demo)
         href: null
+    fixes: [P6]
     home_node: sources
+
+  - id: g-share
+    tag: GOV
+    title: Cross-unit sharing
+    subtitle: access rules · MPAC
+    bar: gov
+    branch_boxes: [access, dsa]
+    owning_unit: SDGU-G
+    phase: next
+    status: planned
+    status_source: manifest only
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: Governance and access framework so units can share data (MPAC first) with the right permissions.
+    why: Paid and shared data stops being locked in one unit.
+    iac: tbd
+    docs: []
+    fixes: [P6, P5]
+    home_node: catalogue
 
   - id: g-pdq
     tag: GOV
@@ -1089,6 +1178,7 @@ tools:
         href: null
       - label: Open question 3
         href: '#open-questions'
+    fixes: [P2]
 
   - id: g-soda
     tag: GOV
@@ -1107,6 +1197,7 @@ tools:
     docs:
       - label: Platform PRD TKT-21 / D17 (internal doc · not in this demo)
         href: null
+    fixes: [P2]
 
   - id: m-hub
     tag: MON
@@ -1127,7 +1218,26 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P2]
     home_node: silver
+
+  - id: m-source
+    tag: MON
+    title: Source monitoring
+    subtitle: alerts on source changes
+    bar: mon
+    branch_boxes: [dqm, ingest]
+    owning_unit: SDGU-E
+    phase: v1
+    status: planned
+    status_source: manifest only
+    status_by_env: {Dev: planned, Test: planned, Pre-Prod: planned, Prod: planned}
+    summary: Watches each source system (for example TPON) for changed columns, missing years and row-count jumps.
+    why: Catches silent source changes before they reach a report.
+    iac: tbd
+    docs: []
+    fixes: [P2]
+    home_node: bronze
 
   - id: m-logs
     tag: MON
@@ -1149,6 +1259,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P2]
     home_node: ops
 
   - id: m-capacity
@@ -1170,6 +1281,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: env
 
   - id: m-cost
@@ -1192,6 +1304,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: env
 
   - id: pl-entra
@@ -1214,6 +1327,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: iam
 
   - id: pl-kv
@@ -1236,6 +1350,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: ops
 
   - id: pl-policy
@@ -1258,6 +1373,7 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: env
 
   - id: pl-network
@@ -1282,6 +1398,7 @@ tools:
         href: null
       - label: Open question 8
         href: '#open-questions'
+    fixes: [P7]
     home_node: ops
 
   - id: pl-capacity
@@ -1306,6 +1423,7 @@ tools:
         href: null
       - label: Open question 7
         href: '#open-questions'
+    fixes: [P7]
     home_node: env
 
   - id: pl-repo
@@ -1330,6 +1448,7 @@ tools:
         href: null
       - label: Open question 4
         href: '#open-questions'
+    fixes: [P3]
     home_node: gate-preprod-prod
     links_deeper:
       - label: Releases and gates
@@ -1358,6 +1477,7 @@ tools:
         href: null
       - label: Open question 4
         href: '#open-questions'
+    fixes: [P3]
     home_node: env
     links_deeper:
       - label: Platform setup
@@ -1383,22 +1503,27 @@ tools:
         href: null
       - label: Microsoft Learn page (external link · not linked in demo)
         href: null
+    fixes: [P7]
     home_node: ops
 
 edges:
+  - from: s-mpac
+    to: i-adf
+    type: request
+    label: load
   - from: s-muni
-    to: i-sftp
+    to: i-portal
     type: request
     label: upload
   - from: s-sm
-    to: i-sftp
+    to: i-portal
     type: request
     label: upload
-  - from: i-sftp
+  - from: i-portal
     to: i-notify
     type: request
     label: event
-  - from: i-sftp
+  - from: i-portal
     to: st-bronze
     type: primary
     label: land
@@ -1519,7 +1644,7 @@ considered_not_on_blueprint:
 
 open_questions:
   - id: oq1
-    text: Confirm the ministry has chosen Fabric, and through which procurement door (target Fri Oct 31).
+    text: 'Choose the platform: Microsoft Fabric or Databricks (with ODP compliance), and through which procurement door.'
   - id: oq2
     text: 'Tenancy and region: does an OPS Fabric tenant or capacity exist, and who administers it?'
   - id: oq3
@@ -1529,7 +1654,7 @@ open_questions:
   - id: oq5
     text: 'Power BI and DIVA VOR: how BIRU reporting fits the no-second-analytics-tool rule.'
   - id: oq6
-    text: 'MPDR intake channel: reuse an existing one, or SFTP with malware scanning?'
+    text: 'MPDR intake channel: reuse an existing web portal, or build one with malware scanning?'
   - id: oq7
     text: 'Capacities and environments: separate non-prod and prod, where Pre-Prod sits, budget owner.'
   - id: oq8

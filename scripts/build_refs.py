@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stamp every 'Defined in' reference in the served site (index.html, pages/, js/) with the short SHA
+"""Stamp every 'Defined in' reference in the served site (map.html, pages/, js/) with the short SHA
 of the last commit that touched that file (TKT-4 / MAP-3 file@sha rule).
 
     python3 scripts/build_refs.py           # rewrite path/file.ext@<sha7> in place (run locally, needs .git)
@@ -24,7 +24,7 @@ def git(*args):
 
 
 def served_files():
-    out = git("ls-files", "index.html", "pages", "js").stdout.split()
+    out = git("ls-files", "index.html", "map.html", "pages", "js").stdout.split()
     return [ROOT / f for f in out if f.endswith((".html", ".js"))]
 
 

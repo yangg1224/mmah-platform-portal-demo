@@ -79,6 +79,7 @@ def tool_to_node(t, envs):
         "deeper": t.get("links_deeper") or [],
         "statusNote": t.get("status_note", ""),
         "flag": t.get("flag"),
+        "fixes": t.get("fixes") or [],
     }
     # Keep the object lean: drop layout keys that don't apply (undefined in JS either way).
     return {k: v for k, v in node.items() if not (k in ("column", "bar", "container", "row", "flag") and v is None)}
@@ -111,6 +112,7 @@ def build(manifest):
         "openQuestions": manifest["open_questions"],
         "nodes": [tool_to_node(t, envs) for t in manifest["tools"]],
         "edges": manifest["edges"],
+        "painPoints": manifest.get("pain_points") or [],
     }
 
 

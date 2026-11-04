@@ -5,9 +5,9 @@
 window.PORTAL = window.PORTAL || {};
 PORTAL.toolkit = {
  "manifest": "config/toolkit.yaml (sample manifest)",
- "asOf": "6 Oct 2026, 9:30 PM ET",
+ "asOf": "4 Nov 2026",
  "banner": {
-  "text": "Intended platform: Microsoft Fabric. Per Team lead 2026-10-07, not yet ministry-confirmed.",
+  "text": "Platform not confirmed: Microsoft Fabric or Databricks. Both are options; the ministry has not decided.",
   "linkLabel": "Open questions",
   "href": "#open-questions"
  },
@@ -405,7 +405,7 @@ PORTAL.toolkit = {
  "openQuestions": [
   {
    "id": "oq1",
-   "text": "Confirm the ministry has chosen Fabric, and through which procurement door (target Fri Oct 31)."
+   "text": "Choose the platform: Microsoft Fabric or Databricks (with ODP compliance), and through which procurement door."
   },
   {
    "id": "oq2",
@@ -425,7 +425,7 @@ PORTAL.toolkit = {
   },
   {
    "id": "oq6",
-   "text": "MPDR intake channel: reuse an existing one, or SFTP with malware scanning?"
+   "text": "MPDR intake channel: reuse an existing web portal, or build one with malware scanning?"
   },
   {
    "id": "oq7",
@@ -469,11 +469,14 @@ PORTAL.toolkit = {
    ],
    "upstream": [],
    "downstream": [
-    "i-sftp"
+    "i-portal"
    ],
    "homeNode": "sources",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P1"
+   ]
   },
   {
    "id": "s-sm",
@@ -508,11 +511,14 @@ PORTAL.toolkit = {
    ],
    "upstream": [],
    "downstream": [
-    "i-sftp"
+    "i-portal"
    ],
    "homeNode": "sources",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P1"
+   ]
   },
   {
    "id": "s-list",
@@ -550,7 +556,46 @@ PORTAL.toolkit = {
    ],
    "homeNode": "svc-match",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
+  },
+  {
+   "id": "s-mpac",
+   "tag": "EXT",
+   "title": "MPAC property data",
+   "subtitle": "paid · shared across units",
+   "column": "src",
+   "row": 2,
+   "branchBoxes": [
+    "dsa"
+   ],
+   "unit": "DPU",
+   "owner": "DPU",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Paid property assessment data (sample: about $250K+ a year), today in one unit's SharePoint.",
+   "why": "Load it once into the shared store so every unit can use it under the licence.",
+   "iac": "na",
+   "docs": [],
+   "upstream": [],
+   "downstream": [
+    "i-adf"
+   ],
+   "homeNode": "sources",
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P6"
+   ]
   },
   {
    "id": "s-onprem",
@@ -588,13 +633,16 @@ PORTAL.toolkit = {
    ],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
-   "id": "i-sftp",
+   "id": "i-portal",
    "tag": "ING",
-   "title": "SFTP intake",
-   "subtitle": "ADLS Gen2 · per-submitter ACLs",
+   "title": "Web intake portal",
+   "subtitle": "locked templates · reminders",
    "column": "ing",
    "row": 0,
    "branchBoxes": [
@@ -612,8 +660,8 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Secure batch submission channel, one local user per submitter.",
-   "why": "Lands municipal and service-manager files without B2B identities in v1.",
+   "summary": "One web portal for submissions: locked templates, dropdowns, automatic reminders and a live tracker.",
+   "why": "Replaces email, Excel and SFTP; staff no longer chase 50 municipalities by hand.",
    "iac": "tbd",
    "docs": [
     {
@@ -639,7 +687,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P1"
+   ]
   },
   {
    "id": "i-notify",
@@ -677,7 +728,7 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "i-sftp"
+    "i-portal"
    ],
    "downstream": [
     "i-adf"
@@ -689,7 +740,10 @@ PORTAL.toolkit = {
     "label": "Tentative",
     "reason": "Cluster-managed infrastructure",
     "dashed": true
-   }
+   },
+   "fixes": [
+    "P1"
+   ]
   },
   {
    "id": "i-adf",
@@ -735,7 +789,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P1"
+   ]
   },
   {
    "id": "i-gw",
@@ -779,7 +836,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "st-bronze",
@@ -816,7 +876,7 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "i-sftp",
+    "i-portal",
     "i-adf"
    ],
    "downstream": [
@@ -825,7 +885,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "st-silver",
@@ -873,7 +936,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "st-gold",
@@ -926,7 +992,10 @@ PORTAL.toolkit = {
      "href": "data-products.html"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
   },
   {
    "id": "st-ref",
@@ -971,7 +1040,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "svc-match",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
   },
   {
    "id": "st-wh",
@@ -1014,7 +1086,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "p-spark",
@@ -1064,13 +1139,16 @@ PORTAL.toolkit = {
    ],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "p-model",
    "tag": "PROC",
-   "title": "Data modeling and data marts",
-   "subtitle": "dimensional models · one mart per product",
+   "title": "Data marts",
+   "subtitle": "models · one per product",
    "column": "proc",
    "row": 2,
    "branchBoxes": [
@@ -1104,7 +1182,10 @@ PORTAL.toolkit = {
    "flag": {
     "label": "Substantial work",
     "reason": "Flagged by the team as substantial work in its own right."
-   }
+   },
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "p-dq",
@@ -1129,7 +1210,7 @@ PORTAL.toolkit = {
     "l"
    ],
    "summary": "Bronze to Silver checks as Fabric materialized lake view constraints; failed rows go to a quarantine table instead of being dropped. Rules are tagged with the six DAEG dimensions (draft).",
-   "why": "Fabric is a product value only: Yang's stated target, not ministry-confirmed. Pull-request approval is steward approval.",
+   "why": "Fabric or Databricks is a product value only; the platform is not confirmed. Pull-request approval is steward approval.",
    "iac": "config/dq/mpd_schema_codelist.yaml@18b64aa",
    "docs": [
     {
@@ -1152,7 +1233,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "p-dqr",
@@ -1190,7 +1274,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "p-geo",
@@ -1237,7 +1324,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "p-df2",
@@ -1280,7 +1370,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "sv-score",
@@ -1323,7 +1416,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "sv-alert",
@@ -1366,7 +1462,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "sv-model",
@@ -1413,7 +1512,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "gold",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "sv-pbi",
@@ -1465,7 +1567,10 @@ PORTAL.toolkit = {
     "label": "Tentative",
     "reason": "Application UI needs cluster involvement",
     "dashed": true
-   }
+   },
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "sv-odc",
@@ -1504,7 +1609,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "catalogue",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "e-ml",
@@ -1547,7 +1655,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "svc-clean",
@@ -1590,7 +1701,10 @@ PORTAL.toolkit = {
      "href": "shared-services.html#svc-clean"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "svc-match",
@@ -1635,7 +1749,10 @@ PORTAL.toolkit = {
      "href": "shared-services.html#svc-muni-match"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "svc-pidrop",
@@ -1678,7 +1795,10 @@ PORTAL.toolkit = {
      "href": "shared-services.html#svc-pi-drop"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "svc-suppress",
@@ -1721,7 +1841,10 @@ PORTAL.toolkit = {
      "href": "shared-services.html#svc-suppress"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "pt-adapters",
@@ -1759,16 +1882,19 @@ PORTAL.toolkit = {
    "deeper": [
     {
      "label": "Process map (home)",
-     "href": "../index.html"
+     "href": "../map.html"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "g-catalog",
    "tag": "GOV",
-   "title": "Purview Unified Catalog",
-   "subtitle": "glossary · if already licensed",
+   "title": "Glossary & catalogue",
+   "subtitle": "one meaning per term",
    "bar": "gov",
    "branchBoxes": [
     "dict",
@@ -1806,7 +1932,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "catalogue",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
   },
   {
    "id": "g-labels",
@@ -1846,7 +1975,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P5"
+   ]
   },
   {
    "id": "g-standards",
@@ -1882,7 +2014,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
   },
   {
    "id": "g-contracts",
@@ -1932,7 +2067,10 @@ PORTAL.toolkit = {
    ],
    "homeNode": "bronze",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "g-dsa",
@@ -1968,7 +2106,45 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "sources",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P6"
+   ]
+  },
+  {
+   "id": "g-share",
+   "tag": "GOV",
+   "title": "Cross-unit sharing",
+   "subtitle": "access rules · MPAC",
+   "bar": "gov",
+   "branchBoxes": [
+    "access",
+    "dsa"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Governance and access framework so units can share data (MPAC first) with the right permissions.",
+   "why": "Paid and shared data stops being locked in one unit.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": "catalogue",
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P6",
+    "P5"
+   ]
   },
   {
    "id": "g-pdq",
@@ -2011,7 +2187,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "g-soda",
@@ -2046,7 +2225,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": null,
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "m-hub",
@@ -2086,7 +2268,44 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "silver",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
+  },
+  {
+   "id": "m-source",
+   "tag": "MON",
+   "title": "Source monitoring",
+   "subtitle": "alerts on source changes",
+   "bar": "mon",
+   "branchBoxes": [
+    "dqm",
+    "ingest"
+   ],
+   "unit": "SDGU-E",
+   "owner": "SDGU-E",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Watches each source system (for example TPON) for changed columns, missing years and row-count jumps.",
+   "why": "Catches silent source changes before they reach a report.",
+   "iac": "tbd",
+   "docs": [],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": "bronze",
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "m-logs",
@@ -2126,7 +2345,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "ops",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P2"
+   ]
   },
   {
    "id": "m-capacity",
@@ -2166,7 +2388,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "env",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "m-cost",
@@ -2205,7 +2430,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "env",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-entra",
@@ -2244,7 +2472,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "iam",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-kv",
@@ -2284,7 +2515,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "ops",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-policy",
@@ -2324,7 +2558,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "env",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-network",
@@ -2368,7 +2605,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "ops",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-capacity",
@@ -2412,7 +2652,10 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "env",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   },
   {
    "id": "pl-repo",
@@ -2462,7 +2705,10 @@ PORTAL.toolkit = {
      "href": "releases.html"
     }
    ],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "pl-iac",
@@ -2517,7 +2763,10 @@ PORTAL.toolkit = {
     "label": "Tentative",
     "reason": "Cluster-managed infrastructure",
     "dashed": true
-   }
+   },
+   "fixes": [
+    "P3"
+   ]
   },
   {
    "id": "pl-defender",
@@ -2557,30 +2806,39 @@ PORTAL.toolkit = {
    "downstream": [],
    "homeNode": "ops",
    "deeper": [],
-   "statusNote": ""
+   "statusNote": "",
+   "fixes": [
+    "P7"
+   ]
   }
  ],
  "edges": [
   {
+   "from": "s-mpac",
+   "to": "i-adf",
+   "type": "request",
+   "label": "load"
+  },
+  {
    "from": "s-muni",
-   "to": "i-sftp",
+   "to": "i-portal",
    "type": "request",
    "label": "upload"
   },
   {
    "from": "s-sm",
-   "to": "i-sftp",
+   "to": "i-portal",
    "type": "request",
    "label": "upload"
   },
   {
-   "from": "i-sftp",
+   "from": "i-portal",
    "to": "i-notify",
    "type": "request",
    "label": "event"
   },
   {
-   "from": "i-sftp",
+   "from": "i-portal",
    "to": "st-bronze",
    "type": "primary",
    "label": "land"
@@ -2716,6 +2974,36 @@ PORTAL.toolkit = {
    "to": "e-ml",
    "type": "return",
    "label": "future"
+  }
+ ],
+ "painPoints": [
+  {
+   "id": "P1",
+   "label": "Data arrives by email and Excel"
+  },
+  {
+   "id": "P2",
+   "label": "Source systems change data without notice"
+  },
+  {
+   "id": "P3",
+   "label": "Knowledge sits with individuals; work is duplicated"
+  },
+  {
+   "id": "P4",
+   "label": "Sources disagree; no glossary"
+  },
+  {
+   "id": "P5",
+   "label": "Silos, uneven maturity, repeated requests"
+  },
+  {
+   "id": "P6",
+   "label": "Paid data (MPAC) locked in one unit"
+  },
+  {
+   "id": "P7",
+   "label": "Platform uncertain; rights and costs unclear"
   }
  ]
 };

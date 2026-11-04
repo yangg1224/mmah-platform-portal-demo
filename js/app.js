@@ -20,8 +20,8 @@
       // root linking to sibling in pages — catalog already uses pages/
       return href;
     }
-    if (prefix === "../" && (href === "index.html" || href === "./" || href === "/")) {
-      return "../index.html";
+    if (prefix === "../" && (href === "map.html" || href === "./" || href === "/")) {
+      return "../map.html";
     }
     return prefix + href;
   }
@@ -77,7 +77,7 @@
             escapeHtml(item.name) +
             (item.tech ? '<span class="meta">' + escapeHtml(item.tech) + "</span>" : "") +
             "</a>" +
-            (mapNode ? '<a class="map-link" href="' + pathPrefix() + "index.html#node=" + mapNode + '">Show on map →</a>' : "") +
+            (mapNode ? '<a class="map-link" href="' + pathPrefix() + "map.html#node=" + mapNode + '">Show on map →</a>' : "") +
             "</li>";
         });
         html += "</ul>";
