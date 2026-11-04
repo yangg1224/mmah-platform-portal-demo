@@ -5,7 +5,7 @@ const root = new URL('../', import.meta.url);
 const output = new URL('dist/', root);
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-for (const entry of ['index.html', 'map.html', 'slides.html', 'css', 'js', 'pages']) {
+for (const entry of ['index.html', 'map.html', 'css', 'js', 'pages']) {
   await cp(new URL(entry, root), new URL(entry, output), { recursive: true });
 }
 console.log('Built static site in dist/');
