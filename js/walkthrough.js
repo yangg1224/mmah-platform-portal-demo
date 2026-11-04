@@ -45,7 +45,7 @@
     ["Data product", "A dataset someone owns and keeps reliable, so others can reuse it instead of re-asking."],
     ["Fabric / Databricks", "Two candidate platforms (software) for running all of this. Not yet decided."]
   ];
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var esc = SLIDES.esc;
   function tag(id) { return '<span class="wt-tag" title="' + esc(painName(id)) + '">' + id + "</span>"; }
   function painName(id) { return PAINS.filter(function (p) { return p.id === id; })[0].t; }
   function box(title, text, tags) { return '<div class="wt-box"><h3>' + esc(title) + "</h3><p>" + esc(text) + "</p>" + tags.map(tag).join("") + "</div>"; }
@@ -95,26 +95,9 @@
         "<li><strong>1. Platform decision</strong><p>Choose Microsoft Fabric or Databricks, including how we meet ODP compliance.</p></li>" +
         "<li><strong>2. Access and admin rights</strong><p>Rights beyond workspace admin, so the team can set up the platform properly.</p></li>" +
         "<li><strong>3. Budget owner</strong><p>Name who owns the platform budget, so costs are visible and managed.</p></li></ol>" +
-        '<p class="wt-note">Engineer pages: <a href="map.html">platform map</a> · <a href="pages/blueprint.html">full blueprint</a> · <a href="pages/data-products.html">data products</a>.</p>';
+        '<p class="wt-note"><a class="wt-btn wt-primary" href="slides.html#deck=map&step=0">Continue: the rest of the site as slides →</a></p><p class="wt-note">Engineer pages: <a href="map.html">platform map</a> · <a href="pages/blueprint.html">full blueprint</a> · <a href="pages/data-products.html">data products</a>.</p>';
     } }
   ];
 
-  var prog = document.getElementById("wt-progress"), el = document.getElementById("wt-step");
-  var back = document.getElementById("wt-back"), next = document.getElementById("wt-next"), count = document.getElementById("wt-count");
-  function cur() { var m = /step=(\d+)/.exec(location.hash); var i = m ? +m[1] : 0; return Math.max(0, Math.min(STEPS.length - 1, i)); }
-  function go(i) { location.hash = "step=" + i; }
-  function render() {
-    var i = cur();
-    el.innerHTML = STEPS[i].html();
-    prog.innerHTML = STEPS.map(function (s, j) { return '<li><button type="button" data-i="' + j + '"' + (j === i ? ' aria-current="step"' : "") + ">" + esc(s.nav) + "</button></li>"; }).join("");
-    back.disabled = i === 0; next.disabled = i === STEPS.length - 1;
-    count.textContent = "Step " + (i + 1) + " of " + STEPS.length;
-    window.scrollTo(0, 0);
-  }
-  prog.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) go(+b.dataset.i); });
-  back.addEventListener("click", function () { go(cur() - 1); });
-  next.addEventListener("click", function () { go(cur() + 1); });
-  document.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") go(Math.min(cur() + 1, STEPS.length - 1)); if (e.key === "ArrowLeft") go(Math.max(cur() - 1, 0)); });
-  window.addEventListener("hashchange", render);
-  render();
+  SLIDES.run({ steps: function () { return STEPS; } });
 })();
