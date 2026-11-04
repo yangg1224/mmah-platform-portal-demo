@@ -17,6 +17,18 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = re.compile(r"\b(azure|fabric|entra|purview|databricks|onelake|power ?bi|key vault|log analytics|"
                       r"ontario data catalogue|private endpoints?|synapse)\b", re.I)
+FONT_JS = r"""()=>{const c=document.querySelector('#bp-canvas');const sizes={title:[],subtitle:[],badge:[],other:[]};const bad=[];
+const cr=c.getBoundingClientRect();const boxScale=c.offsetWidth?cr.width/c.offsetWidth:1;
+const scaleOf=e=>{const svg=e.closest('svg');if(svg){const m=e.getScreenCTM();return m?Math.hypot(m.a,m.b):1;}
+ let s=1;for(let x=e;x;x=x.parentElement){const st=getComputedStyle(x);if(st.transform&&st.transform!=='none'){const m=new DOMMatrix(st.transform);s*=Math.hypot(m.a,m.b);}const z=parseFloat(st.zoom);if(z&&z!==1)s*=z;}return s;};
+const w=document.createTreeWalker(c,NodeFilter.SHOW_TEXT);let t;
+while((t=w.nextNode())){if(!t.textContent.trim())continue;const e=t.parentElement;const st=getComputedStyle(e);if(st.display==='none'||st.visibility==='hidden')continue;
+ const px=Math.round(parseFloat(st.fontSize)*scaleOf(e)*100)/100;
+ const kind=e.closest('.map-title')?'title':e.closest('.bp-sub')?'subtitle':e.closest('.bp-chip,.badge-phase,.status,.bp-flag,.map-tag')?'badge':'other';
+ sizes[kind].push(px);const tgt={title:13,subtitle:11.5,badge:11}[kind];
+ if(px<11||(tgt&&Math.abs(px-tgt)>0.5))bad.push(kind+':'+px+':'+t.textContent.trim().slice(0,20));}
+const r={};for(const k in sizes){const v=sizes[k];r[k]=v.length?[Math.min(...v),Math.max(...v),v.length]:null;}
+const wrap=c.parentElement;return {r,bad,boxScale,scrolls:wrap.scrollWidth>wrap.clientWidth,vw:innerWidth};}"""
 LAYOUT_JS = r"""(sel)=>{const out=[];const ns=[...document.querySelectorAll(sel)];const R=e=>e.getBoundingClientRect();
 for(const n of ns){const r=R(n);
  if(n.scrollHeight>n.clientHeight+1||n.scrollWidth>n.clientWidth+1)out.push('overflow '+n.id);
@@ -99,6 +111,15 @@ def smoke(base, shots):
                 page.goto(base + url, wait_until="networkidle")
                 cnt, probs = page.evaluate(LAYOUT_JS, sel)
                 ok(cnt > 0 and not probs, f"TKT-22 {url} @{w}px: {cnt} boxes, no ellipsis or overlaps {probs[:5]}")
+        # D16: rendered font sizes (computed size x transform/zoom/SVG scale) at each width; never scaled down.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900})
+            page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
+            f = page.evaluate(FONT_JS)
+            print(f"  D16 @{w}px rendered px [min,max,count]: {f['r']}")
+            ok(not f["bad"] and abs(f["boxScale"] - 1) < 0.01, f"D16 @{w}px: titles 13, subtitles 11.5, badges 11 (+/-0.5), none under 11, canvas scale {f['boxScale']:.3f} {f['bad'][:5]}")
+            if w == 390:
+                ok(f["scrolls"], "D16 @390px: canvas scrolls horizontally at native size instead of scaling")
         page.set_viewport_size({"width": 1280, "height": 900})
         page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
 
