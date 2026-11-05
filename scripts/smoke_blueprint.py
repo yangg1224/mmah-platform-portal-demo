@@ -90,7 +90,7 @@ def smoke(base, shots):
         # Blueprint layout (TKT-1).
         page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
         caps = page.eval_on_selector_all(".bp-col .map-container-cap", "els=>els.map(e=>e.textContent)")
-        ok([c.split("·")[-1].strip() for c in caps] == ["Sources", "Ingest", "Store", "Process", "Serve", "Enrich"], "TKT-1 columns " + str(caps))
+        ok([c.split("·")[-1].strip() for c in caps] == ["Sources", "Ingest", "Store", "Process", "Enrich", "Serve"], "TKT-1 columns " + str(caps))
         geo = page.evaluate("""(()=>{const r=e=>e.getBoundingClientRect();
           const cols=[...document.querySelectorAll('.bp-col')].map(r), bars=[...document.querySelectorAll('.bp-bar')].map(r);
           const cv=r(document.getElementById('bp-canvas'));

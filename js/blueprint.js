@@ -128,7 +128,8 @@
       var down = b.y > a.y, p = down ? [[a.cx, a.b], [a.cx, b.y]] : [[a.cx, a.y], [a.cx, b.b]];
       return { pts: p, lx: a.cx + 6, ly: (p[0][1] + p[1][1]) / 2, side: true };
     }
-    if (Math.abs(a.cy - b.cy) < 1) {
+    // Same row: straight line only between neighbouring columns; skipping a column uses the row-gap route below so it never crosses a box.
+    if (Math.abs(a.cy - b.cy) < 1 && (b.x > a.r ? b.x - a.r : a.x - b.r) < 120) {
       var fwd = b.x > a.x, s = fwd ? [[a.r, a.cy], [b.x, b.cy]] : [[a.x, a.cy], [b.r, b.cy]];
       return { pts: s, lx: (s[0][0] + s[1][0]) / 2, ly: a.cy };
     }

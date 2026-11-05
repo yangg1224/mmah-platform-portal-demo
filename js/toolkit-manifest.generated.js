@@ -37,16 +37,16 @@ PORTAL.toolkit = {
    "tag": "PROC"
   },
   {
-   "id": "serve",
-   "step": "05",
-   "label": "Serve",
-   "tag": "SERVE"
-  },
-  {
    "id": "enr",
-   "step": "06",
+   "step": "05",
    "label": "Enrich",
    "tag": "ENR"
+  },
+  {
+   "id": "serve",
+   "step": "06",
+   "label": "Serve",
+   "tag": "SERVE"
   }
  ],
  "containers": [
@@ -1232,11 +1232,11 @@ PORTAL.toolkit = {
   },
   {
    "id": "p-dimmodel",
-   "tag": "PROC",
+   "tag": "ENR",
    "title": "Data modeling",
    "subtitle": "dimensional · star schema",
-   "column": "proc",
-   "row": 2,
+   "column": "enr",
+   "row": 0,
    "branchBoxes": [
     "integ",
     "xform"
