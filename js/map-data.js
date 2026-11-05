@@ -4,7 +4,8 @@
    dimming and the list view are all computed from the model.
 
    Node ids (used in the permalink, see js/map.js):
-     sources, bronze, silver, svc-clean, svc-match, svc-pidrop, svc-suppress, gold, catalogue
+     sources, intake, bronze, silver, svc-clean, svc-match, svc-pidrop, svc-suppress, gold, marts,
+     modeling, datasci, catalogue, glossary, monitoring
      Platform setup overlay:  env, iam, ops
      Releases overlay:        lane-dev, gate-dev-test, lane-test, gate-test-preprod,
                               lane-preprod, gate-preprod-prod, lane-prod
@@ -36,7 +37,7 @@ window.PORTAL = window.PORTAL || {};
   function svcRule(label, path, version) { return { label: label, path: path, version: version, approver: TBD }; }
 
   PORTAL.map = {
-    asOf: "6 Oct 2026, 9:30 PM ET",
+    asOf: "4 Nov 2026, 9:30 PM ET",
     focal: "silver", // the node needing attention (MAP-13); the selected node takes over when one is open
     coverage: { captured: 4, total: 5, note: "Lineage captured for 4 of 5 flows (mock)" },
     products: [
@@ -50,11 +51,14 @@ window.PORTAL = window.PORTAL || {};
       { ownerTag: "mmah", caption: "MMAH thin landing" },
       { ownerTag: "cluster", caption: "Cluster / enterprise shared services", capPos: "bottom" }, // caption below: connectors enter from the top
       { ownerTag: "external", caption: "External" },
+      { ownerTag: "process", caption: "Process · modeling", capPos: "bottom" },
+      { ownerTag: "analytics", caption: "Data science", capPos: "bottom" },
+      { ownerTag: "governance", caption: "Governance and monitoring · applies to every step" },
       { ownerTag: "setup", caption: "Platform setup", overlay: "setup" },
       { ownerTag: "releases", caption: "Releases and gates · promotion lane · Sample statuses, not real infrastructure", overlay: "releases" }
     ],
     /* Overlay bands sit under the base canvas, in this order, only when switched on. */
-    baseHeight: 476,
+    baseHeight: 690,
     bands: [
       { id: "setup", label: "Platform setup", height: 176 },
       { id: "releases", label: "Releases and gates", height: 176 }
@@ -72,10 +76,10 @@ window.PORTAL = window.PORTAL || {};
   var N = PORTAL.map.nodes;
 
   N.push({
-    id: "sources", step: "01", tag: "EXT", kind: "ext", title: "Sources", subtitle: "municipal submissions",
+    id: "sources", step: "01", tag: "EXT", kind: "ext", title: "Sources", subtitle: "MPDR · MIH · MPAC · service managers",
     ownerTag: "external", products: ["mpd", "hh"], x: 24, y: 84,
     status: st("ok", "Received"),
-    summary: "Quarterly housing-supply submissions from municipalities and aggregated extracts from service managers.",
+    summary: "Quarterly planning-data submissions from the 50 municipalities named in O. Reg. 73/23 Schedule 1 (MPDR, Excel templates today), MIH source data (census, financial indicators, municipal profiles), the MPAC property extract and aggregated extracts from service managers.",
     owner: "Submitting organizations (municipalities, service managers)",
     lastRun: NA,
     dq: NA,
@@ -85,7 +89,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "bronze", step: "02", tag: "ZONE", kind: "zone", title: "Landing / Raw (Bronze)", subtitle: "as received · unchanged",
-    ownerTag: "mmah", products: ["mpd", "hh"], x: 268, y: 84,
+    ownerTag: "mmah", products: ["mpd", "hh"], x: 528, y: 84,
     status: st("ok", "Passing"),
     summary: "Submissions stored exactly as received, checked only against their data contract.",
     owner: "Platform engineering",
@@ -97,7 +101,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "silver", step: "03", tag: "PIPE", kind: "pipe", title: "Standardize and conform (Silver)", subtitle: "validate · conform",
-    ownerTag: "mmah", products: ["mpd", "hh"], x: 520, y: 84,
+    ownerTag: "mmah", products: ["mpd", "hh"], x: 780, y: 84,
     status: st("warn", "Warnings · 12 open"),
     statusBy: { hh: st("ok", "Passing") },
     summary: "Validates, cleans and conforms submissions using the shared services; 12 schema / code-list exceptions are open across 3 submitters.",
@@ -110,7 +114,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "svc-clean", step: "03a", tag: "SVC", kind: "svc", title: "Cleaning", subtitle: "cleaning rules",
-    ownerTag: "cluster", products: ["mpd", "hh"], x: 220, y: 308,
+    ownerTag: "cluster", products: ["mpd", "hh"], x: 470, y: 308,
     status: st("warn", "Warnings · 12"),
     statusBy: { hh: st("ok", "Passing") },
     summary: "Schema checks, code-list conformance and standard null / type cleaning for inbound submissions.",
@@ -123,7 +127,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "svc-match", step: "03b", tag: "SVC", kind: "svc", title: "Municipality-name matching", subtitle: "to provincial list",
-    ownerTag: "cluster", products: ["mpd"], x: 400, y: 308,
+    ownerTag: "cluster", products: ["mpd"], x: 640, y: 308,
     status: st("ok", "Stable"),
     summary: "Maps submitter municipality names to the provincial reference list; below-threshold matches are flagged, not overwritten.",
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
@@ -135,7 +139,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "svc-pidrop", step: "03c", tag: "SVC", kind: "svc", title: "Personal-field drop", subtitle: "drop personal fields",
-    ownerTag: "cluster", products: ["hh"], x: 690, y: 308,
+    ownerTag: "cluster", products: ["hh"], x: 890, y: 308,
     status: st("ok", "Stable"),
     summary: "Drops fields that could carry personal information so the aggregate-only path stays aggregate-only.",
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
@@ -147,7 +151,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "svc-suppress", step: "03d", tag: "SVC", kind: "svc", title: "Small-cell suppression", subtitle: "suppress small cells",
-    ownerTag: "cluster", products: ["hh"], x: 870, y: 308,
+    ownerTag: "cluster", products: ["hh"], x: 1060, y: 308,
     status: st("ok", "Stable"),
     summary: "Suppresses aggregate cells below the approved threshold before publish so small groups cannot be identified.",
     owner: "Platform engineering (cluster / enterprise owner unconfirmed)",
@@ -159,7 +163,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "gold", step: "04", tag: "ZONE", kind: "zone", title: "Published / trusted (Gold)", subtitle: "trusted · trust card",
-    ownerTag: "mmah", products: ["mpd", "hh"], x: 772, y: 84,
+    ownerTag: "mmah", products: ["mpd", "hh"], x: 1032, y: 84,
     status: st("ok", "Passing"),
     summary: "Trusted, published outputs for both v1 products, each with a trust card.",
     owner: "Platform engineering",
@@ -171,8 +175,8 @@ window.PORTAL = window.PORTAL || {};
   });
 
   N.push({
-    id: "catalogue", step: "05", tag: "PUB", kind: "ext", title: "Catalogue / publish", subtitle: "enterprise · open data",
-    ownerTag: "external", products: ["mpd", "hh"], x: 1004, y: 84,
+    id: "catalogue", step: "06", tag: "PUB", kind: "ext", title: "Catalogue / publish", subtitle: "enterprise · open data",
+    ownerTag: "external", products: ["mpd", "hh"], x: 1536, y: 84,
     status: st("tbd", "Not yet linked"),
     summary: "Published outputs are listed in the enterprise catalogue and the public open-data catalogue; the portal links out and does not duplicate them.",
     owner: "Enterprise catalogue team (mock)",
@@ -182,8 +186,81 @@ window.PORTAL = window.PORTAL || {};
     links: [{ label: "Catalogue entry (external link · not yet defined)", href: null }, { label: "Data products", href: "pages/data-products.html" }]
   });
 
+  N.push({
+    id: "intake", step: "01a", tag: "ING", kind: "pipe", title: "Intake portal", subtitle: "locked templates · reminders",
+    ownerTag: "mmah", products: ["mpd", "hh"], x: 276, y: 84,
+    status: st("ok", "Receiving"),
+    summary: "Submitters upload on locked templates; the portal sends receipts and reminders, then lands each file unchanged in Bronze.",
+    owner: "Platform engineering",
+    lastRun: [MPD_RUN_LOAD, HH_RUN_LOAD],
+    dq: NA,
+    rules: [R.contract],
+    links: [{ label: "Platform blueprint: Web intake portal", href: "pages/blueprint.html#node=i-portal" }, { label: "Flows / lineage", href: "pages/flows.html" }]
+  });
+
+  N.push({
+    id: "marts", step: "05", tag: "ZONE", kind: "zone", title: "Gold · data marts", subtitle: "one dimensional mart per product",
+    ownerTag: "mmah", products: ["mpd", "hh"], x: 1284, y: 84,
+    status: st("tbd", "Planned"),
+    summary: "One dimensional (star-schema) mart per data product, fed from Gold. Reports and notebooks read the marts, not raw tables.",
+    owner: "Platform engineering with the analytics team",
+    lastRun: TBD,
+    dq: NA,
+    rules: TBD,
+    links: [{ label: "Platform blueprint: Gold · data marts", href: "pages/blueprint.html#node=p-model" }, { label: "All data products", href: "pages/data-products.html" }]
+  });
+
+  N.push({
+    id: "modeling", step: "05a", tag: "PIPE", kind: "pipe", title: "Data modeling", subtitle: "dimensional · star schema",
+    ownerTag: "process", products: ["mpd", "hh"], x: 1262, y: 308,
+    status: st("tbd", "Planned"),
+    summary: "Builds the conformed dimensions and facts each mart needs, so measures are defined once.",
+    owner: "Analytics team (role)",
+    lastRun: TBD,
+    dq: NA,
+    rules: TBD,
+    links: [{ label: "Platform blueprint: Data modeling", href: "pages/blueprint.html#node=p-dimmodel" }]
+  });
+
+  N.push({
+    id: "datasci", step: "05b", tag: "PIPE", kind: "pipe", title: "Data science & ML notebooks", subtitle: "notebooks for analysts",
+    ownerTag: "analytics", products: ["mpd", "hh"], x: 1450, y: 308,
+    status: st("tbd", "Planned"),
+    summary: "Shared notebooks where analysts explore the marts and try simple models on aggregate data.",
+    owner: "Analytics team (role)",
+    lastRun: TBD,
+    dq: NA,
+    rules: TBD,
+    links: [{ label: "Platform blueprint: Data science & ML notebooks", href: "pages/blueprint.html#node=e-ds" }]
+  });
+
+  N.push({
+    id: "glossary", step: "G1", tag: "GOV", kind: "svc", title: "Glossary & catalogue", subtitle: "one meaning per term",
+    ownerTag: "governance", products: ["mpd", "hh"], x: 528, y: 520,
+    status: st("tbd", "Planned"),
+    summary: "Business glossary and catalogue entries for every zone and product; terms are agreed once and linked from trust cards.",
+    owner: "Data governance (role)",
+    lastRun: NA,
+    dq: NA,
+    rules: TBD,
+    links: [{ label: "Platform blueprint: Glossary & catalogue", href: "pages/blueprint.html#node=g-catalog" }]
+  });
+
+  N.push({
+    id: "monitoring", step: "M1", tag: "MON", kind: "svc", title: "Monitoring", subtitle: "runs · DQ results · alerts",
+    ownerTag: "governance", products: ["mpd", "hh"], x: 780, y: 520,
+    status: st("tbd", "Planned"),
+    summary: "One view of pipeline runs, DQ results and late-submission alerts across every step.",
+    owner: "Platform engineering",
+    lastRun: NA,
+    dq: NA,
+    rules: TBD,
+    links: [{ label: "Platform blueprint: Monitoring hub", href: "pages/blueprint.html#node=m-hub" }, { label: "Data quality reports", href: "pages/blueprint.html#node=p-dqr" }]
+  });
+
   var E = PORTAL.map.edges;
-  E.push({ from: "sources", to: "bronze", type: "request", label: "load" });
+  E.push({ from: "sources", to: "intake", type: "request", label: "upload" });
+  E.push({ from: "intake", to: "bronze", type: "primary", label: "land" });
   E.push({ from: "bronze", to: "silver", type: "primary", label: "validate" });
   E.push({ from: "silver", to: "svc-clean", type: "request", label: "clean" });
   E.push({ from: "svc-clean", to: "silver", type: "return", label: "" });
@@ -194,6 +271,11 @@ window.PORTAL = window.PORTAL || {};
   E.push({ from: "silver", to: "svc-suppress", type: "request", label: "suppress" });
   E.push({ from: "svc-suppress", to: "silver", type: "return", label: "" });
   E.push({ from: "silver", to: "gold", type: "primary", label: "conform" });
-  E.push({ from: "gold", to: "catalogue", type: "primary", label: "publish" });
+  E.push({ from: "gold", to: "marts", type: "primary", label: "model" });
+  E.push({ from: "marts", to: "modeling", type: "request", label: "star schema" });
+  E.push({ from: "modeling", to: "marts", type: "return", label: "" });
+  E.push({ from: "marts", to: "datasci", type: "request", label: "explore" });
+  E.push({ from: "datasci", to: "marts", type: "return", label: "" });
+  E.push({ from: "marts", to: "catalogue", type: "primary", label: "publish" });
   E.push({ from: "silver", to: "sources", type: "return", label: "DQ feedback" });
 })();

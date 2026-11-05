@@ -17,6 +17,31 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = re.compile(r"\b(azure|fabric|entra|purview|databricks|onelake|power ?bi|key vault|log analytics|"
                       r"ontario data catalogue|private endpoints?|synapse)\b", re.I)
+FONT_JS = r"""()=>{const c=document.querySelector('#bp-canvas');const sizes={title:[],subtitle:[],badge:[],other:[]};const bad=[];
+const cr=c.getBoundingClientRect();const boxScale=c.offsetWidth?cr.width/c.offsetWidth:1;
+const scaleOf=e=>{const svg=e.closest('svg');if(svg){const m=e.getScreenCTM();return m?Math.hypot(m.a,m.b):1;}
+ let s=1;for(let x=e;x;x=x.parentElement){const st=getComputedStyle(x);if(st.transform&&st.transform!=='none'){const m=new DOMMatrix(st.transform);s*=Math.hypot(m.a,m.b);}const z=parseFloat(st.zoom);if(z&&z!==1)s*=z;}return s;};
+const w=document.createTreeWalker(c,NodeFilter.SHOW_TEXT);let t;
+while((t=w.nextNode())){if(!t.textContent.trim())continue;const e=t.parentElement;const st=getComputedStyle(e);if(st.display==='none'||st.visibility==='hidden')continue;
+ const px=Math.round(parseFloat(st.fontSize)*scaleOf(e)*100)/100;
+ const kind=e.closest('.map-title')?'title':e.closest('.bp-sub')?'subtitle':e.closest('.bp-chip,.badge-phase,.status,.bp-flag,.map-tag')?'badge':'other';
+ sizes[kind].push(px);const tgt={title:13,subtitle:11.5,badge:11}[kind];
+ if(px<11||(tgt&&Math.abs(px-tgt)>0.5))bad.push(kind+':'+px+':'+t.textContent.trim().slice(0,20));}
+const r={};for(const k in sizes){const v=sizes[k];r[k]=v.length?[Math.min(...v),Math.max(...v),v.length]:null;}
+const wrap=c.parentElement;return {r,bad,boxScale,scrolls:wrap.scrollWidth>wrap.clientWidth,vw:innerWidth};}"""
+LAYOUT_JS = r"""(sel)=>{const out=[];const ns=[...document.querySelectorAll(sel)];const R=e=>e.getBoundingClientRect();
+for(const n of ns){const r=R(n);
+ if(n.scrollHeight>n.clientHeight+1||n.scrollWidth>n.clientWidth+1)out.push('overflow '+n.id);
+ for(const c of n.querySelectorAll('*')){const q=R(c);if(q.width===0)continue;const cs=getComputedStyle(c);
+  if(cs.textOverflow==='ellipsis'&&c.scrollWidth>c.clientWidth)out.push('ellipsis '+n.id);
+  if(q.left<r.left-0.5||q.right>r.right+0.5||q.top<r.top-0.5||q.bottom>r.bottom+0.5)out.push('child-out '+n.id+' '+c.className);}
+ if(n.innerText.includes('\u2026'))out.push('ellipsis-char '+n.id);}
+for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){const a=R(ns[i]),b=R(ns[j]);
+ if(a.left<b.right-0.5&&b.left<a.right-0.5&&a.top<b.bottom-0.5&&b.top<a.bottom-0.5)out.push('overlap '+ns[i].id+' '+ns[j].id);}
+const labs=[...document.querySelectorAll('.edge-label-bg')].map(R).filter(q=>q.width>0);
+for(const l of labs)for(const n of ns){const a=R(n);if(l.left<a.right-1&&a.left<l.right-1&&l.top<a.bottom-1&&a.top<l.bottom-1)out.push('label-on-node '+n.id);}
+for(let i=0;i<labs.length;i++)for(let j=i+1;j<labs.length;j++){const a=labs[i],b=labs[j];if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)out.push('label-overlap '+i+' '+j);}
+return [ns.length,[...new Set(out)]];}"""
 IPISH = re.compile(r"\b\d{1,3}(\.\d{1,3}){3}\b|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 
 
@@ -65,7 +90,7 @@ def smoke(base, shots):
         # Blueprint layout (TKT-1).
         page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
         caps = page.eval_on_selector_all(".bp-col .map-container-cap", "els=>els.map(e=>e.textContent)")
-        ok([c.split("·")[-1].strip() for c in caps] == ["Sources", "Ingest", "Store", "Process", "Serve", "Enrich"], "TKT-1 columns " + str(caps))
+        ok([c.split("·")[-1].strip() for c in caps] == ["Sources", "Ingest", "Store", "Process", "Enrich", "Serve"], "TKT-1 columns " + str(caps))
         geo = page.evaluate("""(()=>{const r=e=>e.getBoundingClientRect();
           const cols=[...document.querySelectorAll('.bp-col')].map(r), bars=[...document.querySelectorAll('.bp-bar')].map(r);
           const cv=r(document.getElementById('bp-canvas'));
@@ -78,6 +103,45 @@ def smoke(base, shots):
         ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
         store = page.inner_text("#bp-canvas")
         ok(all(w in store for w in ("Bronze", "Silver", "Gold")) and page.locator("#bp-node-st-ref").count() == 1, "TKT-1 Store lakehouses + reference table")
+
+        # TKT-22: no truncation, no box/label overlaps at desktop, laptop and phone widths.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900})
+            for url, sel in (("/pages/blueprint.html", "#bp-canvas .bp-node"), ("/index.html", ".map-node")):
+                page.goto(base + url, wait_until="networkidle")
+                cnt, probs = page.evaluate(LAYOUT_JS, sel)
+                ok(cnt > 0 and not probs, f"TKT-22 {url} @{w}px: {cnt} boxes, no ellipsis or overlaps {probs[:5]}")
+        # D16: rendered font sizes (computed size x transform/zoom/SVG scale) at each width; never scaled down.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900})
+            page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
+            f = page.evaluate(FONT_JS)
+            print(f"  D16 @{w}px rendered px [min,max,count]: {f['r']}")
+            ok(not f["bad"] and abs(f["boxScale"] - 1) < 0.01, f"D16 @{w}px: titles 13, subtitles 11.5, badges 11 (+/-0.5), none under 11, canvas scale {f['boxScale']:.3f} {f['bad'][:5]}")
+            if w == 390:
+                ok(f["scrolls"], "D16 @390px: canvas scrolls horizontally at native size instead of scaling")
+        # Full screen: the only view allowed to scale (D16 exemption); the default view is checked above.
+        for w in (1440, 1280, 390):
+            page.set_viewport_size({"width": w, "height": 900 if w > 390 else 844})
+            page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
+            ok(page.locator("#bp-fullscreen").count() == 1, f"FS @{w}px: Full screen button exists")
+            page.click("#bp-fullscreen")
+            page.wait_for_timeout(400)
+            fs = page.evaluate("""()=>{const w=document.getElementById('bp-scroll'),c=document.getElementById('bp-canvas').getBoundingClientRect();
+              return {fs:document.fullscreenElement===w||w.classList.contains('is-fs-fallback'),overX:w.scrollWidth>w.clientWidth+1,overY:w.scrollHeight>w.clientHeight+1,
+                fits:c.left>=-1&&c.top>=-1&&c.right<=innerWidth+1&&c.bottom<=innerHeight+1,cw:Math.round(c.width),ch:Math.round(c.height),vw:innerWidth,vh:innerHeight}}""")
+            ok(fs["fs"] and fs["fits"] and not fs["overX"] and not fs["overY"], f"FS @{w}px: whole canvas fits the viewport, no overflow {fs}")
+            if shots and w in (1440, 390):
+                page.screenshot(path=str(shots / f"fullscreen-{w}.png"))
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(400)
+            if page.evaluate("document.fullscreenElement!==null"):
+                page.click("#bp-fs-exit"); page.wait_for_timeout(400)
+            f = page.evaluate(FONT_JS)
+            ok(page.evaluate("document.fullscreenElement===null&&!document.getElementById('bp-scroll').classList.contains('is-fs')") and abs(f["boxScale"] - 1) < 0.01 and not f["bad"],
+               f"FS @{w}px: exit restores native scale (D16 ok, scale {f['boxScale']:.3f})")
+        page.set_viewport_size({"width": 1280, "height": 900})
+        page.goto(base + "/pages/blueprint.html", wait_until="networkidle")
 
         nodes = page.locator("#bp-canvas .bp-node")
         n = nodes.count()

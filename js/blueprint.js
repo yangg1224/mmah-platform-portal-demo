@@ -7,10 +7,14 @@
   var K = window.PORTAL && PORTAL.toolkit;
   if (!K) return;
 
-  var GAPS = [60, 60, 80, 60, 60], NODE_W = 140, NODE_H = 104, PITCH = 130;
-  var TOP_Y = 34, COL_TOP = 192, BAR_START = 860, BAR_H = 140, BAR_GAP = 10, W = 1190;
+  var GAPS = [80, 80, 90, 80, 80], NODE_W = 200, NODE_H = 144, PITCH = 170;
+  var TOP_Y = 34, COL_TOP = 232, BAR_H = NODE_H + 70, BAR_GAP = 12, W = 1650;
+  // Column frames and the bars below them follow the deepest column, so bars always start under the last box.
+  var MAX_ROW = Math.max.apply(null, K.nodes.filter(function (n) { return n.column; }).map(function (n) { return n.row; }));
+  var COL_H = MAX_ROW * PITCH + NODE_H + 38, BAR_START = COL_TOP - 12 + COL_H + 24;
   var TYPE = { EXT: "Source", ING: "Ingest tool", STORE: "Store", PROC: "Process tool", SERVE: "Serve tool", ENR: "Enrich tool",
     SVC: "Reusable service", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
+  var BP_LANES = {};
   var byId = {}, colX = {}, boxFn = {}, fnById = {}, unitById = {}, phaseById = {};
   K.nodes.forEach(function (n) { byId[n.id] = n; });
   K.boxes.forEach(function (b) { boxFn[b.id] = b.fn; });
@@ -48,7 +52,7 @@
       b = { x: c.slots[idx], y: TOP_Y, w: c.nodeW, h: NODE_H };
     } else {
       var mem = K.nodes.filter(function (m) { return m.bar === n.bar; }), slot = (BAR_R - BAR_L - 24) / mem.length;
-      var w = Math.min(Math.round(slot - 12), 210), i = mem.indexOf(n);
+      var w = Math.min(Math.round(slot - 12), 230), i = mem.indexOf(n);
       b = { x: Math.round(BAR_L + 12 + i * slot + (slot - w) / 2), y: barTop(n.bar) + 26, w: w, h: NODE_H };
     }
     b.r = b.x + b.w; b.b = b.y + b.h; b.cx = b.x + b.w / 2; b.cy = b.y + b.h / 2;
@@ -92,7 +96,7 @@
   function titlesOf(ids) { return ids.filter(function (id) { return byId[id]; }).map(function (id) { return byId[id].title; }); }
   function ariaLabel(n) {
     var parts = [(TYPE[n.tag] || n.tag) + ": " + n.title + " (" + n.subtitle + ").", "Phase " + phaseById[n.phase].label + ".",
-      K.statuses[n.status].word + ".", "Owner " + n.unit + "."];
+      K.statuses[n.status].word + ".", "Owner " + n.unit + (n.ownerTentative ? " (tentative, not confirmed)" : "") + "."];
     var up = titlesOf(n.upstream), down = titlesOf(n.downstream);
     if (up.length) parts.push("From " + up.join(", ") + ".");
     if (down.length) parts.push("To " + down.join(", ") + ".");
@@ -108,23 +112,39 @@
       return { pts: [[a.cx, a.y], [a.cx, f.b]], lx: a.cx + 6, ly: (a.y + f.b) / 2, side: true };
     }
     var b = boxes[e.to], na = byId[e.from], nb = byId[e.to];
+    if (na.bar && na.bar === nb.bar) {
+      // Inside one bar: run along the strip under the boxes, one lane per edge so lines never stack.
+      var k = (BP_LANES[na.bar] = (BP_LANES[na.bar] || 0) + 1), ly0 = a.b + 12 * k;
+      return { pts: [[a.cx, a.b], [a.cx, ly0], [b.cx, ly0], [b.cx, b.b]], lx: (a.cx + b.cx) / 2, ly: ly0 };
+    }
+    if ((na.bar && nb.column) || (na.column && nb.bar)) {
+      // Column <-> bar: column gap lane on the left of the column box, then the strip above the bar boxes.
+      var cb = na.column ? a : b, bb = na.column ? b : a, cl = cb.x - 14, sy = barTop((na.bar || nb.bar)) + 14;
+      var pp = [[cb.x, cb.cy], [cl, cb.cy], [cl, sy], [bb.cx, sy], [bb.cx, bb.y]];
+      if (na.bar) pp.reverse();
+      return { pts: pp, lx: (cl + bb.cx) / 2, ly: sy };
+    }
     if (na.column && na.column === nb.column) {
       var down = b.y > a.y, p = down ? [[a.cx, a.b], [a.cx, b.y]] : [[a.cx, a.y], [a.cx, b.b]];
       return { pts: p, lx: a.cx + 6, ly: (p[0][1] + p[1][1]) / 2, side: true };
     }
-    if (Math.abs(a.cy - b.cy) < 1) {
+    // Same row: straight line only between neighbouring columns; skipping a column uses the row-gap route below so it never crosses a box.
+    if (Math.abs(a.cy - b.cy) < 1 && (b.x > a.r ? b.x - a.r : a.x - b.r) < 120) {
       var fwd = b.x > a.x, s = fwd ? [[a.r, a.cy], [b.x, b.cy]] : [[a.x, a.cy], [b.r, b.cy]];
       return { pts: s, lx: (s[0][0] + s[1][0]) / 2, ly: a.cy };
     }
     var dir = b.cy > a.cy ? 1 : -1, ya = a.cy + 18 * dir, yb = b.cy - 18 * dir, lane;
     if (b.x > a.r) {
-      var adjacent = b.x - a.r < 100;
-      lane = adjacent ? a.r + 22 : b.x - 22;
-      return { pts: [[a.r, ya], [lane, ya], [lane, yb], [b.x, yb]],
-        lx: adjacent ? (lane + b.x) / 2 : (a.r + lane) / 2, ly: adjacent ? yb : ya };
+      if (b.x - a.r < 120) {
+        lane = (a.r + b.x) / 2; // labels sit on the vertical, centred in the gap between columns
+        return { pts: [[a.r, ya], [lane, ya], [lane, yb], [b.x, yb]], lx: lane, ly: dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2 };
+      }
+      // Skips a column: drop into the gap between rows next to the target so the line never runs under a box.
+      var gy = dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2, l1 = a.r + 22, l2 = b.x - 22;
+      return { pts: [[a.r, ya], [l1, ya], [l1, gy], [l2, gy], [l2, yb], [b.x, yb]], lx: (l1 + l2) / 2, ly: gy };
     }
-    lane = a.x - 22;
-    return { pts: [[a.x, ya], [lane, ya], [lane, yb], [b.r, yb]], lx: (lane + b.r) / 2, ly: yb };
+    lane = (a.x + b.r) / 2;
+    return { pts: [[a.x, ya], [lane, ya], [lane, yb], [b.r, yb]], lx: lane, ly: dir > 0 ? b.y - (PITCH - NODE_H) / 2 : b.b + (PITCH - NODE_H) / 2 };
   }
   function pathD(pts) {
     var d = "M" + pts[0][0] + " " + pts[0][1], r = 6;
@@ -138,6 +158,7 @@
   }
   function edgesSvg() {
     var seen = {};
+    BP_LANES = {};
     return K.edges.map(function (e) {
       var g = route(e), na = byId[e.from], nb = byId[e.to];
       var dim = isDim(na) || (nb && isDim(nb));
@@ -162,7 +183,7 @@
   /* ---- Frames: columns, side containers, full-width bars ---- */
   function framesHtml() {
     // Column captions sit on the bottom edge so connectors entering from above never cross them.
-    var h = "", colH = 4 * PITCH + NODE_H + 38;
+    var h = "", colH = COL_H;
     K.columns.forEach(function (c) {
       h += '<div class="map-container bp-col cap-bottom" aria-hidden="true" style="left:' + (colX[c.id] - 10) + "px;top:" + (COL_TOP - 12) + "px;width:" + (NODE_W + 20) + "px;height:" + colH +
         'px"><span class="map-container-cap">' + c.step + " · " + esc(c.label) + "</span></div>";
@@ -186,7 +207,7 @@
     return '<button type="button" class="' + cls + '" id="bp-node-' + n.id + '" data-node="' + n.id + '" aria-controls="map-drawer" aria-expanded="' +
       (state.node === n.id) + '" aria-label="' + esc(ariaLabel(n)) + '" style="left:' + b.x + "px;top:" + b.y + "px;width:" + b.w + "px;height:" + b.h + "px" +
       (col ? ";border-left:5px solid " + col : "") + '">' +
-      '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span></span>" +
+      '<span class="bp-top"><span class="map-tag">' + esc(n.tag) + '</span><span class="bp-chip">' + esc(chipText(n)) + "</span>" + (n.ownerTentative ? '<span class="bp-chip bp-owner-tbc" title="Owner not confirmed">Tentative</span>' : "") + "</span>" +
       '<span class="map-title">' + esc(n.title) + '</span><span class="map-sub bp-sub">' + esc(n.subtitle) + "</span>" +
       '<span class="bp-badges">' + phaseHtml(n) + statusHtml(n.status) +
       (n.flag ? '<span class="bp-flag" title="' + esc(n.flag.reason) + '">' + esc(n.flag.label) + "</span>" : "") + "</span></button>";
@@ -237,4 +258,45 @@
     esc: esc, statusHtml: statusHtml, phaseHtml: phaseHtml, isDim: isDim, typeName: function (t) { return TYPE[t] || t; },
     order: order, render: render, writeHash: writeHash, readState: readState, chipText: chipText
   };
+})();
+
+/* Full screen: canvas zoomed to fit the viewport (width and height); Esc or the button exits to native scale. */
+(function () {
+  var wrap = document.getElementById("bp-scroll"), fsBtn = document.getElementById("bp-fullscreen");
+  if (!wrap || !fsBtn) return;
+  var exitBtn = null;
+  function canvas() { return document.getElementById("bp-canvas"); }
+  function isFs() { return document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap || wrap.classList.contains("is-fs-fallback"); }
+  function applyFit() {
+    var c = canvas(); if (!c) return;
+    if (!isFs()) { c.style.zoom = ""; c.style.marginLeft = ""; return; }
+    var cw = parseFloat(c.style.width) || c.offsetWidth, ch = parseFloat(c.style.height) || c.offsetHeight;
+    var vw = wrap.clientWidth, vh = wrap.clientHeight, s = Math.floor(Math.min(vw / cw, vh / ch) * 1000) / 1000;
+    c.style.zoom = String(s); /* zoom (not transform) so the scaled canvas also shrinks its layout box: no scrollbars */
+    c.style.marginLeft = Math.max(0, (vw - cw * s) / 2 / s) + "px";
+  }
+  function syncFs() {
+    var on = isFs(); wrap.classList.toggle("is-fs", on);
+    fsBtn.setAttribute("aria-pressed", String(on)); fsBtn.textContent = on ? "Exit full screen" : "Full screen";
+    if (on && !exitBtn) {
+      exitBtn = document.createElement("button"); exitBtn.type = "button"; exitBtn.id = "bp-fs-exit"; exitBtn.className = "chip-btn solo bp-fs-exit"; exitBtn.textContent = "Exit full screen (Esc)";
+      exitBtn.addEventListener("click", exitFs); wrap.appendChild(exitBtn);
+    } else if (!on && exitBtn) { exitBtn.remove(); exitBtn = null; }
+    applyFit();
+  }
+  function fallback() { wrap.classList.add("is-fs-fallback"); syncFs(); }
+  function exitFs() {
+    if (wrap.classList.contains("is-fs-fallback")) { wrap.classList.remove("is-fs-fallback"); syncFs(); return; }
+    var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document);
+  }
+  fsBtn.addEventListener("click", function () {
+    if (isFs()) return exitFs();
+    var req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
+    if (!req) return fallback();
+    try { var r = req.call(wrap); if (r && r.catch) r.catch(fallback); } catch (e) { fallback(); }
+  });
+  document.addEventListener("fullscreenchange", syncFs);
+  document.addEventListener("webkitfullscreenchange", syncFs);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && wrap.classList.contains("is-fs-fallback")) exitFs(); });
+  window.addEventListener("resize", applyFit);
 })();

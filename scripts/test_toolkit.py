@@ -47,7 +47,7 @@ class BlueprintManifestTests(unittest.TestCase):
         self.assertTrue(all(t["status"] in ("planned", "prov", "live") for t in self.manifest["tools"]))
 
     def test_layout_columns_bars_containers(self):
-        self.assertEqual([c["label"] for c in self.manifest["columns"]], ["Sources", "Ingest", "Store", "Process", "Serve", "Enrich"])
+        self.assertEqual([c["label"] for c in self.manifest["columns"]], ["Sources", "Ingest", "Store", "Process", "Enrich", "Serve"])
         self.assertEqual([b["label"] for b in self.manifest["bars"]], ["Governance", "Monitoring", "Platform"])
         self.assertEqual([c["label"] for c in self.manifest["containers"]], ["Reusable services", "Platform Portal"])
 
