@@ -51,7 +51,8 @@ window.PORTAL = window.PORTAL || {};
       { ownerTag: "mmah", caption: "MMAH thin landing" },
       { ownerTag: "cluster", caption: "Cluster / enterprise shared services", capPos: "bottom" }, // caption below: connectors enter from the top
       { ownerTag: "external", caption: "External" },
-      { ownerTag: "analytics", caption: "Modeling and data science", capPos: "bottom" },
+      { ownerTag: "process", caption: "Process · modeling", capPos: "bottom" },
+      { ownerTag: "analytics", caption: "Data science", capPos: "bottom" },
       { ownerTag: "governance", caption: "Governance and monitoring · applies to every step" },
       { ownerTag: "setup", caption: "Platform setup", overlay: "setup" },
       { ownerTag: "releases", caption: "Releases and gates · promotion lane · Sample statuses, not real infrastructure", overlay: "releases" }
@@ -211,7 +212,7 @@ window.PORTAL = window.PORTAL || {};
 
   N.push({
     id: "modeling", step: "05a", tag: "PIPE", kind: "pipe", title: "Data modeling", subtitle: "dimensional · star schema",
-    ownerTag: "analytics", products: ["mpd", "hh"], x: 1262, y: 308,
+    ownerTag: "process", products: ["mpd", "hh"], x: 1262, y: 308,
     status: st("tbd", "Planned"),
     summary: "Builds the conformed dimensions and facts each mart needs, so measures are defined once.",
     owner: "Analytics team (role)",

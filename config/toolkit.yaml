@@ -691,11 +691,11 @@ tools:
     home_node: gold
 
   - id: p-dimmodel
-    tag: ENR
+    tag: PROC
     title: Data modeling
     subtitle: dimensional · star schema
-    column: enr
-    row: 0
+    column: proc
+    row: 2
     branch_boxes: [integ, xform]
     owning_unit: SDGU-E
     owner_tentative: true

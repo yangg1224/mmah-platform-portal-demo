@@ -1232,11 +1232,11 @@ PORTAL.toolkit = {
   },
   {
    "id": "p-dimmodel",
-   "tag": "ENR",
+   "tag": "PROC",
    "title": "Data modeling",
    "subtitle": "dimensional · star schema",
-   "column": "enr",
-   "row": 0,
+   "column": "proc",
+   "row": 2,
    "branchBoxes": [
     "integ",
     "xform"
