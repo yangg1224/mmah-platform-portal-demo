@@ -74,6 +74,11 @@ PORTAL.toolkit = {
  ],
  "bars": [
   {
+   "id": "meta",
+   "label": "Metadata management",
+   "tag": "META"
+  },
+  {
    "id": "gov",
    "label": "Governance",
    "tag": "GOV"
@@ -824,7 +829,8 @@ PORTAL.toolkit = {
     "i-gw"
    ],
    "downstream": [
-    "st-bronze"
+    "st-bronze",
+    "md-gate"
    ],
    "homeNode": "bronze",
    "deeper": [],
@@ -916,7 +922,8 @@ PORTAL.toolkit = {
    ],
    "upstream": [
     "i-portal",
-    "i-adf"
+    "i-adf",
+    "md-gate"
    ],
    "downstream": [
     "st-silver",
@@ -1651,7 +1658,8 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-gold"
+    "st-gold",
+    "md-registry"
    ],
    "downstream": [],
    "homeNode": "catalogue",
@@ -1976,11 +1984,197 @@ PORTAL.toolkit = {
    ]
   },
   {
+   "id": "md-registry",
+   "tag": "META",
+   "title": "Metadata registry",
+   "subtitle": "dataset_config · rules_dictionary · execution_state · run_audit · dq_flags",
+   "bar": "meta",
+   "branchBoxes": [
+    "dict",
+    "cls",
+    "std"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Internal registry in the lakehouse meta schema: dataset_config (owner, steward, classification, template version), rules_dictionary (column mappings and business rules), execution_state (load watermarks), run_audit (every run, by stage) and dq_flags (rows that failed a rule, with the rule id).",
+   "why": "Ingestion reads its settings from here, so a new dataset is a registry row, not new code. It exports to the Ontario Data Catalogue; it is not a second catalogue.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [
+    "md-gate",
+    "sv-odc"
+   ],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P3",
+    "P4"
+   ]
+  },
+  {
+   "id": "md-gate",
+   "tag": "META",
+   "title": "Register-before-Bronze gate",
+   "subtitle": "nothing unregistered lands",
+   "bar": "meta",
+   "branchBoxes": [
+    "ingest",
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Runs before every load. Blocks the load and writes run_audit if the dataset is not registered, not enabled or not documented, has no owner or classification, has no rules_dictionary rows, or the file template version does not match.",
+   "why": "Nothing reaches Bronze until it is registered and documented.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [
+    "i-adf",
+    "md-registry"
+   ],
+   "downstream": [
+    "st-bronze"
+   ],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P1",
+    "P3"
+   ]
+  },
+  {
+   "id": "md-lineage",
+   "tag": "META",
+   "title": "Lineage capture",
+   "subtitle": "table-level lineage",
+   "bar": "meta",
+   "branchBoxes": [
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Records where each Silver and Gold table came from, from source file to report.",
+   "why": "Tool not chosen yet; candidates are an open question.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "Open question 3",
+     "href": "#open-questions"
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Tool not chosen",
+    "dashed": true
+   },
+   "fixes": []
+  },
+  {
+   "id": "md-mdm",
+   "tag": "META",
+   "title": "Master data management",
+   "subtitle": "shared golden records",
+   "bar": "meta",
+   "branchBoxes": [
+    "mdm"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "future",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "One agreed record per shared entity across units. Until then, the municipality reference table and matching service cover the one master entity.",
+   "why": "Later phase, when more than one master entity is shared.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": []
+  },
+  {
    "id": "g-catalog",
-   "tag": "GOV",
+   "tag": "META",
    "title": "Glossary & catalogue",
    "subtitle": "one meaning per term",
-   "bar": "gov",
+   "bar": "meta",
    "branchBoxes": [
     "dict",
     "council"
@@ -2939,6 +3133,24 @@ PORTAL.toolkit = {
   }
  ],
  "edges": [
+  {
+   "from": "i-adf",
+   "to": "md-gate",
+   "type": "gate",
+   "label": "check"
+  },
+  {
+   "from": "md-registry",
+   "to": "sv-odc",
+   "type": "request",
+   "label": "export"
+  },
+  {
+   "from": "md-gate",
+   "to": "st-bronze",
+   "type": "gate",
+   "label": "registered only"
+  },
   {
    "from": "s-mpac",
    "to": "i-adf",

@@ -63,7 +63,7 @@ ALLOWED_BRANCH_BOXES = {
     "projmgmt": ("band", "Analytics Project Management"),
     "change": ("band", "Data & Analytics Change Management"),
 }
-TAGS = {"EXT", "ING", "STORE", "PROC", "SERVE", "ENR", "SVC", "GOV", "MON", "PLAT", "PORTAL"}
+TAGS = {"EXT", "ING", "STORE", "PROC", "SERVE", "ENR", "SVC", "META", "GOV", "MON", "PLAT", "PORTAL"}
 REQUIRED = ("id", "tag", "title", "subtitle", "branch_boxes", "owning_unit", "phase", "status",
             "status_source", "status_by_env", "summary", "why", "iac", "docs")
 ENV_STATUSES = {"planned", "prov", "live", "na"}

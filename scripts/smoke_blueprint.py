@@ -97,11 +97,16 @@ def smoke(base, shots):
           return {colBottom:Math.max(...cols.map(b=>b.bottom)), barTops:bars.map(b=>b.top), barW:bars.map(b=>b.width),
                   colSpan:Math.max(...cols.map(b=>b.right))-Math.min(...cols.map(b=>b.left)), n:bars.length,
                   barText:[...document.querySelectorAll('.bp-bar .map-container-cap')].map(e=>e.innerText)}})()""")
-        ok(geo["n"] == 3 and all(t >= geo["colBottom"] for t in geo["barTops"]) and all(w >= geo["colSpan"] - 2 for w in geo["barW"]),
-           f"TKT-1 three full-width bars under the columns {geo}")
+        ok(geo["n"] == 4 and all(t >= geo["colBottom"] for t in geo["barTops"]) and all(w >= geo["colSpan"] - 2 for w in geo["barW"]),
+           f"TKT-1 four full-width bars under the columns {geo}")
         sides = page.eval_on_selector_all(".bp-side .map-container-cap", "els=>els.map(e=>e.textContent)")
         ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
         store = page.inner_text("#bp-canvas")
+        meta = page.eval_on_selector_all(".bp-bar .map-container-cap", "els=>els.map(e=>e.textContent)")
+        ok(meta[:1] and meta[0].startswith("Metadata management") and all(page.locator("#bp-node-" + i).count() == 1 for i in ("md-registry", "md-gate", "md-lineage", "md-mdm", "g-catalog"))
+           and page.locator("#bp-node-md-lineage.is-tentative").count() == 1
+           and "Purview" not in page.inner_text("#bp-node-md-lineage"),
+           "TKT-23 Metadata management bar with registry, gate, lineage (Tentative, no tool named), MDM and the moved glossary")
         ok(all(w in store for w in ("Bronze", "Silver", "Gold")) and page.locator("#bp-node-st-ref").count() == 1, "TKT-1 Store lakehouses + reference table")
 
         # TKT-22: no truncation, no box/label overlaps at desktop, laptop and phone widths.

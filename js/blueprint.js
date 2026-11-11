@@ -13,7 +13,7 @@
   var MAX_ROW = Math.max.apply(null, K.nodes.filter(function (n) { return n.column; }).map(function (n) { return n.row; }));
   var COL_H = MAX_ROW * PITCH + NODE_H + 38, BAR_START = COL_TOP - 12 + COL_H + 24;
   var TYPE = { EXT: "Source", ING: "Ingest tool", STORE: "Store", PROC: "Process tool", SERVE: "Serve tool", ENR: "Enrich tool",
-    SVC: "Reusable service", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
+    SVC: "Reusable service", META: "Metadata tool", GOV: "Governance tool", MON: "Monitoring tool", PLAT: "Platform tool", PORTAL: "Platform Portal" };
   var BP_LANES = {};
   var byId = {}, colX = {}, boxFn = {}, fnById = {}, unitById = {}, phaseById = {};
   K.nodes.forEach(function (n) { byId[n.id] = n; });

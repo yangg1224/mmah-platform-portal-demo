@@ -48,7 +48,7 @@ class BlueprintManifestTests(unittest.TestCase):
 
     def test_layout_columns_bars_containers(self):
         self.assertEqual([c["label"] for c in self.manifest["columns"]], ["Sources", "Ingest", "Store", "Process", "Enrich", "Serve"])
-        self.assertEqual([b["label"] for b in self.manifest["bars"]], ["Governance", "Monitoring", "Platform"])
+        self.assertEqual([b["label"] for b in self.manifest["bars"]], ["Metadata management", "Governance", "Monitoring", "Platform"])
         self.assertEqual([c["label"] for c in self.manifest["containers"]], ["Reusable services", "Platform Portal"])
 
     def test_banner_and_considered(self):
