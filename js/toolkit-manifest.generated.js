@@ -829,7 +829,8 @@ PORTAL.toolkit = {
     "i-gw"
    ],
    "downstream": [
-    "st-bronze"
+    "st-bronze",
+    "md-gate"
    ],
    "homeNode": "bronze",
    "deeper": [],
@@ -921,7 +922,8 @@ PORTAL.toolkit = {
    ],
    "upstream": [
     "i-portal",
-    "i-adf"
+    "i-adf",
+    "md-gate"
    ],
    "downstream": [
     "st-silver",
@@ -1656,7 +1658,8 @@ PORTAL.toolkit = {
     }
    ],
    "upstream": [
-    "st-gold"
+    "st-gold",
+    "md-registry"
    ],
    "downstream": [],
    "homeNode": "catalogue",
@@ -1983,12 +1986,13 @@ PORTAL.toolkit = {
   {
    "id": "md-registry",
    "tag": "META",
-   "title": "Dataset registry",
-   "subtitle": "meta.dataset_config",
+   "title": "Metadata registry",
+   "subtitle": "dataset_config · rules_dictionary · execution_state · run_audit · dq_flags",
    "bar": "meta",
    "branchBoxes": [
     "dict",
-    "cls"
+    "cls",
+    "std"
    ],
    "unit": "SDGU-G",
    "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
@@ -2001,64 +2005,29 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "One row per dataset: owner, steward, classification and template version.",
-   "why": "Ingestion reads its settings from here, so a new dataset is a registry row, not new code.",
+   "summary": "Internal registry in the lakehouse meta schema: dataset_config (owner, steward, classification, template version), rules_dictionary (column mappings and business rules), execution_state (load watermarks), run_audit (every run, by stage) and dq_flags (rows that failed a rule, with the rule id).",
+   "why": "Ingestion reads its settings from here, so a new dataset is a registry row, not new code. It exports to the Ontario Data Catalogue; it is not a second catalogue.",
    "iac": "tbd",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
      "href": null
-    }
-   ],
-   "upstream": [],
-   "downstream": [
-    "md-gate"
-   ],
-   "homeNode": null,
-   "deeper": [],
-   "statusNote": "",
-   "fixes": [
-    "P3"
-   ]
-  },
-  {
-   "id": "md-rules",
-   "tag": "META",
-   "title": "Rules dictionary",
-   "subtitle": "meta.rules_dictionary",
-   "bar": "meta",
-   "branchBoxes": [
-    "std",
-    "dict"
-   ],
-   "unit": "SDGU-G",
-   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
-   "phase": "v1",
-   "status": "planned",
-   "statusSource": "manifest only (no adapter has found it yet)",
-   "statusByEnv": [
-    "p",
-    "p",
-    "p",
-    "p"
-   ],
-   "summary": "Column mappings and business rules for each dataset, kept as config.",
-   "why": "Cleaning and checks read the same rules, so one change applies everywhere.",
-   "iac": "tbd",
-   "docs": [
+    },
     {
-     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
      "href": null
     }
    ],
    "upstream": [],
    "downstream": [
-    "p-dq"
+    "md-gate",
+    "sv-odc"
    ],
    "homeNode": null,
    "deeper": [],
    "statusNote": "",
    "fixes": [
+    "P3",
     "P4"
    ]
   },
@@ -2083,16 +2052,21 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Checks the dataset registry before a load; an unregistered or undocumented dataset stops here.",
-   "why": "Nothing reaches Bronze until it has an owner, a classification and a data dictionary entry.",
+   "summary": "Runs before every load. Blocks the load and writes run_audit if the dataset is not registered, not enabled or not documented, has no owner or classification, has no rules_dictionary rows, or the file template version does not match.",
+   "why": "Nothing reaches Bronze until it is registered and documented.",
    "iac": "tbd",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
      "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
     }
    ],
    "upstream": [
+    "i-adf",
     "md-registry"
    ],
    "downstream": [
@@ -2107,86 +2081,10 @@ PORTAL.toolkit = {
    ]
   },
   {
-   "id": "md-runlog",
-   "tag": "META",
-   "title": "Run state and audit",
-   "subtitle": "meta.execution_state · run_audit",
-   "bar": "meta",
-   "branchBoxes": [
-    "ingest",
-    "dqm"
-   ],
-   "unit": "SDGU-G",
-   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
-   "phase": "v1",
-   "status": "planned",
-   "statusSource": "manifest only (no adapter has found it yet)",
-   "statusByEnv": [
-    "p",
-    "p",
-    "p",
-    "p"
-   ],
-   "summary": "Load watermarks for incremental runs and a record of every run.",
-   "why": "Reruns pick up where they stopped, and every load can be traced to a run.",
-   "iac": "tbd",
-   "docs": [
-    {
-     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
-     "href": null
-    }
-   ],
-   "upstream": [],
-   "downstream": [],
-   "homeNode": null,
-   "deeper": [],
-   "statusNote": "",
-   "fixes": []
-  },
-  {
-   "id": "md-dqflags",
-   "tag": "META",
-   "title": "DQ flags",
-   "subtitle": "meta.dq_flags",
-   "bar": "meta",
-   "branchBoxes": [
-    "dqp",
-    "dqm"
-   ],
-   "unit": "SDGU-G",
-   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
-   "phase": "v1",
-   "status": "planned",
-   "statusSource": "manifest only (no adapter has found it yet)",
-   "statusByEnv": [
-    "p",
-    "p",
-    "p",
-    "p"
-   ],
-   "summary": "Rows that failed a rule, with the rule id.",
-   "why": "Stewards fix the source instead of the pipeline hiding bad rows.",
-   "iac": "tbd",
-   "docs": [
-    {
-     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
-     "href": null
-    }
-   ],
-   "upstream": [
-    "p-dq"
-   ],
-   "downstream": [],
-   "homeNode": null,
-   "deeper": [],
-   "statusNote": "",
-   "fixes": []
-  },
-  {
    "id": "md-lineage",
    "tag": "META",
    "title": "Lineage capture",
-   "subtitle": "OneLake catalog · Purview?",
+   "subtitle": "table-level lineage",
    "bar": "meta",
    "branchBoxes": [
     "dict"
@@ -2202,13 +2100,21 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Table-level lineage from the platform catalogue, with Purview Data Map as a candidate.",
-   "why": "Shows where each Gold table came from; Purview is a candidate, not a given.",
+   "summary": "Records where each Silver and Gold table came from, from source file to report.",
+   "why": "Tool not chosen yet; candidates are an open question.",
    "iac": "tbd",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
      "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "Open question 3",
+     "href": "#open-questions"
     }
    ],
    "upstream": [],
@@ -2218,7 +2124,7 @@ PORTAL.toolkit = {
    "statusNote": "",
    "flag": {
     "label": "Tentative",
-    "reason": "Purview not confirmed",
+    "reason": "Tool not chosen",
     "dashed": true
    },
    "fixes": []
@@ -2227,7 +2133,7 @@ PORTAL.toolkit = {
    "id": "md-mdm",
    "tag": "META",
    "title": "Master data management",
-   "subtitle": "golden records",
+   "subtitle": "shared golden records",
    "bar": "meta",
    "branchBoxes": [
     "mdm"
@@ -2243,12 +2149,16 @@ PORTAL.toolkit = {
     "p",
     "p"
    ],
-   "summary": "Shared golden records for reference entities such as municipalities.",
-   "why": "One agreed record per entity across units; later phase.",
+   "summary": "One agreed record per shared entity across units. Until then, the municipality reference table and matching service cover the one master entity.",
+   "why": "Later phase, when more than one master entity is shared.",
    "iac": "tbd",
    "docs": [
     {
      "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    },
+    {
+     "label": "MPDR pipeline walkthrough (04_ddl_control_tables.sql, 05_gate_check.py; internal · not in this demo)",
      "href": null
     }
    ],
@@ -3223,6 +3133,18 @@ PORTAL.toolkit = {
   }
  ],
  "edges": [
+  {
+   "from": "i-adf",
+   "to": "md-gate",
+   "type": "gate",
+   "label": "check"
+  },
+  {
+   "from": "md-registry",
+   "to": "sv-odc",
+   "type": "request",
+   "label": "export"
+  },
   {
    "from": "md-gate",
    "to": "st-bronze",

@@ -243,7 +243,10 @@ window.PORTAL = window.PORTAL || {};
     lastRun: NA,
     dq: NA,
     rules: TBD,
-    links: [{ label: "Platform blueprint: Glossary & catalogue", href: "pages/blueprint.html#node=g-catalog" }]
+    links: [{ label: "Platform blueprint: Glossary & catalogue", href: "pages/blueprint.html#node=g-catalog" },
+      { label: "Platform blueprint: Metadata registry", href: "pages/blueprint.html#node=md-registry" },
+      { label: "Platform blueprint: Lineage capture (Data Dictionary & Lineage)", href: "pages/blueprint.html#node=md-lineage" },
+      { label: "Platform blueprint: Master data management", href: "pages/blueprint.html#node=md-mdm" }]
   });
 
   N.push({

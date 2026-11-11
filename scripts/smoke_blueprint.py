@@ -102,6 +102,11 @@ def smoke(base, shots):
         sides = page.eval_on_selector_all(".bp-side .map-container-cap", "els=>els.map(e=>e.textContent)")
         ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
         store = page.inner_text("#bp-canvas")
+        meta = page.eval_on_selector_all(".bp-bar .map-container-cap", "els=>els.map(e=>e.textContent)")
+        ok(meta[:1] and meta[0].startswith("Metadata management") and all(page.locator("#bp-node-" + i).count() == 1 for i in ("md-registry", "md-gate", "md-lineage", "md-mdm", "g-catalog"))
+           and page.locator("#bp-node-md-lineage.is-tentative").count() == 1
+           and "Purview" not in page.inner_text("#bp-node-md-lineage"),
+           "TKT-23 Metadata management bar with registry, gate, lineage (Tentative, no tool named), MDM and the moved glossary")
         ok(all(w in store for w in ("Bronze", "Silver", "Gold")) and page.locator("#bp-node-st-ref").count() == 1, "TKT-1 Store lakehouses + reference table")
 
         # TKT-22: no truncation, no box/label overlaps at desktop, laptop and phone widths.
