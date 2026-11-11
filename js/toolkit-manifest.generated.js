@@ -74,6 +74,11 @@ PORTAL.toolkit = {
  ],
  "bars": [
   {
+   "id": "meta",
+   "label": "Metadata management",
+   "tag": "META"
+  },
+  {
    "id": "gov",
    "label": "Governance",
    "tag": "GOV"
@@ -1976,11 +1981,290 @@ PORTAL.toolkit = {
    ]
   },
   {
+   "id": "md-registry",
+   "tag": "META",
+   "title": "Dataset registry",
+   "subtitle": "meta.dataset_config",
+   "bar": "meta",
+   "branchBoxes": [
+    "dict",
+    "cls"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "One row per dataset: owner, steward, classification and template version.",
+   "why": "Ingestion reads its settings from here, so a new dataset is a registry row, not new code.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [
+    "md-gate"
+   ],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P3"
+   ]
+  },
+  {
+   "id": "md-rules",
+   "tag": "META",
+   "title": "Rules dictionary",
+   "subtitle": "meta.rules_dictionary",
+   "bar": "meta",
+   "branchBoxes": [
+    "std",
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Column mappings and business rules for each dataset, kept as config.",
+   "why": "Cleaning and checks read the same rules, so one change applies everywhere.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [
+    "p-dq"
+   ],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P4"
+   ]
+  },
+  {
+   "id": "md-gate",
+   "tag": "META",
+   "title": "Register-before-Bronze gate",
+   "subtitle": "nothing unregistered lands",
+   "bar": "meta",
+   "branchBoxes": [
+    "ingest",
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Checks the dataset registry before a load; an unregistered or undocumented dataset stops here.",
+   "why": "Nothing reaches Bronze until it has an owner, a classification and a data dictionary entry.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [
+    "md-registry"
+   ],
+   "downstream": [
+    "st-bronze"
+   ],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": [
+    "P1",
+    "P3"
+   ]
+  },
+  {
+   "id": "md-runlog",
+   "tag": "META",
+   "title": "Run state and audit",
+   "subtitle": "meta.execution_state · run_audit",
+   "bar": "meta",
+   "branchBoxes": [
+    "ingest",
+    "dqm"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Load watermarks for incremental runs and a record of every run.",
+   "why": "Reruns pick up where they stopped, and every load can be traced to a run.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": []
+  },
+  {
+   "id": "md-dqflags",
+   "tag": "META",
+   "title": "DQ flags",
+   "subtitle": "meta.dq_flags",
+   "bar": "meta",
+   "branchBoxes": [
+    "dqp",
+    "dqm"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "v1",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Rows that failed a rule, with the rule id.",
+   "why": "Stewards fix the source instead of the pipeline hiding bad rows.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [
+    "p-dq"
+   ],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": []
+  },
+  {
+   "id": "md-lineage",
+   "tag": "META",
+   "title": "Lineage capture",
+   "subtitle": "OneLake catalog · Purview?",
+   "bar": "meta",
+   "branchBoxes": [
+    "dict"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "next",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Table-level lineage from the platform catalogue, with Purview Data Map as a candidate.",
+   "why": "Shows where each Gold table came from; Purview is a candidate, not a given.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "flag": {
+    "label": "Tentative",
+    "reason": "Purview not confirmed",
+    "dashed": true
+   },
+   "fixes": []
+  },
+  {
+   "id": "md-mdm",
+   "tag": "META",
+   "title": "Master data management",
+   "subtitle": "golden records",
+   "bar": "meta",
+   "branchBoxes": [
+    "mdm"
+   ],
+   "unit": "SDGU-G",
+   "owner": "SDGU-G (metadata), SDGU-E (pipeline use)",
+   "phase": "future",
+   "status": "planned",
+   "statusSource": "manifest only (no adapter has found it yet)",
+   "statusByEnv": [
+    "p",
+    "p",
+    "p",
+    "p"
+   ],
+   "summary": "Shared golden records for reference entities such as municipalities.",
+   "why": "One agreed record per entity across units; later phase.",
+   "iac": "tbd",
+   "docs": [
+    {
+     "label": "Ideal-state toolkit §2.10 (internal doc · not in this demo)",
+     "href": null
+    }
+   ],
+   "upstream": [],
+   "downstream": [],
+   "homeNode": null,
+   "deeper": [],
+   "statusNote": "",
+   "fixes": []
+  },
+  {
    "id": "g-catalog",
-   "tag": "GOV",
+   "tag": "META",
    "title": "Glossary & catalogue",
    "subtitle": "one meaning per term",
-   "bar": "gov",
+   "bar": "meta",
    "branchBoxes": [
     "dict",
     "council"
@@ -2939,6 +3223,12 @@ PORTAL.toolkit = {
   }
  ],
  "edges": [
+  {
+   "from": "md-gate",
+   "to": "st-bronze",
+   "type": "gate",
+   "label": "registered only"
+  },
   {
    "from": "s-mpac",
    "to": "i-adf",

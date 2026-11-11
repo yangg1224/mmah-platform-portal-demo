@@ -29,7 +29,7 @@
 
 .kind-store { background: #fff; border-color: var(--map-ink); }
 .kind-proc { background: #eceef1; border-color: #5d6672; }
-.kind-ing, .kind-serve, .kind-gov, .kind-mon, .kind-plat { background: #fff; border-color: #8a94a0; }
+.kind-ing, .kind-serve, .kind-meta, .kind-gov, .kind-mon, .kind-plat { background: #fff; border-color: #8a94a0; }
 .kind-portal, .kind-enr { background: #fff; border: 1px dashed #6b7480; }
 .lg-tool { background: #fff; border-color: #8a94a0; }
 

@@ -97,8 +97,8 @@ def smoke(base, shots):
           return {colBottom:Math.max(...cols.map(b=>b.bottom)), barTops:bars.map(b=>b.top), barW:bars.map(b=>b.width),
                   colSpan:Math.max(...cols.map(b=>b.right))-Math.min(...cols.map(b=>b.left)), n:bars.length,
                   barText:[...document.querySelectorAll('.bp-bar .map-container-cap')].map(e=>e.innerText)}})()""")
-        ok(geo["n"] == 3 and all(t >= geo["colBottom"] for t in geo["barTops"]) and all(w >= geo["colSpan"] - 2 for w in geo["barW"]),
-           f"TKT-1 three full-width bars under the columns {geo}")
+        ok(geo["n"] == 4 and all(t >= geo["colBottom"] for t in geo["barTops"]) and all(w >= geo["colSpan"] - 2 for w in geo["barW"]),
+           f"TKT-1 four full-width bars under the columns {geo}")
         sides = page.eval_on_selector_all(".bp-side .map-container-cap", "els=>els.map(e=>e.textContent)")
         ok(sides == ["Reusable services", "Platform Portal"], "TKT-1 side containers " + str(sides))
         store = page.inner_text("#bp-canvas")
